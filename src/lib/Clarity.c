@@ -26,15 +26,46 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
-#include "ClarityHeap.h"
+#include "Clarity.h"
+#include "ClarityEventLoop.h"
 
-typedef struct __Clarity Clarity;
-typedef void(*ClarityEventFunction)(Clarity *, void *);
+struct __Clarity {
+	ClarityHeap *heap;
+	ClarityEventLoop *eventLoop;
+};
 
-void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
-ClarityHeap *clarityGetHeap(Clarity *);
-Clarity *clarityCreate(ClarityEventFunction);
+ClarityHeap *clarityGetHeap(Clarity *clarity)
+{
+	return clarity->heap;
+}
 
-#endif
+void clarityPushEvent(Clarity *clarity,
+					  ClarityEventFunction function,
+					  void *data)
+{
+	clarityEventLoopPush(clarity->eventLoop, function, data);
+}
+
+static void destroy(ClarityHeap *heap, Clarity *clarity)
+{
+	clarityHeapRelease(heap, clarity->eventLoop);
+	clarityHeapRelease(heap, clarity->heap);
+}
+
+Clarity *clarityCreate(ClarityEventFunction entry)
+{
+	Clarity *clarity;
+	ClarityHeap *heap;
+
+	heap = clarityHeapCreate();
+	clarity = clarityHeapAllocate(heap,
+								  sizeof(Clarity),
+								  (ClarityHeapDestructor)destroy);
+
+	clarity->heap = clarityHeapRetain(heap, heap);
+	clarity->eventLoop = clarityEventLoopCreate(clarity, entry);
+	clarity->eventLoop = clarityHeapRetain(heap, clarity->eventLoop);
+	clarityEventLoopStart(clarity->eventLoop);
+	clarityHeapAutoRelease(heap, clarity);
+	return clarity;
+}

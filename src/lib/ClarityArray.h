@@ -26,15 +26,38 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
-#include "ClarityHeap.h"
+#ifndef __CLARITYARRAY_H__
+#define __CLARITYARRAY_H__
+#include "Clarity.h"
 
-typedef struct __Clarity Clarity;
-typedef void(*ClarityEventFunction)(Clarity *, void *);
+typedef struct __ClarityArray ClarityArray;
 
-void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
-ClarityHeap *clarityGetHeap(Clarity *);
-Clarity *clarityCreate(ClarityEventFunction);
+typedef void(*ClarityArrayForEachFunction)(void *,
+										   Uint32,
+										   ClarityArray *,
+										   Clarity *);
+
+typedef void *(*ClarityArrayMapFunction)(void *,
+										 Uint32,
+										 ClarityArray *,
+										 Clarity *);
+
+typedef Bool(*ClarityArrayTestFunction)(void *,
+										Uint32,
+										ClarityArray *,
+										Clarity *);
+
+ClarityArray *clarityArrayCreate(Clarity *);
+void clarityArrayPush(ClarityArray *, void *);
+void *clarityArrayPop(ClarityArray *);
+void clarityArrayUnshift(ClarityArray *, void *);
+void *clarityArrayShift(ClarityArray *);
+Uint32 clarityArrayLength(ClarityArray *);
+void clarityArrayForEach(ClarityArray *, ClarityArrayForEachFunction);
+ClarityArray *clarityArrayMap(ClarityArray *, ClarityArrayMapFunction);
+Bool clarityArrayEvery(ClarityArray *, ClarityArrayTestFunction);
+ClarityArray *clarityArrayFilter(ClarityArray *, ClarityArrayTestFunction);
+ClarityArray *clarityArrayConcat(ClarityArray *, ClarityArray *);
+ClarityArray *clarityArraySort(ClarityArray *);
 
 #endif

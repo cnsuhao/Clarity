@@ -26,15 +26,20 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
-#include "ClarityHeap.h"
+#ifndef __CLARITYTYPES_H__
+#define __CLARITYTYPES_H__
 
-typedef struct __Clarity Clarity;
-typedef void(*ClarityEventFunction)(Clarity *, void *);
+#define UNUSED(expr) do { (void)(expr); } while (0)
+#define TRUE 1
+#define FALSE 0
+#define NULL 0
 
-void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
-ClarityHeap *clarityGetHeap(Clarity *);
-Clarity *clarityCreate(ClarityEventFunction);
+typedef unsigned char Uint8;
+typedef signed char Sint8;
+typedef unsigned short Uint16;
+typedef signed short Sint16;
+typedef unsigned int Uint32;
+typedef signed int Sint32;
+typedef unsigned int Bool;
 
 #endif

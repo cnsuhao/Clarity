@@ -1,0 +1,323 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F72ABE07149C6EBF00477DD7 /* Clarity.c in Sources */ = {isa = PBXBuildFile; fileRef = F72ABDF7149C6EBF00477DD7 /* Clarity.c */; };
+		F72ABE08149C6EBF00477DD7 /* Clarity.h in Headers */ = {isa = PBXBuildFile; fileRef = F72ABDF9149C6EBF00477DD7 /* Clarity.h */; };
+		F72ABE09149C6EBF00477DD7 /* ClarityArray.c in Sources */ = {isa = PBXBuildFile; fileRef = F72ABDFA149C6EBF00477DD7 /* ClarityArray.c */; };
+		F72ABE0A149C6EBF00477DD7 /* ClarityArray.h in Headers */ = {isa = PBXBuildFile; fileRef = F72ABDFB149C6EBF00477DD7 /* ClarityArray.h */; };
+		F72ABE0B149C6EBF00477DD7 /* ClarityDictionary.c in Sources */ = {isa = PBXBuildFile; fileRef = F72ABDFC149C6EBF00477DD7 /* ClarityDictionary.c */; };
+		F72ABE0C149C6EBF00477DD7 /* ClarityDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = F72ABDFD149C6EBF00477DD7 /* ClarityDictionary.h */; };
+		F72ABE0D149C6EBF00477DD7 /* ClarityEventLoop.c in Sources */ = {isa = PBXBuildFile; fileRef = F72ABDFE149C6EBF00477DD7 /* ClarityEventLoop.c */; };
+		F72ABE0E149C6EBF00477DD7 /* ClarityEventLoop.h in Headers */ = {isa = PBXBuildFile; fileRef = F72ABDFF149C6EBF00477DD7 /* ClarityEventLoop.h */; };
+		F72ABE0F149C6EBF00477DD7 /* ClarityHeap.c in Sources */ = {isa = PBXBuildFile; fileRef = F72ABE00149C6EBF00477DD7 /* ClarityHeap.c */; };
+		F72ABE10149C6EBF00477DD7 /* ClarityHeap.h in Headers */ = {isa = PBXBuildFile; fileRef = F72ABE01149C6EBF00477DD7 /* ClarityHeap.h */; };
+		F72ABE11149C6EBF00477DD7 /* ClarityTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = F72ABE02149C6EBF00477DD7 /* ClarityTypes.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		F72ABDEF149C6EAA00477DD7 /* libclarity.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libclarity.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F72ABDF7149C6EBF00477DD7 /* Clarity.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Clarity.c; sourceTree = "<group>"; };
+		F72ABDF9149C6EBF00477DD7 /* Clarity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clarity.h; sourceTree = "<group>"; };
+		F72ABDFA149C6EBF00477DD7 /* ClarityArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ClarityArray.c; sourceTree = "<group>"; };
+		F72ABDFB149C6EBF00477DD7 /* ClarityArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClarityArray.h; sourceTree = "<group>"; };
+		F72ABDFC149C6EBF00477DD7 /* ClarityDictionary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ClarityDictionary.c; sourceTree = "<group>"; };
+		F72ABDFD149C6EBF00477DD7 /* ClarityDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClarityDictionary.h; sourceTree = "<group>"; };
+		F72ABDFE149C6EBF00477DD7 /* ClarityEventLoop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ClarityEventLoop.c; sourceTree = "<group>"; };
+		F72ABDFF149C6EBF00477DD7 /* ClarityEventLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClarityEventLoop.h; sourceTree = "<group>"; };
+		F72ABE00149C6EBF00477DD7 /* ClarityHeap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ClarityHeap.c; sourceTree = "<group>"; };
+		F72ABE01149C6EBF00477DD7 /* ClarityHeap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClarityHeap.h; sourceTree = "<group>"; };
+		F72ABE02149C6EBF00477DD7 /* ClarityTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClarityTypes.h; sourceTree = "<group>"; };
+		F72ABE13149C93CC00477DD7 /* checkpatch.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; name = checkpatch.pl; path = ../checkpatch.pl; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F72ABDEC149C6EAA00477DD7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F72ABDE4149C6EAA00477DD7 = {
+			isa = PBXGroup;
+			children = (
+				F72ABE13149C93CC00477DD7 /* checkpatch.pl */,
+				F72ABDF6149C6EBF00477DD7 /* lib */,
+				F72ABDF0149C6EAA00477DD7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F72ABDF0149C6EAA00477DD7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F72ABDEF149C6EAA00477DD7 /* libclarity.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F72ABDF6149C6EBF00477DD7 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				F72ABDF7149C6EBF00477DD7 /* Clarity.c */,
+				F72ABDF9149C6EBF00477DD7 /* Clarity.h */,
+				F72ABDFA149C6EBF00477DD7 /* ClarityArray.c */,
+				F72ABDFB149C6EBF00477DD7 /* ClarityArray.h */,
+				F72ABDFC149C6EBF00477DD7 /* ClarityDictionary.c */,
+				F72ABDFD149C6EBF00477DD7 /* ClarityDictionary.h */,
+				F72ABDFE149C6EBF00477DD7 /* ClarityEventLoop.c */,
+				F72ABDFF149C6EBF00477DD7 /* ClarityEventLoop.h */,
+				F72ABE00149C6EBF00477DD7 /* ClarityHeap.c */,
+				F72ABE01149C6EBF00477DD7 /* ClarityHeap.h */,
+				F72ABE02149C6EBF00477DD7 /* ClarityTypes.h */,
+			);
+			name = lib;
+			path = ../src/lib;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		F72ABDED149C6EAA00477DD7 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F72ABE08149C6EBF00477DD7 /* Clarity.h in Headers */,
+				F72ABE0A149C6EBF00477DD7 /* ClarityArray.h in Headers */,
+				F72ABE0C149C6EBF00477DD7 /* ClarityDictionary.h in Headers */,
+				F72ABE0E149C6EBF00477DD7 /* ClarityEventLoop.h in Headers */,
+				F72ABE10149C6EBF00477DD7 /* ClarityHeap.h in Headers */,
+				F72ABE11149C6EBF00477DD7 /* ClarityTypes.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		F72ABDEE149C6EAA00477DD7 /* clarity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F72ABDF3149C6EAA00477DD7 /* Build configuration list for PBXNativeTarget "clarity" */;
+			buildPhases = (
+				F72ABDEB149C6EAA00477DD7 /* Sources */,
+				F72ABDEC149C6EAA00477DD7 /* Frameworks */,
+				F72ABDED149C6EAA00477DD7 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = clarity;
+			productName = clarity;
+			productReference = F72ABDEF149C6EAA00477DD7 /* libclarity.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F72ABDE6149C6EAA00477DD7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
+			buildConfigurationList = F72ABDE9149C6EAA00477DD7 /* Build configuration list for PBXProject "clarity" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = F72ABDE4149C6EAA00477DD7;
+			productRefGroup = F72ABDF0149C6EAA00477DD7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F72ABDEE149C6EAA00477DD7 /* clarity */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F72ABDEB149C6EAA00477DD7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F72ABE07149C6EBF00477DD7 /* Clarity.c in Sources */,
+				F72ABE09149C6EBF00477DD7 /* ClarityArray.c in Sources */,
+				F72ABE0B149C6EBF00477DD7 /* ClarityDictionary.c in Sources */,
+				F72ABE0D149C6EBF00477DD7 /* ClarityEventLoop.c in Sources */,
+				F72ABE0F149C6EBF00477DD7 /* ClarityHeap.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F72ABDF1149C6EAA00477DD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F72ABDF2149C6EAA00477DD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		F72ABDF4149C6EAA00477DD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu89;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INPUT_FILETYPE = sourcecode.c.c;
+				GCC_LINK_WITH_DYNAMIC_LIBRARIES = NO;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = iphoneos;
+				TEST_AFTER_BUILD = YES;
+			};
+			name = Debug;
+		};
+		F72ABDF5149C6EAA00477DD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu89;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INPUT_FILETYPE = sourcecode.c.c;
+				GCC_LINK_WITH_DYNAMIC_LIBRARIES = NO;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = iphoneos;
+				TEST_AFTER_BUILD = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F72ABDE9149C6EAA00477DD7 /* Build configuration list for PBXProject "clarity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F72ABDF1149C6EAA00477DD7 /* Debug */,
+				F72ABDF2149C6EAA00477DD7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F72ABDF3149C6EAA00477DD7 /* Build configuration list for PBXNativeTarget "clarity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F72ABDF4149C6EAA00477DD7 /* Debug */,
+				F72ABDF5149C6EAA00477DD7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F72ABDE6149C6EAA00477DD7 /* Project object */;
+}
