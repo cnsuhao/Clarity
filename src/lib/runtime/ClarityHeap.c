@@ -134,12 +134,6 @@ static void innerRelease(ClarityHeap *heap, void *data, Release release)
 	}
 }
 
-void clarityHeapEmptyDestroy(ClarityHeap *heap, void *data)
-{
-	UNUSED(heap);
-	UNUSED(data);
-}
-
 void clarityHeapAutoRelease(ClarityHeap *heap, void *data)
 {
 	innerRelease(heap, data, pushAutoReleasePool);

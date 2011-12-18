@@ -33,7 +33,6 @@
 typedef struct __ClarityHeap ClarityHeap;
 typedef void(*ClarityHeapDestructor)(ClarityHeap *, void *);
 
-void clarityHeapEmptyDestroy(ClarityHeap *, void *);
 void *clarityHeapAllocate(ClarityHeap *, Uint32, ClarityHeapDestructor);
 void clarityHeapAutoRelease(ClarityHeap *, void *);
 void clarityHeapRelease(ClarityHeap *, void *);

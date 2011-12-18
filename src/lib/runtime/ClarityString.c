@@ -35,6 +35,12 @@ struct __ClarityString {
 	char *cString;
 };
 
+static void destroy(ClarityHeap *heap, void *data)
+{
+	UNUSED(heap);
+	UNUSED(data);
+}
+
 ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 {
 	ClarityHeap *heap;
@@ -44,7 +50,7 @@ ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 	heap = clarityGetHeap(clarity);
 	string = clarityHeapAllocate(heap,
 								 sizeof(ClarityString) + strlen(newCString) + 1,
-								 (ClarityHeapDestructor)clarityHeapEmptyDestroy);
+								 (ClarityHeapDestructor)destroy);
 
 	string->length = strlen(newCString);
 	cString = (char *)((Uint8 *)string + sizeof(ClarityString));
