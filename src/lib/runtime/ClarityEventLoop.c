@@ -73,7 +73,7 @@ static void destroy(ClarityHeap *heap,
 	clarityHeapRelease(heap, eventLoop->array);
 }
 
-static void clarityEventLoopPop(ClarityEventLoop *eventLoop)
+static void dequeue(ClarityEventLoop *eventLoop)
 {
 	Event *event;
 	ClarityHeap *heap;
@@ -84,20 +84,20 @@ static void clarityEventLoopPop(ClarityEventLoop *eventLoop)
 	clarityHeapCollectGarbage(heap);
 }
 
-void clarityEventLoopPush(ClarityEventLoop *eventLoop,
-						  ClarityEventFunction function,
-						  void *data)
+void clarityEventLoopEnqueue(ClarityEventLoop *eventLoop,
+							 ClarityEventFunction function,
+							 void *data)
 {
 	Event *event;
 
 	event = eventCreate(eventLoop->clarity, function, data);
-	clarityArrayPush(eventLoop->array, event);
+	clarityArrayUnshift(eventLoop->array, event);
 }
 
 void clarityEventLoopStart(ClarityEventLoop *eventLoop)
 {
-	while (clarityEventLoopHasEvent(eventLoop))
-		clarityEventLoopPop(eventLoop);
+	while (hasEvent(eventLoop))
+		dequeue(eventLoop);
 }
 
 ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
@@ -114,7 +114,7 @@ ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
 	eventLoop->clarity = clarityHeapRetain(heap, clarity);
 	eventLoop->array = clarityArrayCreate(eventLoop->clarity);
 	eventLoop->array = clarityHeapRetain(heap, eventLoop->array);
-	clarityEventLoopPush(eventLoop, entry, NULL);
+	clarityEventLoopEnqueue(eventLoop, entry, NULL);
 	clarityHeapAutoRelease(heap, eventLoop);
 	return eventLoop;
 }

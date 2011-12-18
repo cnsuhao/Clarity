@@ -31,7 +31,7 @@
 #include "Clarity.h"
 typedef struct __ClarityEventLoop ClarityEventLoop;
 
-void clarityEventLoopPush(ClarityEventLoop *, ClarityEventFunction, void *);
+void clarityEventLoopEnqueue(ClarityEventLoop *, ClarityEventFunction, void *);
 void clarityEventLoopStart(ClarityEventLoop *);
 ClarityEventLoop *clarityEventLoopCreate(Clarity *, ClarityEventFunction);
 

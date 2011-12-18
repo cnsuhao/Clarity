@@ -11,18 +11,18 @@ static void printString(Clarity *clarity, void *data)
 
 	if (count > 0) {
 		count--;
-		clarityPushEvent(clarity,
-						printString,
-						clarityStringCreate(clarity, "print"));
+		clarityEnqueueEvent(clarity,
+							printString,
+							clarityStringCreate(clarity, "print"));
 	}
 }
 
 static void entry(Clarity *clarity, void *data)
 {
 	UNUSED(data);
-	clarityPushEvent(clarity,
-					printString,
-					clarityStringCreate(clarity, "entry"));
+	clarityEnqueueEvent(clarity,
+						printString,
+						clarityStringCreate(clarity, "entry"));
 }
 
 int main(void)

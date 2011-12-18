@@ -33,7 +33,7 @@
 typedef struct __Clarity Clarity;
 typedef void(*ClarityEventFunction)(Clarity *, void *);
 
-void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
+void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);
 ClarityHeap *clarityGetHeap(Clarity *);
 Clarity *clarityCreate(ClarityEventFunction);
 void clarityStart(Clarity *);

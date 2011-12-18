@@ -39,11 +39,11 @@ ClarityHeap *clarityGetHeap(Clarity *clarity)
 	return clarity->heap;
 }
 
-void clarityPushEvent(Clarity *clarity,
-					  ClarityEventFunction function,
-					  void *data)
+void clarityEnqueueEvent(Clarity *clarity,
+						ClarityEventFunction function,
+						void *data)
 {
-	clarityEventLoopPush(clarity->eventLoop, function, data);
+	clarityEventLoopEnqueue(clarity->eventLoop, function, data);
 }
 
 static void destroy(ClarityHeap *heap, Clarity *clarity)
