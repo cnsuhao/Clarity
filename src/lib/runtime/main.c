@@ -7,7 +7,7 @@ static int count = 1000;
 static void printString(Clarity *clarity, void *data)
 {
 	printf("The String: %s %d\n",
-		  clarityStringGetCString((ClarityString *)data), count);
+		   clarityStringGetCString((ClarityString *)data), count);
 
 	if (count > 0) {
 		count--;

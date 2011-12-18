@@ -43,8 +43,8 @@ ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 
 	heap = clarityGetHeap(clarity);
 	string = clarityHeapAllocate(heap,
-								sizeof(ClarityString) + strlen(newCString) + 1,
-								(ClarityHeapDestructor)clarityHeapEmptyDestroy);
+								 sizeof(ClarityString) + strlen(newCString) + 1,
+								 (ClarityHeapDestructor)clarityHeapEmptyDestroy);
 
 	string->length = strlen(newCString);
 	cString = (char *)((Uint8 *)string + sizeof(ClarityString));
