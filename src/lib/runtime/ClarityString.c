@@ -47,7 +47,7 @@ ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 								(ClarityHeapDestructor)clarityHeapEmptyDestroy);
 
 	string->length = strlen(newCString);
-	cString = (char*)((Uint8*)string + sizeof(ClarityString));
+	cString = (char *)((Uint8 *)string + sizeof(ClarityString));
 	memcpy(cString, newCString, string->length);
 	cString[string->length] = NULL;
 	clarityHeapAutoRelease(heap, string);
@@ -60,7 +60,6 @@ Uint32 clarityStringLength(ClarityString *string)
 }
 
 const char *clarityStringGetCString(ClarityString *string)
-{ 
+{
 	return (const char *)((Uint8 *)string + sizeof(ClarityString));
 }
-
