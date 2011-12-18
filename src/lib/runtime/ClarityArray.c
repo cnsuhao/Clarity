@@ -58,6 +58,9 @@ static Element *elementCreate(Clarity *clarity)
 								  sizeof(Element),
 								  (ClarityHeapDestructor)elementDestroy);
 
+	element->data = NULL;
+	element->next = NULL;
+	element->prev = NULL;
 	clarityHeapAutoRelease(heap, element);
 	return element;
 }
@@ -121,8 +124,8 @@ void clarityArrayPush(ClarityArray *array, void *data)
 	array->last->next = elementCreate(array->clarity);
 	array->last->next = clarityHeapRetain(heap, array->last->next);
 	array->last->next->prev = array->last;
-	array->last->data = clarityHeapRetain(heap, data);
 	array->last = array->last->next;
+	array->last->data = clarityHeapRetain(heap, data);
 	array->length++;
 }
 
@@ -133,11 +136,15 @@ void *clarityArrayPop(ClarityArray *array)
 	retVal = NULL;
 
 	if (clarityArrayLength(array)) {
-		ClarityHeap *heap = clarityGetHeap(array->clarity);
-		Element *item = array->last;
+		ClarityHeap *heap;
+		Element *item;
+
+		item = array->last;
 		array->last = array->last->prev;
 		array->length--;
-		clarityHeapRelease(heap, item);
+		retVal = item->data;
+		heap = clarityGetHeap(array->clarity);
+		clarityHeapAutoRelease(heap, item);
 	}
 	return retVal;
 }

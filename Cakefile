@@ -5,81 +5,80 @@ srcDir = 'src'
 genDir = 'gen'
 
 libSrcDir = "#{srcDir}/lib"
+compilerSrcDir = "#{libSrcDir}/compiler"
+runtimeSrcDir = "#{libSrcDir}/runtime"
 testSrcDir = "../#{srcDir}/test"
 libGenDir = "#{genDir}/lib"
+runtimeGenDir = "#{libGenDir}/runtime"
+compilerGenDir = "#{libGenDir}/compiler"
 testGenDir = "test"
 libGenCovDir = "lib-cov"
 testReportPath = "report.txt"
 itSrcDir = "../#{srcDir}/itdata"
 itGenDir = "../#{genDir}/itdata"
+claPath = "../#{compilerGenDir}/clarity.js"
 
-build = (claPath, src, dst, callback) ->
+build = (src, dst, callback) ->
 	fs.readdir src, (err, files) ->
 		count = 0
 		unless files? then callback() if callback?
 		else files.map (file, index) ->
-			if fs.statSync("#{src}/#{file}").isDirectory()
+			extension = file.substr ((file.lastIndexOf '.') + 1)
+			if extension is "coffee"
 				count++
-				build "#{src}/#{file}", "#{dst}/#{file}", ->
+				exec "coffee -l --bare --output #{dst} --compile
+				 #{src}/#{file}", (err, stdout, stderr) ->
+					console.log stderr if stderr
+					console.log stdout if stdout
+					console.log err if err
 					count--
 					callback() if count is 0 and callback?
-			else
-				extension = file.substr ((file.lastIndexOf '.') + 1)
-				if extension is "coffee"
-					count++
-					exec "coffee -l --bare --output #{dst} --compile
-					 #{src}/#{file}", (err, stdout, stderr) ->
+			else if extension is "c"
+				count++
+				[fileNameArray..., extension] = file.split '.'
+				fileName = fileNameArray.join ''
+				exec "./checkpatch.pl --no-typedef --line=80 --tab=4 --no-tree -q -f #{src}/#{file}", (err, stdout, stderr) ->
+					console.log stdout if stdout
+					exec "mkdir -p #{dst};clang -pedantic -ansi -c #{src}/#{file} -I../src/lib -o #{dst}/#{fileName}.o", (err, stdout, stderr) ->
 						console.log stderr if stderr
 						console.log stdout if stdout
 						console.log err if err
 						count--
 						callback() if count is 0 and callback?
-				else if extension is "c"
-					count++
-					[fileNameArray..., extension] = file.split '.'
-					fileName = fileNameArray.join ''
-					exec "./checkpatch.pl --no-typedef --line=80 --tab=4 --no-tree -q -f #{src}/#{file}", (err, stdout, stderr) ->
-						console.log stdout if stdout
-						exec "mkdir -p #{dst};clang -pedantic -ansi -c #{src}/#{file} -I../lib -o #{dst}/#{fileName}.o", (err, stdout, stderr) ->
-							console.log stderr if stderr
-							console.log stdout if stdout
-							console.log err if err
-							count--
-							callback() if count is 0 and callback?
-				else if extension is "js" or extension is "h"
-					count++
-					exec "./checkpatch.pl --no-typedef --line=80 --tab=4 --no-tree -q -f #{src}/#{file}", (err, stdout, stderr) ->
-						console.log stdout if stdout
-						exec "mkdir -p #{dst};cp #{src}/#{file} #{dst}/#{file}", (err, stdout, stderr) ->
-							console.log stderr if stderr
-							console.log stdout if stdout
-							console.log err if err
-							count--
-							callback() if count is 0 and callback?
-				else if extension is "yy"
-					count++
-					[fileNameArray..., extension] = file.split '.'
-					fileName = fileNameArray.join ''
-					exec "mkdir -p #{dst};jison #{src}/#{file} -o #{dst}/#{fileName}.js", (err, stdout, stderr) ->
+			else if extension is "js"
+				count++
+				exec "./checkpatch.pl --no-typedef --line=80 --tab=4 --no-tree -q -f #{src}/#{file}", (err, stdout, stderr) ->
+					console.log stdout if stdout
+					exec "mkdir -p #{dst};cp #{src}/#{file} #{dst}/#{file}", (err, stdout, stderr) ->
 						console.log stderr if stderr
 						console.log stdout if stdout
 						console.log err if err
 						count--
 						callback() if count is 0 and callback?
-				else if extension is "cla"
-					count++
-					[fileNameArray..., extension] = file.split '.'
-					fileName = fileNameArray.join ''
-					exec "node ../#{claPath}/clarity.js #{src}/#{file} #{dst}", (err, stdout, stderr) ->
-						console.log stderr if stderr
-						console.log stdout if stdout
-						console.log err if err
-						count--
-						callback() if count is 0 and callback?
+			else if extension is "yy"
+				count++
+				[fileNameArray..., extension] = file.split '.'
+				fileName = fileNameArray.join ''
+				exec "mkdir -p #{dst};jison #{src}/#{file} -o #{dst}/#{fileName}.js", (err, stdout, stderr) ->
+					console.log stderr if stderr
+					console.log stdout if stdout
+					console.log err if err
+					count--
+					callback() if count is 0 and callback?
+			else if extension is "cla"
+				count++
+				[fileNameArray..., extension] = file.split '.'
+				fileName = fileNameArray.join ''
+				exec "node #{claPath} #{src}/#{file} #{dst}", (err, stdout, stderr) ->
+					console.log stderr if stderr
+					console.log stdout if stdout
+					console.log err if err
+					count--
+					callback() if count is 0 and callback?
 
 pretest = (callback) ->
 	process.chdir genDir
-	build libGenDir, testSrcDir, testGenDir, ->
+	build testSrcDir, testGenDir, ->
 		fs.readdir testGenDir, (err, files) ->
 			unless files? then callback()
 			else 
@@ -115,10 +114,22 @@ htmltest = (callback) ->
 				callback() if callback?
 
 buildAll = (callback) ->
-	build libGenDir, libSrcDir, libGenDir, callback
+	buildRuntime ->
+		buildCompiler callback
+
+buildRuntime = (callback) ->
+	build runtimeSrcDir, runtimeGenDir, ->
+		exec "clang #{runtimeGenDir}/*.o -o #{runtimeGenDir}/clarity", (err, stdout, stderr) ->
+			console.log stderr if stderr
+			console.log stdout if stdout
+			console.log err if err
+			callback() if callback()
+
+buildCompiler = (callback) ->
+	build compilerSrcDir, compilerGenDir, callback
 
 integrationTestAll = (callback) ->
-	build libGenDir, itSrcDir, itGenDir, callback
+	build itSrcDir, itGenDir, callback
 
 task 'all', 'build, test all and run integration tests', ->
 	buildAll ->

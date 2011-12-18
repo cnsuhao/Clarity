@@ -26,15 +26,14 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
-#include "ClarityHeap.h"
+#ifndef __CLARITYSTRING_H__
+#define __CLARITYSTRING_H__
+#include "Clarity.h"
 
-typedef struct __Clarity Clarity;
-typedef void(*ClarityEventFunction)(Clarity *, void *);
+typedef struct __ClarityString ClarityString;
 
-void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
-ClarityHeap *clarityGetHeap(Clarity *);
-Clarity *clarityCreate(ClarityEventFunction);
+ClarityString *clarityStringCreate(Clarity *, const char*);
+Uint32 clarityStringLength(ClarityString *);
+const char *clarityStringGetCString(ClarityString *);
 
 #endif

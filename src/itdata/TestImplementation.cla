@@ -1,5 +1,4 @@
 @requires TestTypes
-@requires TestC
 
 @mainFunction = (\SomeInData\inData, \SomeOutData\outData) ->
 	\Uint16\data

@@ -26,20 +26,19 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYTYPES_H__
-#define __CLARITYTYPES_H__
+#ifndef __CLARITYHEAP_H__
+#define __CLARITYHEAP_H__
+#include "ClarityTypes.h"
 
-#define UNUSED(expr) do { (void)(expr); } while (0)
-#define TRUE 1
-#define FALSE 0
-#define NULL 0
+typedef struct __ClarityHeap ClarityHeap;
+typedef void(*ClarityHeapDestructor)(ClarityHeap *, void *);
 
-typedef unsigned char Uint8;
-typedef signed char Sint8;
-typedef unsigned short Uint16;
-typedef signed short Sint16;
-typedef unsigned int Uint32;
-typedef signed int Sint32;
-typedef unsigned int Bool;
+void clarityHeapEmptyDestroy(ClarityHeap *, void *);
+void *clarityHeapAllocate(ClarityHeap *, Uint32, ClarityHeapDestructor);
+void clarityHeapAutoRelease(ClarityHeap *, void *);
+void clarityHeapRelease(ClarityHeap *, void *);
+void *clarityHeapRetain(ClarityHeap *, void *);
+void clarityHeapCollectGarbage(ClarityHeap *);
 
+ClarityHeap *clarityHeapCreate(void);
 #endif

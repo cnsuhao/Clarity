@@ -32,18 +32,16 @@
 typedef struct {
 	ClarityEventFunction function;
 	void *data;
-	Clarity *clarity;
 } Event;
 
 struct __ClarityEventLoop {
 	ClarityArray *array;
 	Clarity *clarity;
-	ClarityEventFunction entry;
 };
 
 static void eventDestroy(ClarityHeap *heap, Event *event)
 {
-	clarityHeapRelease(heap, event);
+	clarityHeapRelease(heap, event->data);
 }
 
 static Event *eventCreate(Clarity *clarity,
@@ -57,7 +55,6 @@ static Event *eventCreate(Clarity *clarity,
 	event = clarityHeapAllocate(heap, sizeof(Event),
 								(ClarityHeapDestructor)eventDestroy);
 
-	event->clarity = clarityHeapRetain(heap, clarity);
 	event->data = clarityHeapRetain(heap, data);
 	event->function = function;
 	clarityHeapAutoRelease(heap, event);
@@ -81,11 +78,9 @@ static void clarityEventLoopPop(ClarityEventLoop *eventLoop)
 	Event *event;
 	ClarityHeap *heap;
 
-	heap = clarityGetHeap(eventLoop->clarity);
 	event = clarityArrayPop(eventLoop->array);
 	event->function(eventLoop->clarity, event->data);
-	clarityHeapRelease(heap, event->data);
-	clarityHeapRelease(heap, event);
+	heap = clarityGetHeap(eventLoop->clarity);
 	clarityHeapCollectGarbage(heap);
 }
 
@@ -94,18 +89,13 @@ void clarityEventLoopPush(ClarityEventLoop *eventLoop,
 						  void *data)
 {
 	Event *event;
-	ClarityHeap *heap;
 
-	heap = clarityGetHeap(eventLoop->clarity);
 	event = eventCreate(eventLoop->clarity, function, data);
-	event = clarityHeapRetain(heap, event);
 	clarityArrayPush(eventLoop->array, event);
 }
 
 void clarityEventLoopStart(ClarityEventLoop *eventLoop)
 {
-	eventLoop->entry(eventLoop->clarity, NULL);
-
 	while (clarityEventLoopHasEvent(eventLoop))
 		clarityEventLoopPop(eventLoop);
 }
@@ -124,7 +114,7 @@ ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
 	eventLoop->clarity = clarityHeapRetain(heap, clarity);
 	eventLoop->array = clarityArrayCreate(eventLoop->clarity);
 	eventLoop->array = clarityHeapRetain(heap, eventLoop->array);
-	eventLoop->entry = entry;
+	clarityEventLoopPush(eventLoop, entry, NULL);
 	clarityHeapAutoRelease(heap, eventLoop);
 	return eventLoop;
 }
