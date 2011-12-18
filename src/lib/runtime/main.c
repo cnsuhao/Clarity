@@ -2,18 +2,25 @@
 #include "ClarityString.h"
 #include "stdio.h"
 
-static int count = 1000;
+static int count = 0;
 
 static void printString(Clarity *clarity, void *data)
 {
+	count++;
 	printf("The String: %s %d\n",
 		   clarityStringGetCString((ClarityString *)data), count);
 
-	if (count > 0) {
-		count--;
+	if (count < 1000) {
+		
 		clarityEnqueueEvent(clarity,
 							printString,
-							clarityStringCreate(clarity, "print"));
+							clarityStringCreate(clarity, "printA"));
+		clarityEnqueueEvent(clarity,
+							printString,
+							clarityStringCreate(clarity, "printB"));
+		clarityEnqueueEvent(clarity,
+							printString,
+							clarityStringCreate(clarity, "printC"));
 	}
 }
 
@@ -27,6 +34,9 @@ static void entry(Clarity *clarity, void *data)
 
 int main(void)
 {
-	clarityStart(clarityCreate(entry));
+	Clarity *clarity;
+
+	clarity = clarityCreate(entry);
+	clarityStart(clarity);
 	return 0;
 }
