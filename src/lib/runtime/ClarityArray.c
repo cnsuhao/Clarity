@@ -38,8 +38,8 @@ struct __Element {
 
 struct __ClarityArray {
 	Clarity *clarity;
-	Element *anchor;
 	Element *last;
+	Element *first;
 	Uint32 length;
 };
 
@@ -48,7 +48,7 @@ static void elementDestroy(ClarityHeap *heap, Element *element)
 	clarityHeapRelease(heap, element->data);
 }
 
-static Element *elementCreate(Clarity *clarity)
+static Element *elementCreate(Clarity *clarity, void *data)
 {
 	Element *element;
 	ClarityHeap *heap;
@@ -58,7 +58,7 @@ static Element *elementCreate(Clarity *clarity)
 								  sizeof(Element),
 								  (ClarityHeapDestructor)elementDestroy);
 
-	element->data = NULL;
+	element->data = clarityHeapRetain(heap, data);
 	element->next = NULL;
 	element->prev = NULL;
 	clarityHeapAutoRelease(heap, element);
@@ -96,36 +96,63 @@ ClarityArray *clarityArrayCreate(Clarity *clarity)
 
 	array->clarity = clarityHeapRetain(heap, clarity);
 	array->length = 0;
-	array->anchor = clarityHeapRetain(heap, elementCreate(clarity));
-	array->last = array->anchor;
+	array->first = clarityHeapRetain(heap, elementCreate(clarity, NULL));
+	array->last = clarityHeapRetain(heap, elementCreate(clarity, NULL));
+	array->first->next = array->last;
+	array->last->prev = array->first;
 	clarityHeapAutoRelease(heap, array);
 	return array;
 }
 
 void clarityArrayUnshift(ClarityArray *array, void *data)
 {
-	UNUSED(array);
-	UNUSED(data);
-	/*TODO implement unshift */
+	ClarityHeap *heap;
+	Element *newElement;
+
+	heap = clarityGetHeap(array->clarity);
+	newElement = elementCreate(array->clarity, data);
+	newElement = clarityHeapRetain(heap, newElement);
+	newElement->next = array->first->next;
+	newElement->prev = array->first;
+	newElement->next->prev = newElement;
+	array->first->next = newElement;
+	array->length++;
 }
 
 void *clarityArrayShift(ClarityArray *array)
 {
-	UNUSED(array);
-	/*TODO implement shift */
-	return NULL;
+	void *retVal;
+
+	retVal = NULL;
+
+	if (clarityArrayLength(array)) {
+		ClarityHeap *heap;
+		Element *element;
+
+		element = array->first->next;
+		array->first->next = element->next;
+		array->first->next->prev = array->first;
+		array->length--;
+		retVal = element->data;
+		heap = clarityGetHeap(array->clarity);
+		clarityHeapRelease(heap, element);
+	}
+	return retVal;
+
 }
 
 void clarityArrayPush(ClarityArray *array, void *data)
 {
 	ClarityHeap *heap;
+	Element *newElement;
 
 	heap = clarityGetHeap(array->clarity);
-	array->last->next = elementCreate(array->clarity);
-	array->last->next = clarityHeapRetain(heap, array->last->next);
-	array->last->next->prev = array->last;
-	array->last = array->last->next;
-	array->last->data = clarityHeapRetain(heap, data);
+	newElement = elementCreate(array->clarity, data);
+	newElement = clarityHeapRetain(heap, newElement);
+	newElement->prev = array->last->prev;
+	newElement->next = array->last;
+	array->last->prev->next = newElement;
+	array->last->prev = newElement;
 	array->length++;
 }
 
@@ -137,14 +164,15 @@ void *clarityArrayPop(ClarityArray *array)
 
 	if (clarityArrayLength(array)) {
 		ClarityHeap *heap;
-		Element *item;
+		Element *element;
 
-		item = array->last;
-		array->last = array->last->prev;
+		element = array->last->prev;
+		array->last->prev = element->prev;
+		array->last->prev->next = array->last;
 		array->length--;
-		retVal = item->data;
+		retVal = element->data;
 		heap = clarityGetHeap(array->clarity);
-		clarityHeapAutoRelease(heap, item);
+		clarityHeapRelease(heap, element);
 	}
 	return retVal;
 }
@@ -160,7 +188,7 @@ void clarityArrayForEach(ClarityArray *array,
 	Uint32 index;
 	Element *item;
 
-	item = array->anchor;
+	item = array->first->next;
 	index = 1;
 
 	while (item != array->last) {
@@ -178,7 +206,7 @@ ClarityArray *clarityArrayMap(ClarityArray *array,
 	ClarityArray *newArray;
 
 	newArray = clarityArrayCreate(array->clarity);
-	item = array->anchor;
+	item = array->first->next;
 	index = 1;
 
 	while (item != array->last) {
@@ -201,7 +229,7 @@ Bool clarityArrayEvery(ClarityArray *array,
 	Element *item;
 
 	retVal = TRUE;
-	item = array->anchor;
+	item = array->first->next;
 	index = 1;
 
 	while (item != array->last && retVal) {
@@ -220,7 +248,7 @@ ClarityArray *clarityArrayFilter(ClarityArray *array,
 	ClarityArray *newArray;
 
 	newArray = clarityArrayCreate(array->clarity);
-	item = array->anchor;
+	item = array->first->next;
 	index = 1;
 
 	while (item != array->last) {
