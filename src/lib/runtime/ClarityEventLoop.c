@@ -61,7 +61,7 @@ static Event *eventCreate(Clarity *clarity,
 	return event;
 }
 
-static Bool clarityEventLoopHasEvent(ClarityEventLoop *eventLoop)
+static Bool hasEvent(ClarityEventLoop *eventLoop)
 {
 	return clarityArrayLength(eventLoop->array);
 }

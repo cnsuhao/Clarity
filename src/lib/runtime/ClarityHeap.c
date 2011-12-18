@@ -175,7 +175,7 @@ void clarityHeapCollectGarbage(ClarityHeap *heap)
 	}
 }
 
-static void clarityHeapDestroy(ClarityHeap *heap, void *data)
+static void destroy(ClarityHeap *heap, void *data)
 {
 	UNUSED(data);
 	clarityHeapCollectGarbage(heap);
@@ -192,7 +192,7 @@ ClarityHeap *clarityHeapCreate(void)
 	if (header) {
 		Uint8 *index;
 
-		initializeHeader(header, clarityHeapDestroy);
+		initializeHeader(header, destroy);
 		index = (Uint8 *)header;
 		heap = (ClarityHeap *)&index[sizeof(Header)];
 		heap->autoReleasePool = &LAST_AUTO_RELEASE_ITEM;
