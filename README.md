@@ -1,21 +1,22 @@
 # Overview
-Clarity is a programming language with the following attributes:
+Clarity is a programming language and a runtime with the following attributes:
 
 * Compiled
 * Statically typed
+* Non-preemtive, cooperative multitasking (with implicit yields)
 * Real memory addressing
 * C-compatible
 * Syntactically script-like
 * Whitespace aware
 * Event driven runtime
-* Condition less (but has condition tables)
-* Loop less (but has loop tables)
+* Condition-less (but has condition tables)
+* Loop-less (but has loop support in the form of arrays)
 * Made for parallel execution, but without threads
 * "Table" based (definition tables, execution tables)
 * "Tight", very few keywords, very few brackets, parenthesis etc
 * "Consistent", indentation/line breaks/spacing is relevant
 
-Clarity is a "C-clone", made for development in environments 
+Clarity is made for development in environments 
 where a VM would be inappropriate, such as OS/driver/embedded 
 development. The purpose of the language is to bring some of 
 the syntactical niceties lately added to more modern dynamic 
@@ -23,10 +24,8 @@ languages to the hardware aware environments.
 Besides being a syntactically different C environment, Clarity 
 has a different approach to looping and branching, forcing 
 the program to be more divided into blocks. It also has a small 
-runtime, adding features such as array handling, event handling 
-etc.
-Clarity converts into C-code, and is fully compatible with C. 
-C can call Clarity functions, and Clarity can call C functions.
+runtime, adding features such as array handling, event handling, 
+interrupt handling etc.
 
 # Tables
 The Clarity syntax consists of a set of "tables", either 
