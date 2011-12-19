@@ -32,7 +32,6 @@
 
 struct __ClarityString {
 	Uint32 length;
-	char *cString;
 };
 
 static void destroy(ClarityHeap *heap, void *data)
@@ -49,10 +48,11 @@ ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 
 	heap = clarityGetHeap(clarity);
 	string = clarityHeapAllocate(heap,
-								 sizeof(ClarityString) + strlen(newCString) + 1,
+								 sizeof(ClarityString) +
+								 (Uint32)strlen(newCString) + 1,
 								 (ClarityHeapDestructor)destroy);
 
-	string->length = strlen(newCString);
+	string->length = (Uint32)strlen(newCString);
 	cString = (char *)((Uint8 *)string + sizeof(ClarityString));
 	memcpy(cString, newCString, string->length);
 	cString[string->length] = NULL;
