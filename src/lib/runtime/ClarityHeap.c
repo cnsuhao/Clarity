@@ -33,6 +33,7 @@ typedef struct {
 	Uint32 magic;
 	ClarityHeapDestructor destructor;
 	Sint32 refCount;
+	Sint32 size;
 } Header;
 
 typedef struct __AutoReleaseItem AutoReleaseItem;
