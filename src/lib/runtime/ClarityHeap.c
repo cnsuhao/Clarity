@@ -44,6 +44,7 @@ struct __AutoReleaseItem {
 struct __ClarityHeap {
 	AutoReleaseItem *autoReleasePool;
 	Uint32 openAllocs;
+	Uint32 maxAllocs;
 };
 
 typedef void(*Release)(ClarityHeap *heap, Header *header);
@@ -90,6 +91,7 @@ void *clarityHeapAllocate(ClarityHeap *heap,
 	header = malloc(size + sizeof(Header));
 	initializeHeader(header, destructor);
 	heap->openAllocs++;
+	heap->maxAllocs = MAX(heap->maxAllocs, heap->openAllocs);
 	return (Uint8 *)header + sizeof(Header);
 }
 
@@ -191,6 +193,7 @@ ClarityHeap *clarityHeapCreate(void)
 		heap = (ClarityHeap *)&index[sizeof(Header)];
 		heap->autoReleasePool = &LAST_AUTO_RELEASE_ITEM;
 		heap->openAllocs = 1;
+		heap->maxAllocs = heap->openAllocs;
 	}
 	return heap;
 }
