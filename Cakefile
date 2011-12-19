@@ -1,4 +1,5 @@
 fs = require 'fs'
+path= require 'path'
 {exec} = require 'child_process'
 
 srcDir = 'src'
@@ -39,7 +40,7 @@ build = (src, dst, callback) ->
 				fileName = fileNameArray.join ''
 				exec "./checkpatch.pl --no-typedef --line=80 --tab=4 --no-tree -q -f #{src}/#{file}", (err, stdout, stderr) ->
 					console.log stdout if stdout
-					exec "mkdir -p #{dst};clang -pedantic -ansi -c #{src}/#{file} -I../src/lib -o #{dst}/#{fileName}.o", (err, stdout, stderr) ->
+					exec "mkdir -p #{dst};clang -fprofile-arcs -ftest-coverage -g -pedantic -ansi -c #{path.resolve(src)}/#{file} -I../src/lib -o #{dst}/#{fileName}.o", (err, stdout, stderr) ->
 						console.log stderr if stderr
 						console.log stdout if stdout
 						console.log err if err
@@ -119,7 +120,7 @@ buildAll = (callback) ->
 
 buildRuntime = (callback) ->
 	build runtimeSrcDir, runtimeGenDir, ->
-		exec "clang #{runtimeGenDir}/*.o -o #{runtimeGenDir}/clarity", (err, stdout, stderr) ->
+		exec "clang -lprofile_rt -g #{runtimeGenDir}/*.o -o #{runtimeGenDir}/clarity", (err, stdout, stderr) ->
 			console.log stderr if stderr
 			console.log stdout if stdout
 			console.log err if err
