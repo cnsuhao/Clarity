@@ -43,6 +43,123 @@ struct __ClarityArray {
 	Uint32 length;
 };
 
+typedef struct {
+	Uint32 index;
+	Element *element;
+	ClarityArray *array;
+	Clarity *clarity;
+	ClarityArrayForEachFunction function;
+	ClarityArrayForEachCallback callback;
+	void *data;
+} ForEach;
+
+typedef struct {
+	Uint32 index;
+	Element *element;
+	ClarityArray *array;
+	Clarity *clarity;
+	ClarityArrayMapFunction function;
+	ClarityArrayMapCallback callback;
+	void *data;
+	void *newArray;
+} Map;
+
+static void mapDestroy(ClarityHeap *heap,
+						   Map *map)
+{
+	clarityHeapRelease(heap, map->element);
+	clarityHeapRelease(heap, map->data);
+	clarityHeapRelease(heap, map->clarity);
+	clarityHeapRelease(heap, map->array);
+	clarityHeapRelease(heap, map->newArray);
+}
+
+static void mapSetElement(Map *map,
+							  Element *element)
+{
+	ClarityHeap *heap;
+
+	heap = clarityGetHeap(map->clarity);
+	clarityHeapRelease(heap, map->element);
+	map->element = clarityHeapRetain(heap, element);
+	map->index++;
+}
+
+static Map *mapCreate(Clarity *clarity,
+							  ClarityArray *array,
+							  Element *element,
+							  ClarityArrayMapFunction function,
+							  ClarityArrayMapCallback callback,
+							  void *data)
+{
+	Map *map;
+	ClarityHeap *heap;
+
+	heap = clarityGetHeap(clarity);
+	map = clarityHeapAllocate(heap,
+								  sizeof(Map),
+								  (ClarityHeapDestructor)mapDestroy);
+
+	map->index = 0;
+	map->newArray = clarityArrayCreate(clarity);
+	map->newArray = clarityHeapRetain(heap, map->newArray);
+	map->clarity = clarityHeapRetain(heap, clarity);
+	map->array = clarityHeapRetain(heap, array);
+	map->element = clarityHeapRetain(heap, element);
+	map->data = clarityHeapRetain(heap, data);
+	map->function = function;
+	map->callback = callback;
+	clarityHeapAutoRelease(heap, map);
+	return map;
+}
+
+static void forEachDestroy(ClarityHeap *heap,
+									  ForEach *forEach)
+{
+	clarityHeapRelease(heap, forEach->element);
+	clarityHeapRelease(heap, forEach->data);
+	clarityHeapRelease(heap, forEach->clarity);
+	clarityHeapRelease(heap, forEach->array);
+
+}
+
+static void forEachSetElement(ForEach *forEach,
+								  Element *element)
+{
+	ClarityHeap *heap;
+
+	heap = clarityGetHeap(forEach->clarity);
+	clarityHeapRelease(heap, forEach->element);
+	forEach->element = clarityHeapRetain(heap, element);
+	forEach->index++;
+}
+
+static ForEach *forEachCreate(Clarity *clarity,
+									  ClarityArray *array,
+									  Element *element,
+									  ClarityArrayForEachFunction function,
+									  ClarityArrayForEachCallback callback,
+									  void *data)
+{
+	ForEach *forEach;
+	ClarityHeap *heap;
+
+	heap = clarityGetHeap(clarity);
+	forEach = clarityHeapAllocate(heap,
+									  sizeof(ForEach),
+									  (ClarityHeapDestructor)forEachDestroy);
+
+	forEach->index = 0;
+	forEach->clarity = clarityHeapRetain(heap, clarity);
+	forEach->array = clarityHeapRetain(heap, array);
+	forEach->element = clarityHeapRetain(heap, element);
+	forEach->data = clarityHeapRetain(heap, data);
+	forEach->function = function;
+	forEach->callback = callback;
+	clarityHeapAutoRelease(heap, forEach);
+	return forEach;
+}
+
 static void elementDestroy(ClarityHeap *heap, Element *element)
 {
 	clarityHeapRelease(heap, element->data);
@@ -65,23 +182,19 @@ static Element *elementCreate(Clarity *clarity, void *data)
 	return element;
 }
 
-static void releaseElement(void *item,
-						   Uint32 index,
-						   ClarityArray *array,
-						   Clarity *clarity)
-{
-	ClarityHeap *heap;
-
-	UNUSED(index);
-	UNUSED(array);
-	heap = clarityGetHeap(clarity);
-	clarityHeapRelease(heap, item);
-}
-
 static void destroy(ClarityHeap *heap, ClarityArray *array)
 {
+	Element *item;
+
 	clarityHeapRelease(heap, array->clarity);
-	clarityArrayForEach(array, releaseElement);
+	item = array->first->next;
+
+	while (item != array->last) {
+		clarityHeapRelease(heap, item);
+		item = item->next;
+	}
+	clarityHeapRelease(heap, array->last);
+	clarityHeapRelease(heap, array->first);
 }
 
 ClarityArray *clarityArrayCreate(Clarity *clarity)
@@ -182,49 +295,107 @@ Uint32 clarityArrayLength(ClarityArray *array)
 	return array->length;
 }
 
-void clarityArrayForEach(ClarityArray *array,
-						 ClarityArrayForEachFunction arrayFunction)
+static void innerForEach(Clarity *clarity, void *data)
 {
-	Uint32 index;
-	Element *item;
+	ForEach *forEach;
 
-	item = array->first->next;
-	index = 1;
+	forEach = (ForEach *)data;
 
-	while (item != array->last) {
-		arrayFunction(item->next->data, index, array, array->clarity);
-		index++;
-		item = item->next;
+	if (forEach->element != forEach->array->last) {
+		forEach->function(forEach->element->data,
+							  forEach->index,
+							  forEach->array,
+							  clarity);
+
+		forEachSetElement(forEach,
+							  forEach->element->next);
+
+		clarityEnqueueEvent(clarity, innerForEach, forEach);
+	} else if (forEach->callback) {
+		ClarityHeap *heap;
+
+		forEach->callback(forEach->clarity,
+							  forEach->data);
+
+		heap = clarityGetHeap(forEach->clarity);
+		clarityHeapRelease(heap, forEach);
 	}
 }
 
-ClarityArray *clarityArrayMap(ClarityArray *array,
-							  ClarityArrayMapFunction arrayFunction)
+void clarityArrayForEach(ClarityArray *array,
+						 ClarityArrayForEachFunction function,
+						 ClarityArrayForEachCallback callback,
+						 void *data)
 {
-	Uint32 index;
-	Element *item;
-	ClarityArray *newArray;
+	Element *element;
+	ForEach *forEach;
 
-	newArray = clarityArrayCreate(array->clarity);
-	item = array->first->next;
-	index = 1;
+	element = array->first->next;
+	forEach = forEachCreate(array->clarity,
+									array,
+									element,
+									function,
+									callback,
+									data);
 
-	while (item != array->last) {
+	clarityEnqueueEvent(array->clarity, innerForEach, forEach);
+}
+
+static void innerMap(Clarity *clarity, void *data)
+{
+	Map *map;
+
+	map = (Map *)data;
+
+	if (map->element != map->array->last) {
 		void *newItem;
 
-		newItem = arrayFunction(item->next->data, index, array, array->clarity);
-		clarityArrayPush(newArray, newItem);
-		index++;
-		item = item->next;
-	}
+		newItem = map->function(map->element->data,
+									map->index,
+									map->array,
+									clarity);
 
-	return newArray;
+		clarityArrayPush(map->newArray, newItem);
+		mapSetElement(map, map->element->next);
+		clarityEnqueueEvent(clarity, innerMap, map);
+	} else if (map->callback) {
+		ClarityHeap *heap;
+
+		map->callback(map->clarity, map->newArray, map->data);
+		heap = clarityGetHeap(map->clarity);
+		clarityHeapRelease(heap, map);
+	}
 }
 
-Bool clarityArrayEvery(ClarityArray *array,
-					   ClarityArrayTestFunction arrayFunction)
+void clarityArrayMap(ClarityArray *array,
+							  ClarityArrayMapFunction function,
+							  ClarityArrayMapCallback callback,
+							  void *data)
 {
-	Bool retVal;
+	Element *element;
+	Map *map;
+
+	element = array->first->next;
+	map = mapCreate(array->clarity,
+							array,
+							element,
+							function,
+							callback,
+							data);
+
+	clarityEnqueueEvent(array->clarity, innerMap, map);
+}
+
+void clarityArrayEvery(ClarityArray *array,
+					   ClarityArrayTestFunction function,
+					   ClarityArrayTestCallback callback,
+					   void *data)
+{
+	UNUSED(array);
+	UNUSED(function);
+	UNUSED(callback);
+	UNUSED(data);
+	/*Bool retVal;
 	Uint32 index;
 	Element *item;
 
@@ -237,13 +408,19 @@ Bool clarityArrayEvery(ClarityArray *array,
 		index++;
 		item = item->next;
 	}
-	return retVal;
+	return retVal;*/
 }
 
-ClarityArray *clarityArrayFilter(ClarityArray *array,
-								 ClarityArrayTestFunction arrayFunction)
+void clarityArrayFilter(ClarityArray *array,
+						ClarityArrayTestFunction function,
+						ClarityArrayTestCallback callback,
+						void *data)
 {
-	Uint32 index;
+	UNUSED(array);
+	UNUSED(function);
+	UNUSED(callback);
+	UNUSED(data);
+	/*Uint32 index;
 	Element *item;
 	ClarityArray *newArray;
 
@@ -257,7 +434,7 @@ ClarityArray *clarityArrayFilter(ClarityArray *array,
 		index++;
 		item = item->next;
 	}
-	return newArray;
+	return newArray;*/
 }
 
 ClarityArray *clarityArrayConcat(ClarityArray *array1, ClarityArray *array2)
