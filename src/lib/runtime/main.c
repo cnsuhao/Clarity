@@ -2,7 +2,7 @@
 #include "ClarityString.h"
 #include "stdio.h"
 
-static int count = 0;
+static int count = 1;
 
 static void printString(Clarity *clarity, void *data)
 {
@@ -10,8 +10,7 @@ static void printString(Clarity *clarity, void *data)
 	printf("The String: %s %d\n",
 		   clarityStringGetCString((ClarityString *)data), count);
 
-	if (count < 1000) {
-		
+	if (count < 20000) {
 		clarityEnqueueEvent(clarity,
 							printString,
 							clarityStringCreate(clarity, "printA"));
