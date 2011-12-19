@@ -37,6 +37,7 @@ typedef struct {
 struct __ClarityEventLoop {
 	ClarityArray *array;
 	Clarity *clarity;
+	Uint32 maxEvents;
 };
 
 static void eventDestroy(ClarityHeap *heap, Event *event)
@@ -92,6 +93,8 @@ void clarityEventLoopEnqueue(ClarityEventLoop *eventLoop,
 
 	event = eventCreate(eventLoop->clarity, function, data);
 	clarityArrayUnshift(eventLoop->array, event);
+	eventLoop->maxEvents = MAX(eventLoop->maxEvents,
+							   clarityArrayLength(eventLoop->array));
 }
 
 void clarityEventLoopStart(ClarityEventLoop *eventLoop)
@@ -114,6 +117,7 @@ ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
 	eventLoop->clarity = clarityHeapRetain(heap, clarity);
 	eventLoop->array = clarityArrayCreate(eventLoop->clarity);
 	eventLoop->array = clarityHeapRetain(heap, eventLoop->array);
+	eventLoop->maxEvents = 0;
 	clarityEventLoopEnqueue(eventLoop, entry, NULL);
 	clarityHeapAutoRelease(heap, eventLoop);
 	return eventLoop;
