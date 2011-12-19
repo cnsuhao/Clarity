@@ -131,7 +131,7 @@ static void innerRelease(ClarityHeap *heap, void *data, Release release)
 	if (header) {
 		header->refCount--;
 
-		if (header->refCount <= 0)
+		if (header->refCount == 0)
 			release(heap, header);
 	}
 }
