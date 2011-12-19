@@ -69,7 +69,7 @@ build = (src, dst, callback) ->
 				count++
 				[fileNameArray..., extension] = file.split '.'
 				fileName = fileNameArray.join ''
-				exec "node #{claPath} #{src}/#{file} #{dst}", (err, stdout, stderr) ->
+				exec "mkdir -p #{dst};node #{claPath} #{src}/#{file} #{dst}", (err, stdout, stderr) ->
 					console.log stderr if stderr
 					console.log stdout if stdout
 					console.log err if err
