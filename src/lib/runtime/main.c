@@ -14,9 +14,11 @@ static void printString(Clarity *clarity, void *data)
 		clarityEnqueueEvent(clarity,
 							printString,
 							clarityStringCreate(clarity, "printA"));
+
 		clarityEnqueueEvent(clarity,
 							printString,
 							clarityStringCreate(clarity, "printB"));
+
 		clarityEnqueueEvent(clarity,
 							printString,
 							clarityStringCreate(clarity, "printC"));
