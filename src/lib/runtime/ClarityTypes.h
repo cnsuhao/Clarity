@@ -31,6 +31,7 @@
 #include <stdint.h>
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define TRUE 1
 #define FALSE 0
 #define NULL 0
