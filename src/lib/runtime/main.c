@@ -37,5 +37,6 @@ int main(void)
 
 	clarity = clarityCreate(entry);
 	clarityStart(clarity);
+	clarityStop(clarity);
 	return 0;
 }

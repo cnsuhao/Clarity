@@ -37,5 +37,6 @@ void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);
 ClarityHeap *clarityGetHeap(Clarity *);
 Clarity *clarityCreate(ClarityEventFunction);
 void clarityStart(Clarity *);
+void clarityStop(Clarity *);
 
 #endif

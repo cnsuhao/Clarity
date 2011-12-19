@@ -73,3 +73,9 @@ void clarityStart(Clarity *clarity)
 {
 	clarityEventLoopStart(clarity->eventLoop);
 }
+
+void clarityStop(Clarity *clarity)
+{
+	clarityHeapRelease(clarity->heap, clarity->eventLoop);
+	clarityHeapRelease(clarity->heap, clarity->heap);
+}
