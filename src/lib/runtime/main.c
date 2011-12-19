@@ -27,10 +27,16 @@ static void printString(Clarity *clarity, void *data)
 
 static void entry(Clarity *clarity, void *data)
 {
+	ClarityString *string;
+
 	UNUSED(data);
-	clarityEnqueueEvent(clarity,
-						printString,
-						clarityStringCreate(clarity, "entry"));
+	string = clarityStringCreate(clarity, "string to auto release");
+
+	if (clarityStringLength(string) == 22) {
+		clarityEnqueueEvent(clarity,
+							printString,
+							clarityStringCreate(clarity, "entry"));
+	}
 }
 
 int main(void)
