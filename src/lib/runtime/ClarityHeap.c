@@ -44,6 +44,8 @@ struct __AutoReleaseItem {
 
 struct __ClarityHeap {
 	AutoReleaseItem *autoReleasePool;
+	Uint32 size;
+	void *address;
 	ClarityAlloc alloc;
 	ClarityFree free;
 	Uint32 openAllocations;
@@ -213,7 +215,7 @@ static void destroy(ClarityHeap *heap, void *data)
 
 static void *defaultAlloc(Uint32 size)
 {
-	/*TODO Implement default alloc*/
+	/*TODO Implement default alloc, at address with size*/
 	UNUSED(size);
 	return NULL;
 }
@@ -224,12 +226,10 @@ static void defaultFree(void *data)
 	UNUSED(data);
 }
 
-ClarityHeap *clarityHeapCreate(void)
-{
-	return clarityHeapCreateExternal(defaultAlloc, defaultFree);
-}
-
-ClarityHeap *clarityHeapCreateExternal(ClarityAlloc alloc, ClarityFree free)
+static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
+											 ClarityFree free,
+											 void *address,
+											 Uint32 size)
 {
 	Header *header;
 	ClarityHeap *heap;
@@ -247,6 +247,19 @@ ClarityHeap *clarityHeapCreateExternal(ClarityAlloc alloc, ClarityFree free)
 		heap->openAllocated = sizeof(ClarityHeap) + sizeof(Header);
 		heap->maxAllocations = heap->openAllocations;
 		heap->maxAllocated = heap->openAllocated;
+		heap->address = address;
+		heap->size = size;
 	}
 	return heap;
 }
+
+ClarityHeap *clarityHeapCreate(void *address, Uint32 size)
+{
+	return clarityHeapCreatePrivate(defaultAlloc, defaultFree, address, size);
+}
+
+ClarityHeap *clarityHeapCreateExternal(ClarityAlloc alloc, ClarityFree free)
+{
+	return clarityHeapCreatePrivate(alloc, free, NULL, 0);
+}
+

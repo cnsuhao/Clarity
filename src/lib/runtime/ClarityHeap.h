@@ -41,6 +41,6 @@ void clarityHeapRelease(ClarityHeap *, void *);
 void *clarityHeapRetain(ClarityHeap *, void *);
 void clarityHeapCollectGarbage(ClarityHeap *);
 
-ClarityHeap *clarityHeapCreate(void);
+ClarityHeap *clarityHeapCreate(void *, Uint32);
 ClarityHeap *clarityHeapCreateExternal(ClarityAlloc, ClarityFree);
 #endif
