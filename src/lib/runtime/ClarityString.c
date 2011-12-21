@@ -28,10 +28,10 @@
  */
 #include "ClarityString.h"
 #include "ClarityHeap.h"
-#include <string.h>
 
 struct __ClarityString {
 	Uint32 length;
+	char cString;
 };
 
 static void destroy(ClarityHeap *heap, void *data)
@@ -40,22 +40,29 @@ static void destroy(ClarityHeap *heap, void *data)
 	UNUSED(data);
 }
 
+
 ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 {
 	ClarityHeap *heap;
+	ClarityMemCpy memCpy;
+	ClarityStrLen strLen;
 	ClarityString *string;
 	char *cString;
+	Uint32 length;
 
 	heap = clarityGetHeap(clarity);
+	strLen = ClarityGetStrLen(clarity);
+	memCpy = clarityGetMemCpy(clarity);
+	length = strLen(newCString);
 	string = clarityHeapAllocate(heap,
-								 sizeof(ClarityString) +
-								 (Uint32)strlen(newCString) + 1,
+								 sizeof(ClarityString) + length + 1,
 								 (ClarityHeapDestructor)destroy);
 
-	string->length = (Uint32)strlen(newCString);
-	cString = (char *)((Uint8 *)string + sizeof(ClarityString));
-	memcpy(cString, newCString, string->length);
-	cString[string->length] = NULL;
+	string->length = length;
+	cString = &string->cString;
+
+	memCpy(cString, newCString, string->length);
+	cString[string->length] = '\0';
 	clarityHeapAutoRelease(heap, string);
 	return string;
 }
@@ -67,5 +74,5 @@ Uint32 clarityStringLength(ClarityString *string)
 
 const char *clarityStringGetCString(ClarityString *string)
 {
-	return (const char *)((Uint8 *)string + sizeof(ClarityString));
+	return (const char *)&string->cString;
 }

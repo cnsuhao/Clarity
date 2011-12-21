@@ -32,7 +32,69 @@
 struct __Clarity {
 	ClarityHeap *heap;
 	ClarityEventLoop *eventLoop;
+	ClarityMemCpy memCpy;
+	ClarityMemSet memSet;
+	ClarityStrLen strLen;
 };
+
+static void *defaultMemCpy(void *dstData, const void *srcData, Uint32 size)
+{
+	char* dst8 = (char *)dstData;
+	char* src8 = (char *)srcData;
+
+	while (size--)
+		*dst8++ = *src8++;
+	return dstData;
+}
+
+static void *defaultMemSet(void *data, char value, Uint32 size)
+{
+	char *p;
+
+	p = data;
+	while (size--)
+		*p++ = value;
+	return data;
+}
+
+static Uint32 defaultStrLen(const char *string)
+{
+	const char *s;
+
+	for (s = string; *s;)
+		++s;
+	return s - string;
+}
+
+void claritySetMemCpy(Clarity *clarity, ClarityMemCpy memCpy)
+{
+	clarity->memCpy = memCpy;
+}
+
+void claritySetMemSet(Clarity *clarity, ClarityMemSet memSet)
+{
+	clarity->memSet = memSet;
+}
+
+void ClaritySetStrLen(Clarity *clarity, ClarityStrLen strLen)
+{
+	clarity->strLen = strLen;
+}
+
+ClarityMemCpy clarityGetMemCpy(Clarity *clarity)
+{
+	return clarity->memCpy;
+}
+
+ClarityMemSet clarityGetMemSet(Clarity *clarity)
+{
+	return clarity->memSet;
+}
+
+ClarityStrLen ClarityGetStrLen(Clarity *clarity)
+{
+	return clarity->strLen;
+}
 
 ClarityHeap *clarityGetHeap(Clarity *clarity)
 {
@@ -52,16 +114,17 @@ static void destroy(ClarityHeap *heap, Clarity *clarity)
 	clarityHeapRelease(heap, clarity->heap);
 }
 
-Clarity *clarityCreate(ClarityEventFunction entry)
+Clarity *clarityCreate(ClarityEventFunction entry, ClarityHeap *heap)
 {
 	Clarity *clarity;
-	ClarityHeap *heap;
 
-	heap = clarityHeapCreate();
 	clarity = clarityHeapAllocate(heap,
 								  sizeof(Clarity),
 								  (ClarityHeapDestructor)destroy);
 
+	clarity->memSet = defaultMemSet;
+	clarity->memCpy = defaultMemCpy;
+	clarity->strLen = defaultStrLen;
 	clarity->heap = clarityHeapRetain(heap, heap);
 	clarity->eventLoop = clarityEventLoopCreate(clarity, entry);
 	clarity->eventLoop = clarityHeapRetain(heap, clarity->eventLoop);

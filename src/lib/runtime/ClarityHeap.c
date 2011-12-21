@@ -27,13 +27,13 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityHeap.h"
-#include <stdlib.h>
 
 typedef struct {
 	Uint32 magic;
 	ClarityHeapDestructor destructor;
 	Sint32 refCount;
-	Sint32 size;
+	Uint32 size;
+	void *data;
 } Header;
 
 typedef struct __AutoReleaseItem AutoReleaseItem;
@@ -44,6 +44,8 @@ struct __AutoReleaseItem {
 
 struct __ClarityHeap {
 	AutoReleaseItem *autoReleasePool;
+	ClarityAlloc alloc;
+	ClarityFree free;
 	Uint32 openAllocations;
 	Uint32 maxAllocations;
 	Uint32 openAllocated;
@@ -55,12 +57,19 @@ typedef void(*Release)(ClarityHeap *heap, Header *header);
 static Uint32 HEAP_MAGIC = 0xC0FFEE0D;
 static AutoReleaseItem LAST_AUTO_RELEASE_ITEM;
 
+static void autoReleaseDestroy(ClarityHeap *heap, void *data)
+{
+	UNUSED(heap);
+	UNUSED(data);
+}
+
 static void pushAutoReleasePool(ClarityHeap *heap, Header *header)
 {
 	AutoReleaseItem *newItem;
 
-	newItem = malloc(sizeof(AutoReleaseItem));
-
+	newItem = clarityHeapAllocate(heap,
+								  sizeof(AutoReleaseItem),
+								  (ClarityHeapDestructor)autoReleaseDestroy);
 	if (newItem) {
 		AutoReleaseItem *pool;
 
@@ -82,7 +91,7 @@ static Header *popAutoReleasePool(ClarityHeap *heap)
 	item = heap->autoReleasePool;
 	header = item->header;
 	heap->autoReleasePool = item->next;
-	free(item);
+	clarityHeapRelease(heap, item);
 	heap->openAllocations--;
 	return header;
 }
@@ -106,7 +115,7 @@ void *clarityHeapAllocate(ClarityHeap *heap,
 
 	UNUSED(heap);
 	retVal = NULL;
-	header = malloc(size + sizeof(Header));
+	header = heap->alloc(size + sizeof(Header));
 
 	if (header) {
 		initializeHeader(header, size, destructor);
@@ -117,7 +126,7 @@ void *clarityHeapAllocate(ClarityHeap *heap,
 		heap->openAllocations++;
 		heap->maxAllocations = MAX(heap->maxAllocations,
 								   heap->openAllocations);
-		retVal = (Uint8 *)header + sizeof(Header);
+		retVal = &header->data;
 	}
 	return retVal;
 }
@@ -131,7 +140,7 @@ static Header *heapItemHeader(void *data)
 	if (data != NULL) {
 		Header *header;
 
-		header = (Header *)((Uint8 *)data - sizeof(Header));
+		header = (Header *)((Uint8 *)data - sizeof(Header) + sizeof(data));
 
 		if (header->magic == HEAP_MAGIC)
 			retVal = header;
@@ -141,13 +150,10 @@ static Header *heapItemHeader(void *data)
 
 static void clarityHeapFree(ClarityHeap *heap, Header *header)
 {
-	Uint8 *index;
-
-	index = (Uint8 *)header;
-	header->destructor(heap, &index[sizeof(Header)]);
+	header->destructor(heap, &header->data);
 	heap->openAllocations--;
 	heap->openAllocated -= (header->size + sizeof(Header));
-	free(header);
+	heap->free(header);
 }
 
 static void innerRelease(ClarityHeap *heap, void *data, Release release)
@@ -205,22 +211,39 @@ static void destroy(ClarityHeap *heap, void *data)
 	clarityHeapCollectGarbage(heap);
 }
 
+static void *defaultAlloc(Uint32 size)
+{
+	/*TODO Implement default alloc*/
+	UNUSED(size);
+	return NULL;
+}
+
+static void defaultFree(void *data)
+{
+	/*TODO Implement default free*/
+	UNUSED(data);
+}
+
 ClarityHeap *clarityHeapCreate(void)
+{
+	return clarityHeapCreateExternal(defaultAlloc, defaultFree);
+}
+
+ClarityHeap *clarityHeapCreateExternal(ClarityAlloc alloc, ClarityFree free)
 {
 	Header *header;
 	ClarityHeap *heap;
 
 	heap = NULL;
-	header = malloc(sizeof(ClarityHeap) + sizeof(Header));
+	header = alloc(sizeof(ClarityHeap) + sizeof(Header));
 
 	if (header) {
-		Uint8 *index;
-
 		initializeHeader(header, sizeof(ClarityHeap), destroy);
-		index = (Uint8 *)header;
-		heap = (ClarityHeap *)&index[sizeof(Header)];
+		heap = (ClarityHeap *)&header->data;
 		heap->autoReleasePool = &LAST_AUTO_RELEASE_ITEM;
 		heap->openAllocations = 1;
+		heap->alloc = alloc;
+		heap->free = free;
 		heap->openAllocated = sizeof(ClarityHeap) + sizeof(Header);
 		heap->maxAllocations = heap->openAllocations;
 		heap->maxAllocated = heap->openAllocated;

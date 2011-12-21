@@ -32,6 +32,8 @@
 
 typedef struct __ClarityHeap ClarityHeap;
 typedef void(*ClarityHeapDestructor)(ClarityHeap *, void *);
+typedef void *(*ClarityAlloc)(Uint32);
+typedef void(*ClarityFree)(void *);
 
 void *clarityHeapAllocate(ClarityHeap *, Uint32, ClarityHeapDestructor);
 void clarityHeapAutoRelease(ClarityHeap *, void *);
@@ -40,4 +42,5 @@ void *clarityHeapRetain(ClarityHeap *, void *);
 void clarityHeapCollectGarbage(ClarityHeap *);
 
 ClarityHeap *clarityHeapCreate(void);
+ClarityHeap *clarityHeapCreateExternal(ClarityAlloc, ClarityFree);
 #endif

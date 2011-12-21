@@ -1,6 +1,8 @@
 #include "Clarity.h"
 #include "ClarityString.h"
-#include "stdio.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static int count = 1;
 
@@ -39,11 +41,23 @@ static void entry(Clarity *clarity, void *data)
 	}
 }
 
+static void *mainAlloc(Uint32 size)
+{
+	return malloc(size);
+}
+
+static void mainFree(void *data)
+{
+	free(data);
+}
+
 int main(void)
 {
+	ClarityHeap *heap;
 	Clarity *clarity;
 
-	clarity = clarityCreate(entry);
+	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
+	clarity = clarityCreate(entry, heap);
 	clarityStart(clarity);
 	clarityStop(clarity);
 	return 0;

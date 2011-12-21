@@ -31,11 +31,24 @@
 #include "ClarityHeap.h"
 
 typedef struct __Clarity Clarity;
+
 typedef void(*ClarityEventFunction)(Clarity *, void *);
 
-void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);
+typedef void*(*ClarityMemCpy)(void *, const void *, Uint32);
+typedef void*(*ClarityMemSet)(void *, char, Uint32);
+typedef Uint32(*ClarityStrLen)(const char *);
+
+void claritySetMemCpy(Clarity *, ClarityMemCpy);
+void claritySetMemSet(Clarity *,ClarityMemSet);
+void ClaritySetStrLen(Clarity *, ClarityStrLen);
+
 ClarityHeap *clarityGetHeap(Clarity *);
-Clarity *clarityCreate(ClarityEventFunction);
+ClarityMemCpy clarityGetMemCpy(Clarity *);
+ClarityMemSet clarityGetMemSet(Clarity *);
+ClarityStrLen ClarityGetStrLen(Clarity *);
+
+Clarity *clarityCreate(ClarityEventFunction, ClarityHeap *);
+void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);
 void clarityStart(Clarity *);
 void clarityStop(Clarity *);
 
