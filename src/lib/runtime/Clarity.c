@@ -63,7 +63,7 @@ static Uint32 defaultStrLen(const char *string)
 
 	for (s = string; *s;)
 		++s;
-	return s - string;
+	return (Uint32)(s - string);
 }
 
 void claritySetMemCpy(Clarity *clarity, ClarityMemCpy memCpy)
