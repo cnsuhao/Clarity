@@ -32,6 +32,7 @@
 typedef struct __ClarityEventLoop ClarityEventLoop;
 
 void clarityEventLoopEnqueue(ClarityEventLoop *, ClarityEventFunction, void *);
+void clarityEventLoopPush(ClarityEventLoop *, ClarityEventFunction, void *);
 void clarityEventLoopStart(ClarityEventLoop *);
 ClarityEventLoop *clarityEventLoopCreate(Clarity *, ClarityEventFunction);
 

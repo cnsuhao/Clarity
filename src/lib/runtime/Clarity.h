@@ -50,6 +50,7 @@ Uint32 clarityStrLen(Clarity *, const char *);
 
 Clarity *clarityCreate(ClarityEventFunction, ClarityHeap *);
 void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);
+void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
 void clarityStart(Clarity *);
 void clarityStop(Clarity *);
 

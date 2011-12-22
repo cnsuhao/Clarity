@@ -105,8 +105,15 @@ ClarityHeap *clarityGetHeap(Clarity *clarity)
 }
 
 void clarityEnqueueEvent(Clarity *clarity,
-						ClarityEventFunction function,
-						void *data)
+						 ClarityEventFunction function,
+						 void *data)
+{
+	clarityEventLoopEnqueue(clarity->eventLoop, function, data);
+}
+
+void clarityPushEvent(Clarity *clarity,
+					  ClarityEventFunction function,
+					  void *data)
 {
 	clarityEventLoopEnqueue(clarity->eventLoop, function, data);
 }

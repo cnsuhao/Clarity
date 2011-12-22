@@ -35,7 +35,7 @@ typedef struct {
 } Event;
 
 struct __ClarityEventLoop {
-	ClarityArray *array;
+	ClarityArray *events;
 	Clarity *clarity;
 	Uint32 maxEvents;
 };
@@ -64,14 +64,14 @@ static Event *eventCreate(Clarity *clarity,
 
 static Bool hasEvent(ClarityEventLoop *eventLoop)
 {
-	return clarityArrayLength(eventLoop->array);
+	return clarityArrayLength(eventLoop->events);
 }
 
 static void destroy(ClarityHeap *heap,
 					ClarityEventLoop *eventLoop)
 {
 	clarityHeapRelease(heap, eventLoop->clarity);
-	clarityHeapRelease(heap, eventLoop->array);
+	clarityHeapRelease(heap, eventLoop->events);
 }
 
 static void dequeue(ClarityEventLoop *eventLoop)
@@ -79,22 +79,40 @@ static void dequeue(ClarityEventLoop *eventLoop)
 	Event *event;
 	ClarityHeap *heap;
 
-	event = clarityArrayPop(eventLoop->array);
+	event = clarityArrayPop(eventLoop->events);
 	event->function(eventLoop->clarity, event->data);
 	heap = clarityGetHeap(eventLoop->clarity);
 	clarityHeapCollectGarbage(heap);
+}
+
+typedef void(*Adder)(ClarityArray *, void *);
+
+
+static void clarityEventLoopAdd(ClarityEventLoop *eventLoop,
+								ClarityEventFunction function,
+								void *data,
+								Adder adder)
+{
+	Event *event;
+
+	event = eventCreate(eventLoop->clarity, function, data);
+	adder(eventLoop->events, event);
+	eventLoop->maxEvents = MAX(eventLoop->maxEvents,
+							   clarityArrayLength(eventLoop->events));
 }
 
 void clarityEventLoopEnqueue(ClarityEventLoop *eventLoop,
 							 ClarityEventFunction function,
 							 void *data)
 {
-	Event *event;
+	clarityEventLoopAdd(eventLoop, function, data, clarityArrayUnshift);
+}
 
-	event = eventCreate(eventLoop->clarity, function, data);
-	clarityArrayUnshift(eventLoop->array, event);
-	eventLoop->maxEvents = MAX(eventLoop->maxEvents,
-							   clarityArrayLength(eventLoop->array));
+void clarityEventLoopPush(ClarityEventLoop *eventLoop,
+							 ClarityEventFunction function,
+							 void *data)
+{
+	clarityEventLoopAdd(eventLoop, function, data, clarityArrayPush);
 }
 
 void clarityEventLoopStart(ClarityEventLoop *eventLoop)
@@ -115,8 +133,8 @@ ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
 									(ClarityHeapDestructor)destroy);
 
 	eventLoop->clarity = clarityHeapRetain(heap, clarity);
-	eventLoop->array = clarityArrayCreate(eventLoop->clarity);
-	eventLoop->array = clarityHeapRetain(heap, eventLoop->array);
+	eventLoop->events = clarityArrayCreate(eventLoop->clarity);
+	eventLoop->events = clarityHeapRetain(heap, eventLoop->events);
 	eventLoop->maxEvents = 0;
 	clarityEventLoopEnqueue(eventLoop, entry, NULL);
 	clarityHeapAutoRelease(heap, eventLoop);
