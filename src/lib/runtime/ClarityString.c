@@ -44,16 +44,12 @@ static void destroy(ClarityHeap *heap, void *data)
 ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 {
 	ClarityHeap *heap;
-	ClarityMemCpy memCpy;
-	ClarityStrLen strLen;
 	ClarityString *string;
 	char *cString;
 	Uint32 length;
 
 	heap = clarityGetHeap(clarity);
-	strLen = ClarityGetStrLen(clarity);
-	memCpy = clarityGetMemCpy(clarity);
-	length = strLen(newCString);
+	length = clarityStrLen(clarity, newCString);
 	string = clarityHeapAllocate(heap,
 								 sizeof(ClarityString) + length + 1,
 								 (ClarityHeapDestructor)destroy);
@@ -61,7 +57,7 @@ ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 	string->length = length;
 	cString = &string->cString;
 
-	memCpy(cString, newCString, string->length);
+	clarityMemCpy(clarity, cString, newCString, string->length);
 	cString[string->length] = '\0';
 	clarityHeapAutoRelease(heap, string);
 	return string;

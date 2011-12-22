@@ -43,9 +43,10 @@ void claritySetMemSet(Clarity *,ClarityMemSet);
 void ClaritySetStrLen(Clarity *, ClarityStrLen);
 
 ClarityHeap *clarityGetHeap(Clarity *);
-ClarityMemCpy clarityGetMemCpy(Clarity *);
-ClarityMemSet clarityGetMemSet(Clarity *);
-ClarityStrLen ClarityGetStrLen(Clarity *);
+
+void *clarityMemCpy(Clarity *, void *, const void *, Uint32);
+void *clarityMemSet(Clarity *, void *, char, Uint32);
+Uint32 clarityStrLen(Clarity *, const char *);
 
 Clarity *clarityCreate(ClarityEventFunction, ClarityHeap *);
 void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);

@@ -81,19 +81,22 @@ void ClaritySetStrLen(Clarity *clarity, ClarityStrLen strLen)
 	clarity->strLen = strLen;
 }
 
-ClarityMemCpy clarityGetMemCpy(Clarity *clarity)
+void *clarityMemCpy(Clarity *clarity,
+					void *dstData,
+					const void *srcData,
+					Uint32 size)
 {
-	return clarity->memCpy;
+	return clarity->memCpy(dstData, srcData, size);
 }
 
-ClarityMemSet clarityGetMemSet(Clarity *clarity)
+void *clarityMemSet(Clarity *clarity, void *data, char value, Uint32 size)
 {
-	return clarity->memSet;
+	return clarity->memSet(data, value, size);
 }
 
-ClarityStrLen ClarityGetStrLen(Clarity *clarity)
+Uint32 clarityStrLen(Clarity *clarity, const char *cString)
 {
-	return clarity->strLen;
+	return clarity->strLen(cString);
 }
 
 ClarityHeap *clarityGetHeap(Clarity *clarity)
