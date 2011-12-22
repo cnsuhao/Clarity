@@ -53,7 +53,6 @@ typedef Bool(*ClarityArrayTestCallback)(void *,
 										 ClarityArray *,
 										 Clarity *);
 
-
 ClarityArray *clarityArrayCreate(Clarity *);
 void clarityArrayPush(ClarityArray *, void *);
 void *clarityArrayPop(ClarityArray *);

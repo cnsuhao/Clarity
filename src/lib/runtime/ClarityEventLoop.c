@@ -87,7 +87,6 @@ static void dequeue(ClarityEventLoop *eventLoop)
 
 typedef void(*Adder)(ClarityArray *, void *);
 
-
 static void clarityEventLoopAdd(ClarityEventLoop *eventLoop,
 								ClarityEventFunction function,
 								void *data,

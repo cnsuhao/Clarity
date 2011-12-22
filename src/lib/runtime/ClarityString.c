@@ -40,7 +40,6 @@ static void destroy(ClarityHeap *heap, void *data)
 	UNUSED(data);
 }
 
-
 ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 {
 	ClarityHeap *heap;
