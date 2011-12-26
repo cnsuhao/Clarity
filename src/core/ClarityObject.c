@@ -26,32 +26,50 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
+#include "ClarityObject.h"
+#include "ClarityDictionary.h"
 #include "ClarityHeap.h"
 
-typedef struct __Clarity Clarity;
+struct __ClarityObject {
+	Clarity *clarity;
+	ClarityDictionary *members;
+};
 
-typedef void(*ClarityEventFunction)(Clarity *, void *);
+static void destroy(ClarityHeap *heap, ClarityObject *object)
+{
+	clarityHeapRelease(heap, object->clarity);
+	clarityHeapRelease(heap, object->members);
+}
 
-typedef void*(*ClarityMemCpy)(void *, const void *, Uint32);
-typedef void*(*ClarityMemSet)(void *, char, Uint32);
-typedef Uint32(*ClarityStrLen)(const char *);
+void *clarityObjectGetMember(ClarityObject *object, ClarityString *name)
+{
+	return clarityDictionaryGetObject(object->members, name);
+}
 
-void claritySetMemCpy(Clarity *, ClarityMemCpy);
-void claritySetMemSet(Clarity *,ClarityMemSet);
-void ClaritySetStrLen(Clarity *, ClarityStrLen);
+void clarityObjectSetMember(ClarityObject *object,
+							ClarityString *name,
+							void *member)
+{
+	if (clarityDictionaryGetObject(object->members, name))
+		clarityDictionaryRemoveObject(object->members, name);
+	clarityDictionarySetObject(object->members, name, member);
+}
 
-ClarityHeap *clarityGetHeap(Clarity *);
+ClarityObject *clarityObjectCreate(Clarity *clarity)
+{
+	ClarityHeap *heap;
+	ClarityObject *object;
 
-void *clarityMemCpy(Clarity *, void *, const void *, Uint32);
-void *clarityMemSet(Clarity *, void *, char, Uint32);
-Uint32 clarityStrLen(Clarity *, const char *);
+	heap = clarityGetHeap(clarity);
+	object = clarityHeapAllocate(heap, sizeof(ClarityObject),
+									 (ClarityHeapDestructor)destroy);
 
-Clarity *clarityCreate(ClarityEventFunction, ClarityHeap *);
-void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);
-void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
-void clarityStart(Clarity *);
-void clarityStop(Clarity *);
+	object->clarity = clarityHeapRetain(heap, clarity);
+	object->members = clarityDictionaryCreate(
+		clarity,
+		(ClarityComparator)clarityStringCompare);
 
-#endif
+	object->members = clarityHeapRetain(heap, object->members);
+	clarityHeapAutoRelease(heap, object);
+	return object;
+}

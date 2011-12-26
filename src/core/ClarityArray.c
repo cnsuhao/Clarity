@@ -26,6 +26,7 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
+#include "ClarityMacro.h"
 #include "ClarityArray.h"
 #include "ClarityHeap.h"
 
@@ -283,9 +284,10 @@ void *clarityArrayPop(ClarityArray *array)
 		array->last->prev = element->prev;
 		array->last->prev->next = array->last;
 		array->length--;
-		retVal = element->data;
 		heap = clarityGetHeap(array->clarity);
+		retVal = clarityHeapRetain(heap, element->data);
 		clarityHeapRelease(heap, element);
+		clarityHeapAutoRelease(heap, retVal);
 	}
 	return retVal;
 }

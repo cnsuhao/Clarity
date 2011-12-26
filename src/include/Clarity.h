@@ -26,22 +26,36 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYTYPES_H__
-#define __CLARITYTYPES_H__
-#include <stdint.h>
+#ifndef __CLARITY_H__
+#define __CLARITY_H__
+#include "ClarityHeap.h"
 
-#define UNUSED(expr) do { (void)(expr); } while (0)
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define TRUE 1
-#define FALSE 0
-#define NULL 0
+typedef struct __Clarity Clarity;
 
-typedef uint8_t Uint8;
-typedef int8_t Sint8;
-typedef uint16_t Uint16;
-typedef int16_t Sint16;
-typedef uint32_t Uint32;
-typedef int32_t Sint32;
-typedef int32_t Bool;
+typedef void(*ClarityEventFunction)(Clarity *, void *);
+typedef Sint8(*ClarityComparator)(Clarity *, void *, void *);
+
+typedef void*(*ClarityMemCpy)(Clarity *, void *, const void *, Uint32);
+typedef void*(*ClarityMemSet)(Clarity *, void *, char, Uint32);
+typedef Uint32(*ClarityStrLen)(Clarity *, const char *);
+typedef Sint8(*ClarityStrCmp)(Clarity *, const char *, const char *);
+
+void claritySetMemCpy(Clarity *, ClarityMemCpy);
+void claritySetMemSet(Clarity *, ClarityMemSet);
+void claritySetStrLen(Clarity *, ClarityStrLen);
+void claritySetStrCmp(Clarity *, ClarityStrCmp);
+
+ClarityHeap *clarityGetHeap(Clarity *);
+
+void *clarityMemCpy(Clarity *, void *, const void *, Uint32);
+void *clarityMemSet(Clarity *, void *, char, Uint32);
+Uint32 clarityStrLen(Clarity *, const char *);
+Sint8 clarityStrCmp(Clarity *, const char *, const char *);
+
+Clarity *clarityCreate(ClarityEventFunction, ClarityHeap *);
+void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);
+void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
+void clarityStart(Clarity *);
+void clarityStop(Clarity *);
 
 #endif

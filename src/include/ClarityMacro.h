@@ -26,14 +26,10 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYSTRING_H__
-#define __CLARITYSTRING_H__
-#include "Clarity.h"
+#ifndef __CLARITYMACROS_H__
+#define __CLARITYMACROS_H__
 
-typedef struct __ClarityString ClarityString;
-
-ClarityString *clarityStringCreate(Clarity *, const char*);
-Uint32 clarityStringLength(ClarityString *);
-const char *clarityStringGetCString(ClarityString *);
+#define UNUSED(expr) do { (void)(expr); } while (0)
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 #endif

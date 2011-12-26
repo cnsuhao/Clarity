@@ -26,6 +26,7 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
+#include "ClarityMacro.h"
 #include "ClarityHeap.h"
 
 typedef struct {
@@ -56,8 +57,8 @@ struct __ClarityHeap {
 
 typedef void(*Release)(ClarityHeap *heap, Header *header);
 
-static Uint32 HEAP_MAGIC = 0xC0FFEE0D;
-static AutoReleaseItem LAST_AUTO_RELEASE_ITEM;
+static const Uint32 HEAP_MAGIC = 0xC0FFEE0D;
+static const AutoReleaseItem LAST_AUTO_RELEASE_ITEM = {NULL, NULL};
 
 static void autoReleaseDestroy(ClarityHeap *heap, void *data)
 {
@@ -65,7 +66,7 @@ static void autoReleaseDestroy(ClarityHeap *heap, void *data)
 	UNUSED(data);
 }
 
-static void pushAutoReleasePool(ClarityHeap *heap, Header *header)
+static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
 {
 	AutoReleaseItem *newItem;
 
@@ -79,23 +80,45 @@ static void pushAutoReleasePool(ClarityHeap *heap, Header *header)
 		heap->autoReleasePool = newItem;
 		heap->autoReleasePool->header = header;
 		heap->autoReleasePool->next = pool;
-		heap->openAllocations++;
-		heap->maxAllocations = MAX(heap->maxAllocations,
-								   heap->openAllocations);
 	}
 }
 
-static Header *popAutoReleasePool(ClarityHeap *heap)
+static Header *autoReleasePoolPop(ClarityHeap *heap)
 {
 	Header *header;
 	AutoReleaseItem *item;
 
 	item = heap->autoReleasePool;
-	header = item->header;
 	heap->autoReleasePool = item->next;
+	header = item->header;
 	clarityHeapRelease(heap, item);
-	heap->openAllocations--;
 	return header;
+}
+
+static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
+{
+	AutoReleaseItem *item;
+	AutoReleaseItem *next;
+	AutoReleaseItem *prev;
+
+	item = heap->autoReleasePool;
+	prev = NULL;
+
+	while (item != &LAST_AUTO_RELEASE_ITEM) {
+		next = item->next;
+		if (item->header == header) {
+			if (item == heap->autoReleasePool)
+				heap->autoReleasePool = next;
+			else if (prev)
+				prev->next = next;
+			clarityHeapRelease(heap, item);
+		} else {
+			prev = item;
+		}
+		item = next;
+		if (item == heap->autoReleasePool)
+			prev = NULL;
+	}
 }
 
 static void initializeHeader(Header *header,
@@ -155,6 +178,7 @@ static void clarityHeapFree(ClarityHeap *heap, Header *header)
 	header->destructor(heap, &header->data);
 	heap->openAllocations--;
 	heap->openAllocated -= (header->size + sizeof(Header));
+	autoReleasePoolDelete(heap, header);
 	heap->free(header);
 }
 
@@ -174,7 +198,7 @@ static void innerRelease(ClarityHeap *heap, void *data, Release release)
 
 void clarityHeapAutoRelease(ClarityHeap *heap, void *data)
 {
-	innerRelease(heap, data, pushAutoReleasePool);
+	innerRelease(heap, data, autoReleasePoolPush);
 }
 
 void clarityHeapRelease(ClarityHeap *heap, void *data)
@@ -196,13 +220,12 @@ void *clarityHeapRetain(ClarityHeap *heap, void *data)
 
 void clarityHeapCollectGarbage(ClarityHeap *heap)
 {
-
 	while (heap->autoReleasePool != &LAST_AUTO_RELEASE_ITEM) {
 		Header *header;
 
-		header = popAutoReleasePool(heap);
+		header = autoReleasePoolPop(heap);
 
-		if (header->refCount <= 0)
+		if (header->refCount == 0)
 			clarityHeapFree(heap, header);
 	}
 }
@@ -240,7 +263,7 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 	if (header) {
 		initializeHeader(header, sizeof(ClarityHeap), destroy);
 		heap = (ClarityHeap *)&header->data;
-		heap->autoReleasePool = &LAST_AUTO_RELEASE_ITEM;
+		heap->autoReleasePool = (AutoReleaseItem *)&LAST_AUTO_RELEASE_ITEM;
 		heap->openAllocations = 1;
 		heap->alloc = alloc;
 		heap->free = free;

@@ -26,18 +26,16 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYDICTIONARY_H__
-#define __CLARITYDICTIONARY_H__
+#ifndef __CLARITYOBJECT_H__
+#define __CLARITYOBJECT_H__
 #include "Clarity.h"
+#include "ClarityString.h"
 
-typedef struct __ClarityDictionary ClarityDictionary;
-typedef Sint8(*ClarityDictionaryKeyComparator)(void *, void *);
+typedef struct __ClarityObject ClarityObject;
 
-ClarityDictionary *clarityDictionaryCreate(Clarity *,
-										   ClarityDictionaryKeyComparator);
+ClarityObject *clarityObjectCreate(Clarity *);
 
-void clarityDictionarySetObject(ClarityDictionary *, void *, void *);
-void *clarityDictionaryGetObject(ClarityDictionary *, void *);
-void clarityDictionaryRemoveObject(ClarityDictionary *, void *);
+void clarityObjectSetMember(ClarityObject *, ClarityString *, void *);
+void *clarityObjectGetMember(ClarityObject *, ClarityString *);
 
 #endif

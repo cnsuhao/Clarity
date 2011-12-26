@@ -46,7 +46,7 @@ typedef Bool(*ClarityArrayTestFunction)(Clarity *, Bool, void *);
 
 typedef void(*ClarityArrayForEachCallback)(Clarity *, void *);
 
-typedef void *(*ClarityArrayMapCallback)(Clarity *,void *, void*);
+typedef void *(*ClarityArrayMapCallback)(Clarity *, void *, void*);
 
 typedef Bool(*ClarityArrayTestCallback)(void *,
 										 Uint32,

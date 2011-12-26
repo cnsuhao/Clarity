@@ -41,7 +41,7 @@ struct __Node {
 struct __ClarityDictionary {
 	Clarity *clarity;
 	Node *root;
-	ClarityDictionaryKeyComparator comparator;
+	ClarityComparator comparator;
 };
 
 static void itemDestroy(ClarityHeap *heap, Node *node)
@@ -86,11 +86,11 @@ static Node *getNode(ClarityDictionary *dictionary, void *key)
 	while (node != NULL) {
 		Sint8 compare;
 
-		compare = dictionary->comparator(key, node->key);
+		compare = dictionary->comparator(dictionary->clarity, key, node->key);
 
 		if (compare == 0)
 			return node;
-		else if (compare > 1)
+		else if (compare > 0)
 			node = node->left;
 		else
 			node = node->right;
@@ -122,8 +122,13 @@ void clarityDictionaryRemoveObject(ClarityDictionary *dictionary, void *key)
 
 		heap = clarityGetHeap(dictionary->clarity);
 
-		if (node->left == NULL && node->right == NULL)
+		if (node->left == NULL && node->right == NULL) {
+			if (node->parent->left == node)
+				node->parent->left = NULL;
+			else if (node->parent->right == node)
+				node->parent->right = NULL;
 			clarityHeapRelease(heap, node);
+		}
 
 		/*TODO release items with children */
 	}
@@ -140,17 +145,17 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 
 	heap = clarityGetHeap(dictionary->clarity);
 	node = dictionary->root;
-	assignee = &node;
+	assignee = &dictionary->root;
 	parent = NULL;
 
 	while (node != NULL) {
 		Sint8 compare;
 
-		compare = dictionary->comparator(key, node->key);
+		compare = dictionary->comparator(dictionary->clarity, key, node->key);
 
 		if (compare == 0)
 			return;
-		else if (compare > 1)
+		else if (compare > 0)
 			assignee = &node->left;
 		else
 			assignee = &node->right;
@@ -163,7 +168,7 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 }
 
 ClarityDictionary *clarityDictionaryCreate(Clarity *clarity,
-										   ClarityDictionaryKeyComparator comp)
+										   ClarityComparator comp)
 {
 	ClarityHeap *heap;
 	ClarityDictionary *dictionary;

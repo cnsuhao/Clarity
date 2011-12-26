@@ -26,48 +26,17 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityString.h"
-#include "ClarityHeap.h"
+#ifndef __CLARITYDICTIONARY_H__
+#define __CLARITYDICTIONARY_H__
+#include "Clarity.h"
 
-struct __ClarityString {
-	Uint32 length;
-	char cString;
-};
+typedef struct __ClarityDictionary ClarityDictionary;
 
-static void destroy(ClarityHeap *heap, void *data)
-{
-	UNUSED(heap);
-	UNUSED(data);
-}
+ClarityDictionary *clarityDictionaryCreate(Clarity *,
+										   ClarityComparator);
 
-ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
-{
-	ClarityHeap *heap;
-	ClarityString *string;
-	char *cString;
-	Uint32 length;
+void clarityDictionarySetObject(ClarityDictionary *, void *, void *);
+void *clarityDictionaryGetObject(ClarityDictionary *, void *);
+void clarityDictionaryRemoveObject(ClarityDictionary *, void *);
 
-	heap = clarityGetHeap(clarity);
-	length = clarityStrLen(clarity, newCString);
-	string = clarityHeapAllocate(heap,
-								 sizeof(ClarityString) + length + 1,
-								 (ClarityHeapDestructor)destroy);
-
-	string->length = length;
-	cString = &string->cString;
-
-	clarityMemCpy(clarity, cString, newCString, string->length);
-	cString[string->length] = '\0';
-	clarityHeapAutoRelease(heap, string);
-	return string;
-}
-
-Uint32 clarityStringLength(ClarityString *string)
-{
-	return string->length;
-}
-
-const char *clarityStringGetCString(ClarityString *string)
-{
-	return (const char *)&string->cString;
-}
+#endif

@@ -35,9 +35,13 @@ struct __Clarity {
 	ClarityMemCpy memCpy;
 	ClarityMemSet memSet;
 	ClarityStrLen strLen;
+	ClarityStrCmp strCmp;
 };
 
-static void *defaultMemCpy(void *dstData, const void *srcData, Uint32 size)
+static void *defaultMemCpy(Clarity *clarity,
+						   void *dstData,
+						   const void *srcData,
+						   Uint32 size)
 {
 	char* dst8 = (char *)dstData;
 	char* src8 = (char *)srcData;
@@ -47,7 +51,10 @@ static void *defaultMemCpy(void *dstData, const void *srcData, Uint32 size)
 	return dstData;
 }
 
-static void *defaultMemSet(void *data, char value, Uint32 size)
+static void *defaultMemSet(Clarity *clarity,
+						   void *data,
+						   char value,
+						   Uint32 size)
 {
 	char *p;
 
@@ -57,14 +64,32 @@ static void *defaultMemSet(void *data, char value, Uint32 size)
 	return data;
 }
 
-static Uint32 defaultStrLen(const char *string)
+static Uint32 defaultStrLen(Clarity *clarity, const char *cString)
 {
 	const char *s;
 
-	for (s = string; *s;)
+	for (s = cString; *s;)
 		++s;
-	return (Uint32)(s - string);
+	return (Uint32)(s - cString);
 }
+
+static Sint8 defaultStrCmp(Clarity *clarity,
+						   const char *cString,
+						   const char *cString2)
+{
+	unsigned char uc1;
+	unsigned char uc2;
+
+	while (*cString != '\0' && *cString == *cString2) {
+		cString++;
+		cString2++;
+	}
+
+	uc1 = (*(unsigned char *) cString);
+	uc2 = (*(unsigned char *) cString2);
+	return ((uc1 < uc2) ? -1 : (uc1 > uc2));
+}
+
 
 void claritySetMemCpy(Clarity *clarity, ClarityMemCpy memCpy)
 {
@@ -76,27 +101,40 @@ void claritySetMemSet(Clarity *clarity, ClarityMemSet memSet)
 	clarity->memSet = memSet;
 }
 
-void ClaritySetStrLen(Clarity *clarity, ClarityStrLen strLen)
+void claritySetStrLen(Clarity *clarity, ClarityStrLen strLen)
 {
 	clarity->strLen = strLen;
 }
+
+void claritySetStrCmp(Clarity *clarity, ClarityStrCmp strCmp)
+{
+	clarity->strCmp = strCmp;
+}
+
 
 void *clarityMemCpy(Clarity *clarity,
 					void *dstData,
 					const void *srcData,
 					Uint32 size)
 {
-	return clarity->memCpy(dstData, srcData, size);
+	return clarity->memCpy(clarity, dstData, srcData, size);
 }
 
 void *clarityMemSet(Clarity *clarity, void *data, char value, Uint32 size)
 {
-	return clarity->memSet(data, value, size);
+	return clarity->memSet(clarity, data, value, size);
 }
 
 Uint32 clarityStrLen(Clarity *clarity, const char *cString)
 {
-	return clarity->strLen(cString);
+	return clarity->strLen(clarity, cString);
+}
+
+Sint8 clarityStrCmp(Clarity *clarity,
+					 const char *cString,
+					 const char *cString2)
+{
+	return clarity->strCmp(clarity, cString, cString2);
 }
 
 ClarityHeap *clarityGetHeap(Clarity *clarity)
@@ -135,6 +173,7 @@ Clarity *clarityCreate(ClarityEventFunction entry, ClarityHeap *heap)
 	clarity->memSet = defaultMemSet;
 	clarity->memCpy = defaultMemCpy;
 	clarity->strLen = defaultStrLen;
+	clarity->strCmp = defaultStrCmp;
 	clarity->heap = clarityHeapRetain(heap, heap);
 	clarity->eventLoop = clarityEventLoopCreate(clarity, entry);
 	clarity->eventLoop = clarityHeapRetain(heap, clarity->eventLoop);
