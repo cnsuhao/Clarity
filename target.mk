@@ -210,8 +210,3 @@ $(OUTDIR)/claritycore : $(OUTDIR)/libclaritycore.a
 
 $(CLA) :
 	@ $(MAKE) -C src/tools/compiler
-
-clean :
-	@ echo Cleaning
-	@ rm -rf out
-	@ rm -rf rel

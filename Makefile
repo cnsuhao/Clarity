@@ -1,9 +1,12 @@
-main :
+.PHONY : main test build clean
+
+main : test build
+
+build :
 	@ $(MAKE) -f target.mk
 
 test :
 	@ $(MAKE) -f tester.mk
 
 clean :
-	@ echo Cleaning
 	rm -rf out

@@ -1,10 +1,18 @@
-TESTEROUT := out/tester
+TESTEROUT := out/int/tester
+TESTERCLARITYLIB := $(TESTEROUT)/libclaritycore.a
+TESTERCLARITYINCLUDE := $(TESTEROUT)/include/
+TESTERCLARITYTEST := $(TESTEROUT)/claritytest
+TESTERREPORT := $(TESTEROUT)/report
+TESTERSOURCE := $(wildcard test/core/*.c)
 
-main : build
-	@ $(MAKE) -f target.mk
+.PHONY : clean
 
-build : 
-	@ $(MAKE) -f target.mk ARCH=x86 MACH=default OUT=$(TESTEROUT)
+$(TESTERREPORT) : $(TESTERCLARITYTEST)
+	$(TESTERCLARITYTEST)
+	@ touch $(TESTERREPORT)	
 
-clean :
-	@ $(MAKE) -f target.mk clean
+$(TESTERCLARITYTEST) : $(TESTERCLARITYLIB)
+	gcc $(abspath $(TESTERSOURCE)) $< -I$(TESTERCLARITYINCLUDE) -lgcov -o $@
+
+$(TESTERCLARITYLIB) :
+	@ $(MAKE) -f target.mk ARCH=x86 MACH=default TARGET=coverage OUT=$(TESTEROUT)
