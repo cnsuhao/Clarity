@@ -9,6 +9,7 @@
 # Build flags:
 # ARCH=<arch> [default: x86]
 # MACH=<mach> [default: default]
+# TARGET=<release|debug|coverage> [default: debug]
 # LINK=<true|false> [default: false]
 #
 # Available arch/mach combinations can be found in src/arch/<arch>/mach/<mach>
