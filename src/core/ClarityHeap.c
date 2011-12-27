@@ -49,10 +49,6 @@ struct __ClarityHeap {
 	void *address;
 	ClarityAlloc alloc;
 	ClarityFree free;
-	Uint32 openAllocations;
-	Uint32 maxAllocations;
-	Uint32 openAllocated;
-	Uint32 maxAllocated;
 };
 
 typedef void(*Release)(ClarityHeap *heap, Header *header);
@@ -144,13 +140,6 @@ void *clarityHeapAllocate(ClarityHeap *heap,
 
 	if (header) {
 		initializeHeader(header, size, destructor);
-		heap->openAllocated += size + sizeof(Header);
-		heap->maxAllocated = MAX(heap->maxAllocated,
-								 heap->openAllocated);
-
-		heap->openAllocations++;
-		heap->maxAllocations = MAX(heap->maxAllocations,
-								   heap->openAllocations);
 		retVal = &header->data;
 	}
 	return retVal;
@@ -176,8 +165,6 @@ static Header *heapItemHeader(void *data)
 static void clarityHeapFree(ClarityHeap *heap, Header *header)
 {
 	header->destructor(heap, &header->data);
-	heap->openAllocations--;
-	heap->openAllocated -= (header->size + sizeof(Header));
 	autoReleasePoolDelete(heap, header);
 	heap->free(header);
 }
@@ -264,12 +251,8 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 		initializeHeader(header, sizeof(ClarityHeap), destroy);
 		heap = (ClarityHeap *)&header->data;
 		heap->autoReleasePool = (AutoReleaseItem *)&LAST_AUTO_RELEASE_ITEM;
-		heap->openAllocations = 1;
 		heap->alloc = alloc;
 		heap->free = free;
-		heap->openAllocated = sizeof(ClarityHeap) + sizeof(Header);
-		heap->maxAllocations = heap->openAllocations;
-		heap->maxAllocated = heap->openAllocated;
 		heap->address = address;
 		heap->size = size;
 	}
