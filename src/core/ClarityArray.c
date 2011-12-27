@@ -186,13 +186,15 @@ static Element *elementCreate(Clarity *clarity, void *data)
 static void destroy(ClarityHeap *heap, ClarityArray *array)
 {
 	Element *item;
+	Element *next;
 
 	clarityHeapRelease(heap, array->clarity);
 	item = array->first->next;
 
 	while (item != array->last) {
+		next = item->next;
 		clarityHeapRelease(heap, item);
-		item = item->next;
+		item = next;
 	}
 	clarityHeapRelease(heap, array->last);
 	clarityHeapRelease(heap, array->first);
