@@ -17,7 +17,6 @@ static void mainFree(void *data)
 
 static void entry(Clarity *clarity, void *data)
 {
-	static const int BUFFER_SIZE = 11;
 	const char *testStringBase = "BTestString";
 	const char *testStringMore = "CTestString";
 	const char *testStringLess = "ATestString";
