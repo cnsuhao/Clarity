@@ -153,7 +153,7 @@ void clarityPushEvent(Clarity *clarity,
 					  ClarityEventFunction function,
 					  void *data)
 {
-	clarityEventLoopEnqueue(clarity->eventLoop, function, data);
+	clarityEventLoopPush(clarity->eventLoop, function, data);
 }
 
 static void destroy(ClarityHeap *heap, Clarity *clarity)
