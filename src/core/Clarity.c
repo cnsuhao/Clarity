@@ -90,7 +90,6 @@ static Sint8 defaultStrCmp(Clarity *clarity,
 	return ((uc1 < uc2) ? -1 : (uc1 > uc2));
 }
 
-
 void claritySetMemCpy(Clarity *clarity, ClarityMemCpy memCpy)
 {
 	clarity->memCpy = memCpy;

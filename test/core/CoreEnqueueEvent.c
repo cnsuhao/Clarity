@@ -42,7 +42,6 @@ static void event2(Clarity *clarity, ClarityString *string)
 	gotEvent2 = TRUE;
 }
 
-
 static void entry(Clarity *clarity, void *data)
 {
 	UNUSED(data);

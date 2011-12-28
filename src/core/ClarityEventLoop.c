@@ -30,7 +30,6 @@
 #include "ClarityEventLoop.h"
 #include "ClarityArray.h"
 
-
 typedef struct {
 	ClarityEventFunction function;
 	void *data;
