@@ -36,10 +36,9 @@ struct __ClarityString {
 	char cString;
 };
 
-static void destroy(ClarityHeap *heap, void *data)
+static void destroy(ClarityHeap *heap, ClarityString *string)
 {
-	UNUSED(heap);
-	UNUSED(data);
+	clarityHeapRelease(heap, string->clarity);
 }
 
 ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
@@ -69,7 +68,6 @@ Sint8 clarityStringCompare(ClarityString *string, ClarityString *string2)
 {
 	return clarityStrCmp(string->clarity, &string->cString, &string2->cString);
 }
-
 
 Uint32 clarityStringLength(ClarityString *string)
 {
