@@ -46,6 +46,7 @@ struct __AutoReleaseItem {
 struct __ClarityHeap {
 	AutoReleaseItem *autoReleasePool;
 	Uint32 size;
+	Uint32 blockSize;
 	void *address;
 	ClarityAlloc alloc;
 	ClarityFree free;
@@ -239,7 +240,8 @@ static void defaultFree(void *data)
 static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 											 ClarityFree free,
 											 void *address,
-											 Uint32 size)
+											 Uint32 size,
+											 Uint32 blockSize)
 {
 	Header *header;
 	ClarityHeap *heap;
@@ -255,17 +257,22 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 		heap->free = free;
 		heap->address = address;
 		heap->size = size;
+		heap->blockSize = blockSize;
 	}
 	return heap;
 }
 
-ClarityHeap *clarityHeapCreate(void *address, Uint32 size)
+ClarityHeap *clarityHeapCreate(void *address, Uint32 size, Uint32 blockSize)
 {
-	return clarityHeapCreatePrivate(defaultAlloc, defaultFree, address, size);
+	return clarityHeapCreatePrivate(defaultAlloc,
+									defaultFree,
+									address,
+									size,
+									blockSize);
 }
 
 ClarityHeap *clarityHeapCreateExternal(ClarityAlloc alloc, ClarityFree free)
 {
-	return clarityHeapCreatePrivate(alloc, free, NULL, 0);
+	return clarityHeapCreatePrivate(alloc, free, NULL, 0, 0);
 }
 
