@@ -17,6 +17,7 @@
 .PHONY : main test build clean
 
 main : test build
+	@ cat out/rel/testreport.txt
 
 build :
 	@ $(MAKE) -f target.mk
