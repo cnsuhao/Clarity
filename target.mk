@@ -134,7 +134,7 @@ $(OUT)/libclaritycore.a : $(CLA)
 $(OUT)/libclaritycore.a : $(OUTDIR)/libclaritycore.a
 	@ mkdir -p $(dir $@)
 	@ mkdir -p $(dir $@)/include
-	@ echo Copying $(OUTPUT)
+	$(info Copying $(OUTPUT))
 	cp $< $@
 ifeq ($(LINK), true)
 	cp $(OUTDIR)/claritycore $(OUT)/claritycore
@@ -149,62 +149,62 @@ endif
 
 $(CLAGENDIR)/%.h : %.cla $(CLA)
 	@ mkdir -p $(dir $@)
-	@ echo Generating $< interface
+	$(info Generating $< interface)
 	$(CLA) -h -o $@ $<
 
 $(CLAGENDIR)/%.c : %.cla $(CLAGENDIR)/%.h $(CLA)
 	mkdir -p $(dir $@)
-	@ echo Generating $< implementation
+	$(info Generating $< implementation)
 	$(CLA) -c -o $@ $<
 
 $(OUTDIR)/%.o : $(CLAGENDIR)/%.c
 	@ mkdir -p $(dir $@)
-	@ echo Compiling $<
+	$(info Compiling $<)
 	$(CROSS_COMPILE)$(CC) \
 		$(addprefix -I, $(CLAINCLUDE)) $(CFLAGS) -o $@ $(abspath $<)
 
 $(OUTDIR)/%.o : %.c
 	@ mkdir -p $(dir $@)
-	@ echo Compiling $<
+	$(info Compiling $<)
 	$(CROSS_COMPILE)$(CC) \
 		$(addprefix -I, $(INCLUDE)) $(CFLAGS) -o $@ $(abspath $<)
 
 $(OUTDIR)/%.o : %.s
 	@ mkdir -p $(dir $@)
-	@ echo Compiling $<
+	$(info Compiling $<)
 	$(CROSS_COMPILE)$(AS) $(ASFLAGS) -o $@ $(abspath $<)
 
 $(DEPENDENCYDIR)/%.d : %.c
 	@ mkdir -p $(dir $@)
-	@ echo Dependencies $<
+	$(info Dependencies $<)
 	$(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) $(CFLAGS) -MM $< | \
 		sed 's,\($(notdir $*)\)\.o[ :]*,$(OUTDIR)/\1.o $@ : ,g' > $@;
 
 $(OUTDIR)/libclaritycore.a : $(HANALYSIS) $(CANALYSIS) $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
 	@ mkdir -p $(dir $@)
-	@ echo Archiving $@
+	$(info Archiving $@)
 	$(CROSS_COMPILE)$(AR) $(ARFLAGS) $@ $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
 
 $(ANALYSISDIR)/%.c.cp : %.c
 	@ mkdir -p $(dir $@)
-	@ echo Analyzing $<
+	$(info Analyzing $<)
 	$(CHECKPATCH) $<
 	@ touch $@
 
 $(ANALYSISDIR)/%.h.cp : %.h
 	@ mkdir -p $(dir $@)
-	@ echo Analyzing $<
+	$(info Analyzing $<)
 	$(CHECKPATCH) $<
 	@ touch $@
 
 $(OUTDIR)/$(ARCH)-$(MACH)-$(TARGET).cp : $(HEADER)
-	@ echo Analyzing $<
+	$(info Analyzing $<)
 	$(CHECKPATCH) $(HEADER)
 	@ touch $@
 
 $(OUTDIR)/claritycore : $(OUTDIR)/libclaritycore.a
 	@ mkdir -p $(dir $@)
-	@ echo Linking $@
+	$(info Linking $@)
 	$(CROSS_COMPILE)$(LD) $(LDFLAGS) $< -o $@
 
 -include $(addprefix $(DEPENDENCYDIR)/, $(CSOURCE:.c=.d))
