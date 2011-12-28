@@ -17,6 +17,7 @@ endif
 ifeq ($(OUT), )
 OUT := out/rel/$(ARCH)-$(MACH)-$(TARGET)
 endif
+reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 
 OUTDIR := out/int/arch/$(ARCH)/$(MACH)/$(TARGET)
 ANALYSISDIR := out/int/ana
@@ -140,7 +141,7 @@ ifeq ($(LINK), true)
 	cp $(OUTDIR)/claritycore.map $(OUT)/claritycore.map
 endif
 	cp $(CLA) $(OUT)/
-	for dir in $(CLAINCLUDE) ; do \
+	for dir in $(call reverse,$(CLAINCLUDE)) ; do \
 	if [ -e $$dir ] ; then \
 	    cp -R $$dir/*.h	 $(OUT)/include ; \
 	fi ; \
