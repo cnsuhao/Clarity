@@ -7,8 +7,8 @@ CLA := $(CLAOUT)/clarity
 endif
 
 $(CLA) :
-	mkdir -p $(dir $@)
-	cp clarity $(CLA)
+	@ mkdir -p $(dir $@)
+	@ cp clarity $(CLA)
 
 clean :
-	rm -rf $(CLAOUT)
+	@ rm -rf $(CLAOUT)
