@@ -128,22 +128,29 @@ static void initializeHeader(Header *header,
 	header->refCount = 1;
 }
 
-void *clarityHeapAllocate(ClarityHeap *heap,
-						  Uint32 size,
-						  ClarityHeapDestructor destructor)
+static void *clarityHeapInnerAllocate(ClarityAlloc alloc,
+									  Uint32 size,
+									  ClarityHeapDestructor destructor)
 {
 	Header *header;
 	void *retVal;
 
-	UNUSED(heap);
 	retVal = NULL;
-	header = heap->alloc(size + sizeof(Header));
+	header = alloc(size + sizeof(Header));
 
 	if (header) {
 		initializeHeader(header, size, destructor);
 		retVal = &header->data;
 	}
 	return retVal;
+}
+
+
+void *clarityHeapAllocate(ClarityHeap *heap,
+						  Uint32 size,
+						  ClarityHeapDestructor destructor)
+{
+	return clarityHeapInnerAllocate(heap->alloc, size, destructor);
 }
 
 static Header *heapItemHeader(void *data)
@@ -243,15 +250,10 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 											 Uint32 size,
 											 Uint32 blockSize)
 {
-	Header *header;
 	ClarityHeap *heap;
 
-	heap = NULL;
-	header = alloc(sizeof(ClarityHeap) + sizeof(Header));
-
-	if (header) {
-		initializeHeader(header, sizeof(ClarityHeap), destroy);
-		heap = (ClarityHeap *)&header->data;
+	heap = clarityHeapInnerAllocate(alloc, sizeof(ClarityHeap), destroy);
+	if (heap) {
 		heap->autoReleasePool = (AutoReleaseItem *)&LAST_AUTO_RELEASE_ITEM;
 		heap->alloc = alloc;
 		heap->free = free;
