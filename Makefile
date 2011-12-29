@@ -14,7 +14,16 @@
 #
 # Available arch/mach combinations can be found in src/arch/<arch>/mach/<mach>
 ###############################################################################
-.PHONY : main test build clean
+.PHONY : main test build clean buildtestlib
+
+LINELENGTH := 80
+TABSIZE := 4
+
+export CHECKPATCH := ./src/tools/checkpatch/checkpatch.pl \
+	--no-typedef \
+	--line=$(LINELENGTH) \
+	--tab=$(TABSIZE) \
+	--no-tree -q -f
 
 main : test build
 	@ cat out/rel/testreport.txt
@@ -22,8 +31,11 @@ main : test build
 build :
 	@ $(MAKE) -f target.mk
 
-test :
+test : buildtestlib
 	@ $(MAKE) -f tester.mk
 
+buildtestlib :
+	@ $(MAKE) -f target.mk ARCH=x86 MACH=tester TARGET=coverage LINK=false
+
 clean :
-	rm -rf out
+	@ rm -rf out

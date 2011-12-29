@@ -19,7 +19,7 @@ OUT := out/rel/$(ARCH)-$(MACH)-$(TARGET)
 endif
 reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 
-OUTDIR := out/int/arch/$(ARCH)/$(MACH)/$(TARGET)
+OUTDIR := out/int/arch/$(ARCH)-$(MACH)-$(TARGET)
 ANALYSISDIR := out/int/ana
 DEPENDENCYDIR := out/int/dep
 CLADIR := out/int/cla
@@ -30,15 +30,6 @@ export CLAOUT := $(abspath out/int/tools/compiler)
 export CLA := $(abspath $(CLAOUT)/clarity)
 
 COMPONENTS :=
-
-LINELENGTH := 80
-TABSIZE := 4
-
-CHECKPATCH := ./$(SRCDIR)/tools/checkpatch/checkpatch.pl \
-	--no-typedef \
-	--line=$(LINELENGTH) \
-	--tab=$(TABSIZE) \
-	--no-tree -q -f
 
 AR := ar
 AS := as
@@ -132,41 +123,43 @@ $(OUT)/libclaritycore.a : $(OUTDIR)/claritycore
 endif
 $(OUT)/libclaritycore.a : $(CLA)
 $(OUT)/libclaritycore.a : $(OUTDIR)/libclaritycore.a
+	$(info Copying $@)
 	@ mkdir -p $(dir $@)
 	@ mkdir -p $(dir $@)/include
-	$(info Copying $(OUTPUT))
-	cp $< $@
+	@ cp $< $@
 ifeq ($(LINK), true)
-	cp $(OUTDIR)/claritycore $(OUT)/claritycore
-	cp $(OUTDIR)/claritycore.map $(OUT)/claritycore.map
+	@ cp $(OUTDIR)/claritycore $(OUT)/claritycore
+	@ cp $(OUTDIR)/claritycore.map $(OUT)/claritycore.map
 endif
-	cp $(CLA) $(OUT)/
-	for dir in $(call reverse,$(CLAINCLUDE)) ; do \
+	@ cp $(CLA) $(OUT)/
+	@ for dir in $(call reverse,$(CLAINCLUDE)) ; do \
 	if [ -e $$dir ] ; then \
-	    cp -R $$dir/*.h	 $(OUT)/include ; \
+	    cp -R $$dir*.h	 $(OUT)/include ; \
 	fi ; \
 	done
+
+.PRECIOUS : $(CLAGENDIR)/%.h
 
 $(CLAGENDIR)/%.h : %.cla $(CLA)
 	@ mkdir -p $(dir $@)
 	$(info Generating $< interface)
-	$(CLA) -h -o $@ $<
+	@ $(CLA) -h -o $@ $<
 
 $(CLAGENDIR)/%.c : %.cla $(CLAGENDIR)/%.h $(CLA)
-	mkdir -p $(dir $@)
+	@ mkdir -p $(dir $@)
 	$(info Generating $< implementation)
-	$(CLA) -c -o $@ $<
+	@ $(CLA) -c -o $@ $<
 
 $(OUTDIR)/%.o : $(CLAGENDIR)/%.c
 	@ mkdir -p $(dir $@)
 	$(info Compiling $<)
-	$(CROSS_COMPILE)$(CC) \
+	@ $(CROSS_COMPILE)$(CC) \
 		$(addprefix -I, $(CLAINCLUDE)) $(CFLAGS) -o $@ $(abspath $<)
 
 $(OUTDIR)/%.o : %.c
 	@ mkdir -p $(dir $@)
 	$(info Compiling $<)
-	$(CROSS_COMPILE)$(CC) \
+	@ $(CROSS_COMPILE)$(CC) \
 		$(addprefix -I, $(INCLUDE)) $(CFLAGS) -o $@ $(abspath $<)
 
 $(OUTDIR)/%.o : %.s
@@ -177,35 +170,35 @@ $(OUTDIR)/%.o : %.s
 $(DEPENDENCYDIR)/%.d : %.c
 	@ mkdir -p $(dir $@)
 	$(info Dependencies $<)
-	$(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) $(CFLAGS) -MM $< | \
+	@ $(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) $(CFLAGS) -MM $< | \
 		sed 's,\($(notdir $*)\)\.o[ :]*,$(OUTDIR)/\1.o $@ : ,g' > $@;
 
 $(OUTDIR)/libclaritycore.a : $(HANALYSIS) $(CANALYSIS) $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
 	@ mkdir -p $(dir $@)
 	$(info Archiving $@)
-	$(CROSS_COMPILE)$(AR) $(ARFLAGS) $@ $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
+	@ $(CROSS_COMPILE)$(AR) $(ARFLAGS) $@ $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
 
 $(ANALYSISDIR)/%.c.cp : %.c
 	@ mkdir -p $(dir $@)
 	$(info Analyzing $<)
-	$(CHECKPATCH) $<
+	@ $(CHECKPATCH) $<
 	@ touch $@
 
 $(ANALYSISDIR)/%.h.cp : %.h
 	@ mkdir -p $(dir $@)
 	$(info Analyzing $<)
-	$(CHECKPATCH) $<
+	@ $(CHECKPATCH) $<
 	@ touch $@
 
 $(OUTDIR)/$(ARCH)-$(MACH)-$(TARGET).cp : $(HEADER)
 	$(info Analyzing $<)
-	$(CHECKPATCH) $(HEADER)
+	@ $(CHECKPATCH) $(HEADER)
 	@ touch $@
 
 $(OUTDIR)/claritycore : $(OUTDIR)/libclaritycore.a
 	@ mkdir -p $(dir $@)
 	$(info Linking $@)
-	$(CROSS_COMPILE)$(LD) $(LDFLAGS) $< -o $@
+	@ $(CROSS_COMPILE)$(LD) $(LDFLAGS) $< -o $@
 
 -include $(addprefix $(DEPENDENCYDIR)/, $(CSOURCE:.c=.d))
 
