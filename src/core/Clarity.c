@@ -130,8 +130,8 @@ Uint32 clarityStrLen(Clarity *clarity, const char *cString)
 }
 
 Sint8 clarityStrCmp(Clarity *clarity,
-					 const char *cString,
-					 const char *cString2)
+					const char *cString,
+					const char *cString2)
 {
 	return clarity->strCmp(clarity, cString, cString2);
 }
