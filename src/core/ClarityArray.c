@@ -249,9 +249,10 @@ void *clarityArrayShift(ClarityArray *array)
 		array->first->next = element->next;
 		array->first->next->prev = array->first;
 		array->length--;
-		retVal = element->data;
 		heap = clarityGetHeap(array->clarity);
+		retVal = clarityHeapRetain(heap, element->data);
 		clarityHeapRelease(heap, element);
+		clarityHeapAutoRelease(heap, retVal);
 	}
 	return retVal;
 
