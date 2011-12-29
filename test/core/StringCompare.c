@@ -25,7 +25,7 @@ static void entry(Clarity *clarity, void *data)
 	ClarityString *stringSame;
 	ClarityString *stringLess;
 	ClarityString *stringMore;
-	
+
 	UNUSED(data);
 	stringBase = clarityStringCreate(clarity, cStringBase);
 	stringSame = clarityStringCreate(clarity, cStringBase);
