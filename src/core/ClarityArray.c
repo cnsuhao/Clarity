@@ -300,31 +300,20 @@ Uint32 clarityArrayLength(ClarityArray *array)
 	return array->length;
 }
 
-static void innerForEach(Clarity *clarity, void *data)
+static void innerForEach(Clarity *clarity, ForEach *forEach)
 {
-	ForEach *forEach;
-
-	forEach = (ForEach *)data;
-
 	if (forEach->element != forEach->array->last) {
 		forEach->function(forEach->element->data,
-							  forEach->index,
-							  forEach->array,
-							  clarity);
+						  forEach->index,
+						  forEach->array,
+						  clarity);
 
 		forEachSetElement(forEach,
-							  forEach->element->next);
+						  forEach->element->next);
 
-		clarityEnqueueEvent(clarity, innerForEach, forEach);
-	} else if (forEach->callback) {
-		ClarityHeap *heap;
-
-		forEach->callback(forEach->clarity,
-							  forEach->data);
-
-		heap = clarityGetHeap(forEach->clarity);
-		clarityHeapRelease(heap, forEach);
-	}
+		clarityEnqueueEvent(clarity, (ClarityEvent)innerForEach, forEach);
+	} else if (forEach->callback)
+		forEach->callback(forEach->clarity, forEach->data);
 }
 
 void clarityArrayForEach(ClarityArray *array,
@@ -337,32 +326,28 @@ void clarityArrayForEach(ClarityArray *array,
 
 	element = array->first->next;
 	forEach = forEachCreate(array->clarity,
-									array,
-									element,
-									function,
-									callback,
-									data);
+							array,
+							element,
+							function,
+							callback,
+							data);
 
-	clarityEnqueueEvent(array->clarity, innerForEach, forEach);
+	clarityEnqueueEvent(array->clarity, (ClarityEvent)innerForEach, forEach);
 }
 
-static void innerMap(Clarity *clarity, void *data)
+static void innerMap(Clarity *clarity, Map *map)
 {
-	Map *map;
-
-	map = (Map *)data;
-
 	if (map->element != map->array->last) {
 		void *newItem;
 
 		newItem = map->function(map->element->data,
-									map->index,
-									map->array,
-									clarity);
+								map->index,
+								map->array,
+								clarity);
 
 		clarityArrayPush(map->newArray, newItem);
 		mapSetElement(map, map->element->next);
-		clarityEnqueueEvent(clarity, innerMap, map);
+		clarityEnqueueEvent(clarity, (ClarityEvent)innerMap, map);
 	} else if (map->callback) {
 		ClarityHeap *heap;
 
@@ -388,7 +373,7 @@ void clarityArrayMap(ClarityArray *array,
 							callback,
 							data);
 
-	clarityEnqueueEvent(array->clarity, innerMap, map);
+	clarityEnqueueEvent(array->clarity, (ClarityEvent)innerMap, map);
 }
 
 void clarityArrayEvery(ClarityArray *array,
