@@ -16,11 +16,11 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static Sint8 compare(Clarity *clarity, void *first, void *second)
+static Sint8 compare(void *first, void *second)
 {
-	UNUSED(clarity);
 	UNUSED(first);
 	UNUSED(second);
+	return 0;
 }
 
 static void entry(Clarity *clarity, void *data)

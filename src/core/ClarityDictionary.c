@@ -86,7 +86,7 @@ static Node *getNode(ClarityDictionary *dictionary, void *key)
 	while (node != NULL) {
 		Sint8 compare;
 
-		compare = dictionary->comparator(dictionary->clarity, key, node->key);
+		compare = dictionary->comparator(key, node->key);
 
 		if (compare == 0)
 			return node;
@@ -151,7 +151,7 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 	while (node != NULL) {
 		Sint8 compare;
 
-		compare = dictionary->comparator(dictionary->clarity, key, node->key);
+		compare = dictionary->comparator(key, node->key);
 
 		if (compare == 0)
 			return;
