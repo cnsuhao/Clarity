@@ -61,11 +61,8 @@ void clarityObjectSetMember(ClarityObject *object,
 	ClarityString *name;
 
 	name = clarityStringCreate(object->clarity, cName);
-	if (name) {
-		if (clarityDictionaryGetObject(object->members, name))
-			clarityDictionaryRemoveObject(object->members, name);
+	if (name)
 		clarityDictionarySetObject(object->members, name, member);
-	}
 }
 
 ClarityObject *clarityObjectCreate(Clarity *clarity)
