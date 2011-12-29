@@ -31,7 +31,7 @@
 #include "ClarityArray.h"
 
 typedef struct {
-	ClarityEventFunction function;
+	ClarityEvent function;
 	void *data;
 } Event;
 
@@ -46,7 +46,7 @@ static void eventDestroy(ClarityHeap *heap, Event *event)
 }
 
 static Event *eventCreate(Clarity *clarity,
-						  ClarityEventFunction function,
+						  ClarityEvent function,
 						  void *data)
 {
 	Event *event;
@@ -88,7 +88,7 @@ static void dequeue(ClarityEventLoop *eventLoop)
 typedef void(*Adder)(ClarityArray *, void *);
 
 static void clarityEventLoopAdd(ClarityEventLoop *eventLoop,
-								ClarityEventFunction function,
+								ClarityEvent function,
 								void *data,
 								Adder adder)
 {
@@ -99,14 +99,14 @@ static void clarityEventLoopAdd(ClarityEventLoop *eventLoop,
 }
 
 void clarityEventLoopEnqueue(ClarityEventLoop *eventLoop,
-							 ClarityEventFunction function,
+							 ClarityEvent function,
 							 void *data)
 {
 	clarityEventLoopAdd(eventLoop, function, data, clarityArrayUnshift);
 }
 
 void clarityEventLoopPush(ClarityEventLoop *eventLoop,
-							 ClarityEventFunction function,
+							 ClarityEvent function,
 							 void *data)
 {
 	clarityEventLoopAdd(eventLoop, function, data, clarityArrayPush);
@@ -119,7 +119,7 @@ void clarityEventLoopStart(ClarityEventLoop *eventLoop)
 }
 
 ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
-										 ClarityEventFunction entry)
+										 ClarityEvent entry)
 {
 	ClarityHeap *heap;
 	ClarityEventLoop *eventLoop;

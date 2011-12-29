@@ -142,14 +142,14 @@ ClarityHeap *clarityGetHeap(Clarity *clarity)
 }
 
 void clarityEnqueueEvent(Clarity *clarity,
-						 ClarityEventFunction function,
+						 ClarityEvent function,
 						 void *data)
 {
 	clarityEventLoopEnqueue(clarity->eventLoop, function, data);
 }
 
 void clarityPushEvent(Clarity *clarity,
-					  ClarityEventFunction function,
+					  ClarityEvent function,
 					  void *data)
 {
 	clarityEventLoopPush(clarity->eventLoop, function, data);
@@ -161,7 +161,7 @@ static void destroy(ClarityHeap *heap, Clarity *clarity)
 	clarityHeapRelease(heap, clarity->heap);
 }
 
-Clarity *clarityCreate(ClarityEventFunction entry, ClarityHeap *heap)
+Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 {
 	Clarity *clarity;
 

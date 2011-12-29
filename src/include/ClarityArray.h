@@ -62,7 +62,7 @@ Uint32 clarityArrayLength(ClarityArray *);
 
 void clarityArrayForEach(ClarityArray *array,
 						 ClarityArrayForEachFunction arrayFunction,
-						 ClarityEventFunction callback,
+						 ClarityEvent callback,
 						 void *data);
 
 void clarityArrayMap(ClarityArray *array,

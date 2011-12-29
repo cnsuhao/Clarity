@@ -32,7 +32,7 @@
 
 typedef struct __Clarity Clarity;
 
-typedef void(*ClarityEventFunction)(Clarity *, void *);
+typedef void(*ClarityEvent)(Clarity *, void *);
 typedef Sint8(*ClarityComparator)(void *, void *);
 
 typedef void*(*ClarityMemCpy)(Clarity *, void *, const void *, Uint32);
@@ -52,9 +52,9 @@ void *clarityMemSet(Clarity *, void *, char, Uint32);
 Uint32 clarityStrLen(Clarity *, const char *);
 Sint8 clarityStrCmp(Clarity *, const char *, const char *);
 
-Clarity *clarityCreate(ClarityEventFunction, ClarityHeap *);
-void clarityEnqueueEvent(Clarity *, ClarityEventFunction, void *);
-void clarityPushEvent(Clarity *, ClarityEventFunction, void *);
+Clarity *clarityCreate(ClarityEvent, ClarityHeap *);
+void clarityEnqueueEvent(Clarity *, ClarityEvent, void *);
+void clarityPushEvent(Clarity *, ClarityEvent, void *);
 void clarityStart(Clarity *);
 void clarityStop(Clarity *);
 

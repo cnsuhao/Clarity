@@ -46,11 +46,11 @@ static void entry(Clarity *clarity, void *data)
 {
 	UNUSED(data);
 	clarityEnqueueEvent(clarity,
-						(ClarityEventFunction)event1,
+						(ClarityEvent)event1,
 						clarityStringCreate(clarity, TEST_STRING));
 
 	clarityPushEvent(clarity,
-					 (ClarityEventFunction)event2,
+					 (ClarityEvent)event2,
 					 clarityStringCreate(clarity, TEST_STRING));
 
 }

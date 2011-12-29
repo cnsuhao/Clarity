@@ -11,7 +11,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-int clarityMain(ClarityEventFunction entry)
+int clarityMain(ClarityEvent entry)
 {
 	ClarityHeap *heap;
 	Clarity *clarity;
