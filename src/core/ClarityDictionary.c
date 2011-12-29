@@ -153,9 +153,11 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 
 		compare = dictionary->comparator(key, node->key);
 
-		if (compare == 0)
+		if (compare == 0) {
+			clarityHeapRelease(heap, node->object);
+			node->object = clarityHeapRetain(heap, object);
 			return;
-		else if (compare > 0)
+		} else if (compare > 0)
 			assignee = &node->left;
 		else
 			assignee = &node->right;
