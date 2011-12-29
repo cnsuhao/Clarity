@@ -28,6 +28,7 @@
  */
 #include "ClarityObject.h"
 #include "ClarityDictionary.h"
+#include "ClarityString.h"
 #include "ClarityHeap.h"
 
 struct __ClarityObject {
@@ -41,18 +42,30 @@ static void destroy(ClarityHeap *heap, ClarityObject *object)
 	clarityHeapRelease(heap, object->members);
 }
 
-void *clarityObjectGetMember(ClarityObject *object, ClarityString *name)
+void *clarityObjectGetMember(ClarityObject *object, const char *cName)
 {
-	return clarityDictionaryGetObject(object->members, name);
+	void *retVal;
+	ClarityString *name;
+
+	retVal = NULL;
+	name = clarityStringCreate(object->clarity, cName);
+	if (name)
+		retVal = clarityDictionaryGetObject(object->members, name);
+	return retVal;
 }
 
 void clarityObjectSetMember(ClarityObject *object,
-							ClarityString *name,
+							const char *cName,
 							void *member)
 {
-	if (clarityDictionaryGetObject(object->members, name))
-		clarityDictionaryRemoveObject(object->members, name);
-	clarityDictionarySetObject(object->members, name, member);
+	ClarityString *name;
+
+	name = clarityStringCreate(object->clarity, cName);
+	if (name) {
+		if (clarityDictionaryGetObject(object->members, name))
+			clarityDictionaryRemoveObject(object->members, name);
+		clarityDictionarySetObject(object->members, name, member);
+	}
 }
 
 ClarityObject *clarityObjectCreate(Clarity *clarity)
@@ -61,8 +74,9 @@ ClarityObject *clarityObjectCreate(Clarity *clarity)
 	ClarityObject *object;
 
 	heap = clarityGetHeap(clarity);
-	object = clarityHeapAllocate(heap, sizeof(ClarityObject),
-									 (ClarityHeapDestructor)destroy);
+	object = clarityHeapAllocate(heap,
+								 sizeof(ClarityObject),
+								 (ClarityHeapDestructor)destroy);
 
 	object->clarity = clarityHeapRetain(heap, clarity);
 	object->members = clarityDictionaryCreate(
