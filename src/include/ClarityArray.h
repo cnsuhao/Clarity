@@ -42,16 +42,16 @@ typedef void *(*ClarityArrayMapFunction)(void *,
 										 ClarityArray *,
 										 Clarity *);
 
-typedef Bool(*ClarityArrayTestFunction)(Clarity *, Bool, void *);
+typedef Bool(*ClarityArrayTestFunction)(void *,
+										Uint32,
+										ClarityArray *,
+										Clarity *);
 
 typedef void(*ClarityArrayForEachCallback)(Clarity *, void *);
 
-typedef void *(*ClarityArrayMapCallback)(Clarity *, void *, void*);
+typedef void *(*ClarityArrayMapCallback)(Clarity *, void *, void *);
 
-typedef Bool(*ClarityArrayTestCallback)(void *,
-										 Uint32,
-										 ClarityArray *,
-										 Clarity *);
+typedef void(*ClarityArrayTestCallback)(Clarity *, Bool, void *);
 
 ClarityArray *clarityArrayCreate(Clarity *);
 void clarityArrayPush(ClarityArray *, void *);
@@ -82,7 +82,7 @@ void clarityArraySome(ClarityArray *array,
 
 void clarityArrayFilter(ClarityArray *array,
 						ClarityArrayTestFunction function,
-						ClarityArrayTestCallback callback,
+						ClarityArrayMapCallback callback,
 						void *data);
 
 ClarityArray *clarityArrayConcat(ClarityArray *, ClarityArray *);
