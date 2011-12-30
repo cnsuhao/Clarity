@@ -44,14 +44,10 @@ static void destroy(ClarityHeap *heap, ClarityObject *object)
 
 void *clarityObjectGetMember(ClarityObject *object, const char *cName)
 {
-	void *retVal;
 	ClarityString *name;
 
-	retVal = NULL;
 	name = clarityStringCreate(object->clarity, cName);
-	if (name)
-		retVal = clarityDictionaryGetObject(object->members, name);
-	return retVal;
+	return clarityDictionaryGetObject(object->members, name);
 }
 
 void clarityObjectSetMember(ClarityObject *object,
@@ -61,8 +57,7 @@ void clarityObjectSetMember(ClarityObject *object,
 	ClarityString *name;
 
 	name = clarityStringCreate(object->clarity, cName);
-	if (name)
-		clarityDictionarySetObject(object->members, name, member);
+	clarityDictionarySetObject(object->members, name, member);
 }
 
 ClarityObject *clarityObjectCreate(Clarity *clarity)
