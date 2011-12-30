@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include "ClarityArray.h"
 #include <stdlib.h>
 #include <string.h>
@@ -20,9 +19,7 @@ static void entry(Clarity *clarity, void *data)
 {
 	ClarityArray *array;
 
-	UNUSED(data);
 	array = clarityArrayCreate(clarity);
-
 	assert(array != NULL);
 }
 

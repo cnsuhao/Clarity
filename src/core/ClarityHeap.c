@@ -26,7 +26,6 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityMacro.h"
 #include "ClarityHeap.h"
 
 typedef struct {
@@ -59,8 +58,6 @@ static const AutoReleaseItem LAST_AUTO_RELEASE_ITEM = {NULL, NULL};
 
 static void autoReleaseDestroy(ClarityHeap *heap, void *data)
 {
-	UNUSED(heap);
-	UNUSED(data);
 }
 
 static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
@@ -205,7 +202,6 @@ void *clarityHeapRetain(ClarityHeap *heap, void *data)
 {
 	Header *header;
 
-	UNUSED(heap);
 	header = heapItemHeader(data);
 
 	if (header)
@@ -227,21 +223,18 @@ void clarityHeapCollectGarbage(ClarityHeap *heap)
 
 static void destroy(ClarityHeap *heap, void *data)
 {
-	UNUSED(data);
 	clarityHeapCollectGarbage(heap);
 }
 
 static void *defaultAlloc(Uint32 size)
 {
 	/*TODO Implement default alloc, at address with size*/
-	UNUSED(size);
 	return NULL;
 }
 
 static void defaultFree(void *data)
 {
 	/*TODO Implement default free*/
-	UNUSED(data);
 }
 
 static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,

@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -25,7 +24,6 @@ static void entry(Clarity *clarity, void *data)
 	static const int BUFFER_SIZE = 3;
 	char buffer[BUFFER_SIZE];
 
-	UNUSED(data);
 	buffer[0] = 'a';
 	buffer[1] = 'b';
 	buffer[2] = 'c';

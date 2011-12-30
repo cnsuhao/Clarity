@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include "ClarityObject.h"
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +19,6 @@ static void entry(Clarity *clarity, void *data)
 {
 	ClarityObject *object;
 
-	UNUSED(data);
 	object = clarityObjectCreate(clarity);
 	assert(object != NULL);
 }

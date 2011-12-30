@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include "ClarityArray.h"
 #include "ClarityString.h"
 #include <stdlib.h>
@@ -28,7 +27,6 @@ static void entry(Clarity *clarity, void *data)
 	ClarityString *dataString3;
 	ClarityString *resultString;
 
-	UNUSED(data);
 	dataString1 = clarityStringCreate(clarity, data1);
 	dataString2 = clarityStringCreate(clarity, data2);
 	dataString3 = clarityStringCreate(clarity, data3);

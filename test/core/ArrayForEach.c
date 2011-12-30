@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include "ClarityArray.h"
 #include "ClarityString.h"
 #include <stdlib.h>
@@ -46,7 +45,6 @@ static void entry(Clarity *clarity, void *data)
 	const char *data4 = "TestString4";
 	ClarityArray *array;
 
-	UNUSED(data);
 	dataString1 = clarityStringCreate(clarity, data1);
 	dataString2 = clarityStringCreate(clarity, data2);
 	dataString3 = clarityStringCreate(clarity, data3);
@@ -57,7 +55,7 @@ static void entry(Clarity *clarity, void *data)
 	clarityArrayUnshift(array, dataString3);
 	clarityArrayForEach(array,
 						(ClarityArrayForEachFunction)testForEach,
-						(ClarityEvent)testForEachDone,
+						(ClarityArrayForEachCallback)testForEachDone,
 						dataString4);
 	clarityArrayForEach(array,
 						(ClarityArrayForEachFunction)testForEach,

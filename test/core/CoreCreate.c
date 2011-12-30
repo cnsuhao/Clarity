@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -16,8 +15,6 @@ static void mainFree(void *data)
 
 static void entry(Clarity *clarity, void *data)
 {
-	UNUSED(data);
-	UNUSED(clarity);
 }
 
 int main(void)

@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include "ClarityString.h"
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +25,6 @@ static void entry(Clarity *clarity, void *data)
 	ClarityString *stringLess;
 	ClarityString *stringMore;
 
-	UNUSED(data);
 	stringBase = clarityStringCreate(clarity, cStringBase);
 	stringSame = clarityStringCreate(clarity, cStringBase);
 	stringLess = clarityStringCreate(clarity, cStringLess);

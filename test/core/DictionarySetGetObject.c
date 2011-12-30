@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include "ClarityDictionary.h"
 #include "ClarityString.h"
 #include <stdlib.h>
@@ -38,7 +37,6 @@ static void entry(Clarity *clarity, void *data)
 	ClarityString *resultString;
 	ClarityString *missingKeyString;
 
-	UNUSED(data);
 	dictionary = clarityDictionaryCreate(
 		clarity,
 		(ClarityComparator)clarityStringCompare);

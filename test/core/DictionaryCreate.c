@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include "ClarityDictionary.h"
 #include <stdlib.h>
 #include <string.h>
@@ -18,8 +17,6 @@ static void mainFree(void *data)
 
 static Sint8 compare(void *first, void *second)
 {
-	UNUSED(first);
-	UNUSED(second);
 	return 0;
 }
 
@@ -27,7 +24,6 @@ static void entry(Clarity *clarity, void *data)
 {
 	ClarityDictionary *dictionary;
 
-	UNUSED(data);
 	dictionary = clarityDictionaryCreate(clarity, compare);
 	assert(dictionary != NULL);
 }

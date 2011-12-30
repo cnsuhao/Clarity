@@ -1,7 +1,6 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
 #include "ClarityString.h"
-#include "ClarityMacro.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -44,7 +43,6 @@ static void event2(Clarity *clarity, ClarityString *string)
 
 static void entry(Clarity *clarity, void *data)
 {
-	UNUSED(data);
 	clarityEnqueueEvent(clarity,
 						(ClarityEvent)event1,
 						clarityStringCreate(clarity, TEST_STRING));

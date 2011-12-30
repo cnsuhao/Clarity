@@ -1,6 +1,5 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityMacro.h"
 #include "ClarityString.h"
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +20,6 @@ static void entry(Clarity *clarity, void *data)
 	const char *testString = "TestString";
 	ClarityString *string;
 
-	UNUSED(data);
 	string = clarityStringCreate(clarity, testString);
 	assert(strlen(testString) == clarityStringLength(string));
 }
