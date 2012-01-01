@@ -270,4 +270,3 @@ ClarityHeap *clarityHeapCreateExternal(ClarityAlloc alloc, ClarityFree free)
 {
 	return clarityHeapCreatePrivate(alloc, free, NULL, 0, 0);
 }
-
