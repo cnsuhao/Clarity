@@ -66,10 +66,9 @@ ClarityObject *clarityObjectCreate(Clarity *clarity)
 							 sizeof(ClarityObject),
 							 (ClarityDestructor)objectDestroy);
 
-	object->members = clarityDictionaryCreate(
+	object->members = clarityRetain(clarityDictionaryCreate(
 		clarity,
-		(ClarityComparator)clarityStringCompare);
+		(ClarityComparator)clarityStringCompare));
 
-	object->members = clarityRetain(object->members);
 	return clarityAutoRelease(object);
 }

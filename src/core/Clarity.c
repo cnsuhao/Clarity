@@ -205,8 +205,7 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 	clarity->strLen = defaultStrLen;
 	clarity->strCmp = defaultStrCmp;
 	clarity->heap = clarityRetain(heap);
-	clarity->eventLoop = clarityEventLoopCreate(clarity, entry);
-	clarity->eventLoop = clarityRetain(clarity->eventLoop);
+	clarity->eventLoop = clarityRetain(clarityEventLoopCreate(clarity, entry));
 	return clarityAutoRelease(clarity);
 }
 

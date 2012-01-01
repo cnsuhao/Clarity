@@ -314,8 +314,7 @@ static Map *mapCreate(Clarity *clarity,
 						  sizeof(Map),
 						  (ClarityDestructor)mapDestroy);
 
-	map->newArray = clarityArrayCreate(clarity);
-	map->newArray = clarityRetain(map->newArray);
+	map->newArray = clarityRetain(clarityArrayCreate(clarity));
 	map->function = function;
 	map->callback = callback;
 	return clarityAutoRelease(map);
@@ -379,8 +378,7 @@ static Filter *filterCreate(Clarity *clarity,
 							 sizeof(Filter),
 							 (ClarityDestructor)filterDestroy);
 
-	filter->newArray = clarityArrayCreate(clarity);
-	filter->newArray = clarityRetain(filter->newArray);
+	filter->newArray = clarityRetain(clarityArrayCreate(clarity));
 	filter->function = function;
 	filter->callback = callback;
 	return clarityAutoRelease(filter);

@@ -119,8 +119,7 @@ ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
 								sizeof(ClarityEventLoop),
 								(ClarityDestructor)eventLoopDestroy);
 
-	eventLoop->events = clarityArrayCreate(clarity);
-	eventLoop->events = clarityRetain(eventLoop->events);
+	eventLoop->events = clarityRetain(clarityArrayCreate(clarity));
 	clarityEventLoopEnqueue(eventLoop, entry, clarity);
 	return clarityAutoRelease(eventLoop);
 }
