@@ -44,74 +44,120 @@ struct __ClarityArray {
 };
 
 typedef struct {
-	Uint32 index;
-	Bool retVal;
+	Sint32 index;
 	Element *element;
 	ClarityArray *array;
 	Clarity *clarity;
+	void *data;
+	ClarityEvent handle;
+	ClarityEvent done;
+	void *handler;
+} Iterator;
+
+typedef struct {
+	Bool retVal;
 	ClarityArrayTestFunction function;
 	ClarityArrayTestCallback callback;
-	void *data;
 } Test;
 
 typedef struct {
-	Uint32 index;
-	Element *element;
-	ClarityArray *array;
-	Clarity *clarity;
 	ClarityArrayTestFunction function;
 	ClarityArrayMapCallback callback;
-	void *data;
 	void *newArray;
 } Filter;
 
 typedef struct {
-	Uint32 index;
-	Element *element;
-	ClarityArray *array;
-	Clarity *clarity;
 	ClarityArrayForEachFunction function;
 	ClarityArrayForEachCallback callback;
-	void *data;
 } ForEach;
 
 typedef struct {
-	Uint32 index;
-	Element *element;
-	ClarityArray *array;
-	Clarity *clarity;
+	Iterator *iterator;
 	ClarityArrayMapFunction function;
 	ClarityArrayMapCallback callback;
-	void *data;
 	void *newArray;
 } Map;
 
-static void testDestroy(ClarityHeap *heap,
-						Test *test)
+static void iteratorDestroy(ClarityHeap *heap,
+							Iterator *iterator)
 {
-	clarityHeapRelease(heap, test->element);
-	clarityHeapRelease(heap, test->data);
-	clarityHeapRelease(heap, test->clarity);
-	clarityHeapRelease(heap, test->array);
+	clarityHeapRelease(heap, iterator->element);
+	clarityHeapRelease(heap, iterator->data);
+	clarityHeapRelease(heap, iterator->clarity);
+	clarityHeapRelease(heap, iterator->array);
+	clarityHeapRelease(heap, iterator->handler);
 }
 
-static void testSetElement(Test *test,
-						   Element *element)
+static Bool iteratorHasItem(Iterator *iterator)
+{
+	return iterator->element != iterator->array->last;
+}
+
+static void iteratorEvent(Clarity *clarity, Iterator *iterator)
 {
 	ClarityHeap *heap;
+	Element *element = iterator->element->next;
 
-	heap = clarityGetHeap(test->clarity);
-	clarityHeapRelease(heap, test->element);
-	test->element = clarityHeapRetain(heap, element);
-	test->index++;
+	heap = clarityGetHeap(iterator->clarity);
+	clarityHeapRelease(heap, iterator->element);
+	iterator->element = clarityHeapRetain(heap, element);
+	iterator->index++;
+
+	if (iteratorHasItem(iterator)) {
+		clarityEnqueueEvent(iterator->clarity,
+							iterator->handle,
+							iterator);
+
+		clarityEnqueueEvent(iterator->clarity,
+							(ClarityEvent)iteratorEvent,
+							iterator);
+	} else
+		clarityEnqueueEvent(iterator->clarity,
+							iterator->done,
+							iterator);
+}
+
+static void iteratorStart(Iterator *iterator)
+{
+	clarityEnqueueEvent(iterator->clarity,
+						(ClarityEvent)iteratorEvent,
+						iterator);
+}
+
+static Iterator *iteratorCreate(Clarity *clarity,
+								ClarityArray *array,
+								void *data,
+								ClarityEvent handle,
+								ClarityEvent done,
+								void *handler)
+{
+	Iterator *iterator;
+	ClarityHeap *heap;
+
+	heap = clarityGetHeap(clarity);
+	iterator = clarityHeapAllocate(heap,
+								   sizeof(Iterator),
+								   (ClarityHeapDestructor)iteratorDestroy);
+
+	iterator->index = -1;
+	iterator->clarity = clarityHeapRetain(heap, clarity);
+	iterator->array = clarityHeapRetain(heap, array);
+	iterator->element = clarityHeapRetain(heap, array->first);
+	iterator->data = clarityHeapRetain(heap, data);
+	iterator->handle = handle;
+	iterator->done = done;
+	iterator->handler = clarityHeapRetain(heap, handler);
+	clarityHeapAutoRelease(heap, iterator);
+	return iterator;
+}
+
+static void emptyDestroy(ClarityHeap *heap, void *none)
+{
 }
 
 static Test *testCreate(Clarity *clarity,
-						ClarityArray *array,
-						Element *element,
 						ClarityArrayTestFunction function,
-						ClarityArrayTestCallback callback,
-						void *data)
+						ClarityArrayTestCallback callback)
 {
 	Test *test;
 	ClarityHeap *heap;
@@ -119,94 +165,172 @@ static Test *testCreate(Clarity *clarity,
 	heap = clarityGetHeap(clarity);
 	test = clarityHeapAllocate(heap,
 							   sizeof(Test),
-							   (ClarityHeapDestructor)testDestroy);
+							   (ClarityHeapDestructor)emptyDestroy);
 
-	test->index = 0;
-	test->clarity = clarityHeapRetain(heap, clarity);
-	test->array = clarityHeapRetain(heap, array);
-	test->element = clarityHeapRetain(heap, element);
-	test->data = clarityHeapRetain(heap, data);
 	test->function = function;
 	test->callback = callback;
 	clarityHeapAutoRelease(heap, test);
 	return test;
 }
-static void filterDestroy(ClarityHeap *heap,
-						  Filter *filter)
+static void everyHandler(Clarity *clarity, Iterator *iterator)
 {
-	clarityHeapRelease(heap, filter->element);
-	clarityHeapRelease(heap, filter->data);
-	clarityHeapRelease(heap, filter->clarity);
-	clarityHeapRelease(heap, filter->array);
-	clarityHeapRelease(heap, filter->newArray);
+	Test *test;
+
+	test = (Test *)iterator->handler;
+
+	if (test->retVal) {
+		test->retVal = test->function(iterator->element->data,
+									  iterator->index,
+									  iterator->array,
+									  clarity);
+	}
 }
 
-static void filterSetElement(Filter *filter,
-							 Element *element)
+static void everyDone(Clarity *clarity, Iterator *iterator)
 {
-	ClarityHeap *heap;
+	Test *test;
 
-	heap = clarityGetHeap(filter->clarity);
-	clarityHeapRelease(heap, filter->element);
-	filter->element = clarityHeapRetain(heap, element);
-	filter->index++;
+	test = (Test *)iterator->handler;
+	test->callback(clarity, test->retVal, iterator->data);
 }
 
-static Filter *filterCreate(Clarity *clarity,
-							ClarityArray *array,
-							Element *element,
-							ClarityArrayTestFunction function,
-							ClarityArrayMapCallback callback,
-							void *data)
+void clarityArrayEvery(ClarityArray *array,
+					   ClarityArrayTestFunction function,
+					   ClarityArrayTestCallback callback,
+					   void *data)
 {
-	Filter *filter;
+	Test *test;
+	Iterator *iterator;
+
+	test = testCreate(array->clarity,
+					  function,
+					  callback);
+
+	iterator = iteratorCreate(array->clarity,
+							  array,
+							  data,
+							  (ClarityEvent)everyHandler,
+							  (ClarityEvent)everyDone,
+							  test);
+
+	test->retVal = TRUE;
+	iteratorStart(iterator);
+}
+
+static void someHandler(Clarity *clarity, Iterator *iterator)
+{
+	Test *test;
+	Bool retVal;
+
+	test = (Test *)iterator->handler;
+	retVal = test->function(iterator->element->data,
+							iterator->index,
+							iterator->array,
+							clarity);
+
+	test->retVal = test->retVal || retVal;
+}
+
+static void someDone(Clarity *clarity, Iterator *iterator)
+{
+	Test *test;
+
+	test = (Test *)iterator->handler;
+	test->callback(clarity, test->retVal, iterator->data);
+}
+
+void clarityArraySome(ClarityArray *array,
+					  ClarityArrayTestFunction function,
+					  ClarityArrayTestCallback callback,
+					  void *data)
+{
+	Test *test;
+	Iterator *iterator;
+
+	test = testCreate(array->clarity,
+					  function,
+					  callback);
+
+	iterator = iteratorCreate(array->clarity,
+							  array,
+							  data,
+							  (ClarityEvent)someHandler,
+							  (ClarityEvent)someDone,
+							  test);
+
+	test->retVal = FALSE;
+	iteratorStart(iterator);
+}
+
+static ForEach *forEachCreate(Clarity *clarity,
+							  ClarityArrayForEachFunction function,
+							  ClarityArrayForEachCallback callback)
+{
+	ForEach *forEach;
 	ClarityHeap *heap;
 
 	heap = clarityGetHeap(clarity);
-	filter = clarityHeapAllocate(heap,
-								 sizeof(Filter),
-								 (ClarityHeapDestructor)filterDestroy);
+	forEach = clarityHeapAllocate(heap,
+								  sizeof(ForEach),
+								  (ClarityHeapDestructor)emptyDestroy);
 
-	filter->index = 0;
-	filter->newArray = clarityArrayCreate(clarity);
-	filter->newArray = clarityHeapRetain(heap, filter->newArray);
-	filter->clarity = clarityHeapRetain(heap, clarity);
-	filter->array = clarityHeapRetain(heap, array);
-	filter->element = clarityHeapRetain(heap, element);
-	filter->data = clarityHeapRetain(heap, data);
-	filter->function = function;
-	filter->callback = callback;
-	clarityHeapAutoRelease(heap, filter);
-	return filter;
+	forEach->function = function;
+	forEach->callback = callback;
+	clarityHeapAutoRelease(heap, forEach);
+	return forEach;
+}
+
+static void forEachHandler(Clarity *clarity, Iterator *iterator)
+{
+	ForEach *forEach;
+
+	forEach = (ForEach *)iterator->handler;
+	forEach->function(iterator->element->data,
+					  iterator->index,
+					  iterator->array,
+					  clarity);
+}
+
+static void forEachDone(Clarity *clarity, Iterator *iterator)
+{
+	ForEach *forEach;
+
+	forEach = (ForEach *)iterator->handler;
+	if (forEach->callback)
+		forEach->callback(clarity, iterator->data);
+}
+
+void clarityArrayForEach(ClarityArray *array,
+						 ClarityArrayForEachFunction function,
+						 ClarityArrayForEachCallback callback,
+						 void *data)
+{
+	ForEach *forEach;
+	Iterator *iterator;
+
+	forEach = forEachCreate(array->clarity,
+							function,
+							callback);
+
+	iterator = iteratorCreate(array->clarity,
+							  array,
+							  data,
+							  (ClarityEvent)forEachHandler,
+							  (ClarityEvent)forEachDone,
+							  forEach);
+
+	iteratorStart(iterator);
 }
 
 static void mapDestroy(ClarityHeap *heap,
-						   Map *map)
+					   Map *map)
 {
-	clarityHeapRelease(heap, map->element);
-	clarityHeapRelease(heap, map->data);
-	clarityHeapRelease(heap, map->clarity);
-	clarityHeapRelease(heap, map->array);
 	clarityHeapRelease(heap, map->newArray);
 }
 
-static void mapSetElement(Map *map,
-						  Element *element)
-{
-	ClarityHeap *heap;
-
-	heap = clarityGetHeap(map->clarity);
-	clarityHeapRelease(heap, map->element);
-	map->element = clarityHeapRetain(heap, element);
-	map->index++;
-}
-
 static Map *mapCreate(Clarity *clarity,
-					  ClarityArray *array,
-					  Element *element,
 					  ClarityArrayMapFunction function,
-					  ClarityArrayMapCallback callback,
-					  void *data)
+					  ClarityArrayMapCallback callback)
 {
 	Map *map;
 	ClarityHeap *heap;
@@ -216,64 +340,128 @@ static Map *mapCreate(Clarity *clarity,
 							  sizeof(Map),
 							  (ClarityHeapDestructor)mapDestroy);
 
-	map->index = 0;
 	map->newArray = clarityArrayCreate(clarity);
 	map->newArray = clarityHeapRetain(heap, map->newArray);
-	map->clarity = clarityHeapRetain(heap, clarity);
-	map->array = clarityHeapRetain(heap, array);
-	map->element = clarityHeapRetain(heap, element);
-	map->data = clarityHeapRetain(heap, data);
 	map->function = function;
 	map->callback = callback;
 	clarityHeapAutoRelease(heap, map);
 	return map;
 }
 
-static void forEachDestroy(ClarityHeap *heap,
-						   ForEach *forEach)
+static void mapHandler(Clarity *clarity, Iterator *iterator)
 {
-	clarityHeapRelease(heap, forEach->element);
-	clarityHeapRelease(heap, forEach->data);
-	clarityHeapRelease(heap, forEach->clarity);
-	clarityHeapRelease(heap, forEach->array);
+	Map *map;
+	void *newItem;
 
+	map = (Map *)iterator->handler;
+	newItem = map->function(iterator->element->data,
+							iterator->index,
+							iterator->array,
+							clarity);
+
+	clarityArrayPush(map->newArray, newItem);
 }
 
-static void forEachSetElement(ForEach *forEach,
-							  Element *element)
+static void mapDone(Clarity *clarity, Iterator *iterator)
 {
-	ClarityHeap *heap;
+	Map *map;
 
-	heap = clarityGetHeap(forEach->clarity);
-	clarityHeapRelease(heap, forEach->element);
-	forEach->element = clarityHeapRetain(heap, element);
-	forEach->index++;
+	map = (Map *)iterator->handler;
+	map->callback(clarity, map->newArray, iterator->data);
 }
 
-static ForEach *forEachCreate(Clarity *clarity,
-							  ClarityArray *array,
-							  Element *element,
-							  ClarityArrayForEachFunction function,
-							  ClarityArrayForEachCallback callback,
-							  void *data)
+void clarityArrayMap(ClarityArray *array,
+					 ClarityArrayMapFunction function,
+					 ClarityArrayMapCallback callback,
+					 void *data)
 {
-	ForEach *forEach;
+	Map *map;
+	Iterator *iterator;
+
+	map = mapCreate(array->clarity,
+					function,
+					callback);
+
+	iterator = iteratorCreate(array->clarity,
+							  array,
+							  data,
+							  (ClarityEvent)mapHandler,
+							  (ClarityEvent)mapDone,
+							  map);
+
+	iteratorStart(iterator);
+}
+
+static void filterDestroy(ClarityHeap *heap,
+						  Filter *filter)
+{
+	clarityHeapRelease(heap, filter->newArray);
+}
+
+static Filter *filterCreate(Clarity *clarity,
+							ClarityArrayTestFunction function,
+							ClarityArrayMapCallback callback)
+{
+	Filter *filter;
 	ClarityHeap *heap;
 
 	heap = clarityGetHeap(clarity);
-	forEach = clarityHeapAllocate(heap,
-								  sizeof(ForEach),
-								  (ClarityHeapDestructor)forEachDestroy);
+	filter = clarityHeapAllocate(heap,
+								 sizeof(Filter),
+								 (ClarityHeapDestructor)filterDestroy);
 
-	forEach->index = 0;
-	forEach->clarity = clarityHeapRetain(heap, clarity);
-	forEach->array = clarityHeapRetain(heap, array);
-	forEach->element = clarityHeapRetain(heap, element);
-	forEach->data = clarityHeapRetain(heap, data);
-	forEach->function = function;
-	forEach->callback = callback;
-	clarityHeapAutoRelease(heap, forEach);
-	return forEach;
+	filter->newArray = clarityArrayCreate(clarity);
+	filter->newArray = clarityHeapRetain(heap, filter->newArray);
+	filter->function = function;
+	filter->callback = callback;
+	clarityHeapAutoRelease(heap, filter);
+	return filter;
+}
+
+static void filterHandler(Clarity *clarity, Iterator *iterator)
+{
+	Filter *filter;
+	Bool match;
+
+	filter = (Filter *)iterator->handler;
+
+	match = filter->function(iterator->element->data,
+							 iterator->index,
+							 iterator->array,
+							 clarity);
+
+	if (match)
+		clarityArrayPush(filter->newArray, iterator->element->data);
+}
+
+static void filterDone(Clarity *clarity, Iterator *iterator)
+{
+	Filter *filter;
+
+	filter = (Filter *)iterator->handler;
+	filter->callback(clarity, filter->newArray, iterator->data);
+}
+
+void clarityArrayFilter(ClarityArray *array,
+						ClarityArrayTestFunction function,
+						ClarityArrayMapCallback callback,
+						void *data)
+{
+	Filter *filter;
+	Iterator *iterator;
+
+	filter = filterCreate(array->clarity,
+						  function,
+						  callback);
+
+	iterator = iteratorCreate(array->clarity,
+							  array,
+							  data,
+							  (ClarityEvent)filterHandler,
+							  (ClarityEvent)filterDone,
+							  filter);
+
+	iteratorStart(iterator);
 }
 
 static void elementDestroy(ClarityHeap *heap, Element *element)
@@ -313,26 +501,6 @@ static void destroy(ClarityHeap *heap, ClarityArray *array)
 	}
 	clarityHeapRelease(heap, array->last);
 	clarityHeapRelease(heap, array->first);
-}
-
-ClarityArray *clarityArrayCreate(Clarity *clarity)
-{
-	ClarityHeap *heap;
-	ClarityArray *array;
-
-	heap = clarityGetHeap(clarity);
-	array = clarityHeapAllocate(heap,
-								sizeof(ClarityArray),
-								(ClarityHeapDestructor)destroy);
-
-	array->clarity = clarityHeapRetain(heap, clarity);
-	array->length = 0;
-	array->first = clarityHeapRetain(heap, elementCreate(clarity, NULL));
-	array->last = clarityHeapRetain(heap, elementCreate(clarity, NULL));
-	array->first->next = array->last;
-	array->last->prev = array->first;
-	clarityHeapAutoRelease(heap, array);
-	return array;
 }
 
 void clarityArrayUnshift(ClarityArray *array, void *data)
@@ -415,177 +583,22 @@ Uint32 clarityArrayLength(ClarityArray *array)
 	return array->length;
 }
 
-static void innerForEach(Clarity *clarity, ForEach *forEach)
+ClarityArray *clarityArrayCreate(Clarity *clarity)
 {
-	if (forEach->element != forEach->array->last) {
-		forEach->function(forEach->element->data,
-						  forEach->index,
-						  forEach->array,
-						  clarity);
+	ClarityHeap *heap;
+	ClarityArray *array;
 
-		forEachSetElement(forEach,
-						  forEach->element->next);
+	heap = clarityGetHeap(clarity);
+	array = clarityHeapAllocate(heap,
+								sizeof(ClarityArray),
+								(ClarityHeapDestructor)destroy);
 
-		clarityEnqueueEvent(clarity, (ClarityEvent)innerForEach, forEach);
-	} else if (forEach->callback)
-		forEach->callback(forEach->clarity, forEach->data);
-}
-
-void clarityArrayForEach(ClarityArray *array,
-						 ClarityArrayForEachFunction function,
-						 ClarityArrayForEachCallback callback,
-						 void *data)
-{
-	Element *element;
-	ForEach *forEach;
-
-	element = array->first->next;
-	forEach = forEachCreate(array->clarity,
-							array,
-							element,
-							function,
-							callback,
-							data);
-
-	clarityEnqueueEvent(array->clarity, (ClarityEvent)innerForEach, forEach);
-}
-
-static void innerMap(Clarity *clarity, Map *map)
-{
-	if (map->element != map->array->last) {
-		void *newItem;
-
-		newItem = map->function(map->element->data,
-								map->index,
-								map->array,
-								clarity);
-
-		clarityArrayPush(map->newArray, newItem);
-		mapSetElement(map, map->element->next);
-		clarityEnqueueEvent(clarity, (ClarityEvent)innerMap, map);
-	} else
-		map->callback(map->clarity, map->newArray, map->data);
-}
-
-void clarityArrayMap(ClarityArray *array,
-					 ClarityArrayMapFunction function,
-					 ClarityArrayMapCallback callback,
-					 void *data)
-{
-	Element *element;
-	Map *map;
-
-	element = array->first->next;
-	map = mapCreate(array->clarity,
-					array,
-					element,
-					function,
-					callback,
-					data);
-
-	clarityEnqueueEvent(array->clarity, (ClarityEvent)innerMap, map);
-}
-
-static void innerEvery(Clarity *clarity, Test *test)
-{
-	if (test->element != test->array->last && test->retVal) {
-		test->retVal = test->function(test->element->data,
-									  test->index,
-									  test->array,
-									  clarity);
-		testSetElement(test, test->element->next);
-		clarityEnqueueEvent(clarity, (ClarityEvent)innerEvery, test);
-	} else
-		test->callback(test->clarity, test->retVal, test->data);
-}
-
-void clarityArrayEvery(ClarityArray *array,
-					   ClarityArrayTestFunction function,
-					   ClarityArrayTestCallback callback,
-					   void *data)
-{
-	Element *element;
-	Test *test;
-
-	element = array->first->next;
-	test = testCreate(array->clarity,
-					  array,
-					  element,
-					  function,
-					  callback,
-					  data);
-
-	test->retVal = TRUE;
-	clarityEnqueueEvent(array->clarity, (ClarityEvent)innerEvery, test);
-}
-
-static void innerSome(Clarity *clarity, Test *test)
-{
-	if (test->element != test->array->last && !test->retVal) {
-		test->retVal = test->function(test->element->data,
-									  test->index,
-									  test->array,
-									  clarity);
-		testSetElement(test, test->element->next);
-		clarityEnqueueEvent(clarity, (ClarityEvent)innerSome, test);
-	} else
-		test->callback(test->clarity, test->retVal, test->data);
-}
-
-void clarityArraySome(ClarityArray *array,
-					  ClarityArrayTestFunction function,
-					  ClarityArrayTestCallback callback,
-					  void *data)
-{
-	Element *element;
-	Test *test;
-
-	element = array->first->next;
-	test = testCreate(array->clarity,
-					  array,
-					  element,
-					  function,
-					  callback,
-					  data);
-
-	test->retVal = FALSE;
-	clarityEnqueueEvent(array->clarity, (ClarityEvent)innerSome, test);
-}
-
-static void innerFilter(Clarity *clarity, Filter *filter)
-{
-	if (filter->element != filter->array->last) {
-		Bool match;
-
-		match = filter->function(filter->element->data,
-								 filter->index,
-								 filter->array,
-								 clarity);
-
-		if (match)
-			clarityArrayPush(filter->newArray, filter->element->data);
-
-		filterSetElement(filter, filter->element->next);
-		clarityEnqueueEvent(clarity, (ClarityEvent)innerFilter, filter);
-	} else
-		filter->callback(filter->clarity, filter->newArray, filter->data);
-}
-
-void clarityArrayFilter(ClarityArray *array,
-						ClarityArrayTestFunction function,
-						ClarityArrayMapCallback callback,
-						void *data)
-{
-	Element *element;
-	Filter *filter;
-
-	element = array->first->next;
-	filter = filterCreate(array->clarity,
-						  array,
-						  element,
-						  function,
-						  callback,
-						  data);
-
-	clarityEnqueueEvent(array->clarity, (ClarityEvent)innerFilter, filter);
+	array->clarity = clarityHeapRetain(heap, clarity);
+	array->length = 0;
+	array->first = clarityHeapRetain(heap, elementCreate(clarity, NULL));
+	array->last = clarityHeapRetain(heap, elementCreate(clarity, NULL));
+	array->first->next = array->last;
+	array->last->prev = array->first;
+	clarityHeapAutoRelease(heap, array);
+	return array;
 }
