@@ -32,6 +32,7 @@ typedef struct {
 	Uint32 magic;
 	ClarityHeapDestructor destructor;
 	ClarityHeap *heap;
+	void *context;
 	Sint32 refCount;
 	Uint32 size;
 	void *data;
@@ -57,17 +58,14 @@ typedef void(*Release)(ClarityHeap *heap, Header *header);
 static const Uint32 HEAP_MAGIC = 0xC0FFEE0D;
 static const AutoReleaseItem LAST_AUTO_RELEASE_ITEM = {NULL, NULL};
 
-static void autoReleaseDestroy(ClarityHeap *heap)
-{
-}
-
 static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
 {
 	AutoReleaseItem *newItem;
 
 	newItem = clarityHeapAllocate(heap,
+								  NULL,
 								  sizeof(AutoReleaseItem),
-								  (ClarityHeapDestructor)autoReleaseDestroy);
+								  (ClarityHeapDestructor)NULL);
 	if (newItem) {
 		AutoReleaseItem *pool;
 
@@ -117,6 +115,7 @@ static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
 }
 
 static void initializeHeader(ClarityHeap *heap,
+							 void *context,
 							 Header *header,
 							 Uint32 size,
 							 ClarityHeapDestructor destructor)
@@ -126,9 +125,11 @@ static void initializeHeader(ClarityHeap *heap,
 	header->size = size;
 	header->refCount = 1;
 	header->heap = heap;
+	header->context = context;
 }
 
 static void *clarityHeapInnerAllocate(ClarityHeap *heap,
+									  void *context,
 									  ClarityAlloc alloc,
 									  Uint32 size,
 									  ClarityHeapDestructor destructor)
@@ -140,7 +141,7 @@ static void *clarityHeapInnerAllocate(ClarityHeap *heap,
 	header = alloc(size + sizeof(Header));
 
 	if (header) {
-		initializeHeader(heap, header, size, destructor);
+		initializeHeader(heap, context, header, size, destructor);
 		retVal = &header->data;
 	}
 	return retVal;
@@ -148,10 +149,15 @@ static void *clarityHeapInnerAllocate(ClarityHeap *heap,
 
 
 void *clarityHeapAllocate(ClarityHeap *heap,
+						  void *context,
 						  Uint32 size,
 						  ClarityHeapDestructor destructor)
 {
-	return clarityHeapInnerAllocate(heap, heap->alloc, size, destructor);
+	return clarityHeapInnerAllocate(heap,
+									context,
+									heap->alloc,
+									size,
+									destructor);
 }
 
 static Header *heapItemHeader(void *data)
@@ -173,7 +179,9 @@ static Header *heapItemHeader(void *data)
 
 static void clarityHeapFree(ClarityHeap *heap, Header *header)
 {
-	header->destructor(&header->data);
+	if (header->destructor)
+		header->destructor(&header->data);
+
 	autoReleasePoolDelete(heap, header);
 	heap->free(header);
 }
@@ -214,6 +222,15 @@ void *clarityHeapRetain(void *data)
 	return data;
 }
 
+void *clarityHeapGetContext(void *data)
+{
+	Header *header;
+
+	header = heapItemHeader(data);
+
+	return header->context;
+}
+
 void clarityHeapCollectGarbage(ClarityHeap *heap)
 {
 	while (heap->autoReleasePool != &LAST_AUTO_RELEASE_ITEM) {
@@ -251,6 +268,7 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 	ClarityHeap *heap;
 
 	heap = clarityHeapInnerAllocate(NULL,
+									NULL,
 									alloc,
 									sizeof(ClarityHeap),
 									(ClarityHeapDestructor)heapDestroy);

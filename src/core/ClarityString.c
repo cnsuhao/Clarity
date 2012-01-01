@@ -34,11 +34,6 @@ struct __ClarityString {
 	char cString;
 };
 
-static void stringDestroy(ClarityString *string)
-{
-	clarityRelease(string->clarity);
-}
-
 ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 {
 	ClarityString *string;
@@ -48,12 +43,11 @@ ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 	length = clarityStrLen(clarity, newCString);
 	string = clarityAllocate(clarity,
 							 sizeof(ClarityString) + length + 1,
-							 (ClarityDestructor)stringDestroy);
+							 (ClarityDestructor)NULL);
 
 	string->length = length;
 	cString = &string->cString;
 
-	string->clarity = clarityRetain(clarity);
 	clarityMemCpy(clarity, cString, newCString, string->length);
 	cString[string->length] = '\0';
 	return clarityAutoRelease(string);
@@ -61,7 +55,7 @@ ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 
 Sint8 clarityStringCompare(ClarityString *string, ClarityString *string2)
 {
-	return clarityStrCmp(string->clarity, &string->cString, &string2->cString);
+	return clarityStrCmp(clarity(string), &string->cString, &string2->cString);
 }
 
 Uint32 clarityStringLength(ClarityString *string)

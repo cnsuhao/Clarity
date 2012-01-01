@@ -37,7 +37,6 @@ struct __ClarityObject {
 
 static void objectDestroy(ClarityObject *object)
 {
-	clarityRelease(object->clarity);
 	clarityRelease(object->members);
 }
 
@@ -45,7 +44,7 @@ void *clarityObjectGetMember(ClarityObject *object, const char *cName)
 {
 	ClarityString *name;
 
-	name = clarityStringCreate(object->clarity, cName);
+	name = clarityStringCreate(clarity(object), cName);
 	return clarityDictionaryGetObject(object->members, name);
 }
 
@@ -55,7 +54,7 @@ void clarityObjectSetMember(ClarityObject *object,
 {
 	ClarityString *name;
 
-	name = clarityStringCreate(object->clarity, cName);
+	name = clarityStringCreate(clarity(object), cName);
 	clarityDictionarySetObject(object->members, name, member);
 }
 
@@ -67,7 +66,6 @@ ClarityObject *clarityObjectCreate(Clarity *clarity)
 							 sizeof(ClarityObject),
 							 (ClarityDestructor)objectDestroy);
 
-	object->clarity = clarityRetain(clarity);
 	object->members = clarityDictionaryCreate(
 		clarity,
 		(ClarityComparator)clarityStringCompare);

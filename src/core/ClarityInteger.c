@@ -29,14 +29,8 @@
 #include "ClarityInteger.h"
 
 struct __ClarityInteger {
-	Clarity *clarity;
 	Uint32 uint32;
 };
-
-static void integerDestroy(ClarityInteger *integer)
-{
-	clarityRelease(integer->clarity);
-}
 
 ClarityInteger *clarityIntegerCreate(Clarity *clarity, Uint32 uint32)
 {
@@ -44,9 +38,8 @@ ClarityInteger *clarityIntegerCreate(Clarity *clarity, Uint32 uint32)
 
 	integer = clarityAllocate(clarity,
 							  sizeof(ClarityInteger),
-							  (ClarityDestructor)integerDestroy);
+							  (ClarityDestructor)NULL);
 
-	integer->clarity = clarityRetain(clarity);
 	integer->uint32 = uint32;
 	return clarityAutoRelease(integer);
 }

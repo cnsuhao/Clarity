@@ -20,7 +20,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-void clarity(void)
+void start(void)
 {
 	Clarity *clarity;
 	ClarityHeap *heap;

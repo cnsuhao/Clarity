@@ -27,19 +27,16 @@ static void *testMap(ClarityString *string,
 					ClarityArray *array)
 {
 	void *retVal;
-	Clarity *clarity;
 
 	retVal = NULL;
 	assert(index < 3);
 
-	clarity = clarityArrayGetClarity(array);
-
 	if (string == dataString1)
-		retVal = clarityIntegerCreate(clarity, 1);
+		retVal = clarityIntegerCreate(clarity(array), 1);
 	else if (string == dataString2)
-		retVal = clarityIntegerCreate(clarity, 8);
+		retVal = clarityIntegerCreate(clarity(array), 8);
 	else if (string == dataString3)
-		retVal = clarityIntegerCreate(clarity, 6);
+		retVal = clarityIntegerCreate(clarity(array), 6);
 	else
 		assert(FALSE);
 

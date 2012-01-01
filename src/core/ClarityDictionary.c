@@ -30,7 +30,6 @@
 
 typedef struct __Node Node;
 struct __Node {
-	Clarity *clarity;
 	void *object;
 	void *key;
 	Node *left;
@@ -39,7 +38,6 @@ struct __Node {
 };
 
 struct __ClarityDictionary {
-	Clarity *clarity;
 	Node *root;
 	ClarityComparator comparator;
 };
@@ -50,7 +48,6 @@ static void itemDestroy(Node *node)
 	clarityRelease(node->object);
 	clarityRelease(node->left);
 	clarityRelease(node->right);
-	clarityRelease(node->clarity);
 }
 
 static Node *itemCreate(Clarity *clarity, void *key, void *object, void *parent)
@@ -62,7 +59,6 @@ static Node *itemCreate(Clarity *clarity, void *key, void *object, void *parent)
 
 	node->key = clarityRetain(key);
 	node->object = clarityRetain(object);
-	node->clarity = clarityRetain(clarity);
 	node->left = NULL;
 	node->right = NULL;
 	node->parent = parent;
@@ -72,7 +68,6 @@ static Node *itemCreate(Clarity *clarity, void *key, void *object, void *parent)
 static void dictionaryDestroy(ClarityDictionary *dictionary)
 {
 	clarityRelease(dictionary->root);
-	clarityRelease(dictionary->clarity);
 }
 
 static Node *getNode(ClarityDictionary *dictionary, void *key)
@@ -136,7 +131,7 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 		parent = node;
 		node = *assignee;
 	}
-	*assignee = itemCreate(dictionary->clarity, key, object, parent);
+	*assignee = itemCreate(clarity(dictionary), key, object, parent);
 	*assignee = clarityRetain(*assignee);
 
 }
@@ -150,7 +145,6 @@ ClarityDictionary *clarityDictionaryCreate(Clarity *clarity,
 								 sizeof(ClarityDictionary),
 								 (ClarityDestructor)dictionaryDestroy);
 
-	dictionary->clarity = clarityRetain(clarity);
 	dictionary->comparator = comp;
 	dictionary->root = NULL;
 	return clarityAutoRelease(dictionary);

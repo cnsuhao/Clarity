@@ -52,6 +52,8 @@ void clarityRelease(void *);
 void *clarityRetain(void *);
 void clarityCollectGarbage(Clarity *);
 
+Clarity *clarity(void *);
+
 void *clarityMemCpy(Clarity *, void *, const void *, Uint32);
 void *clarityMemSet(Clarity *, void *, char, Uint32);
 Uint32 clarityStrLen(Clarity *, const char *);

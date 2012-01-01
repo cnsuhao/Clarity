@@ -141,6 +141,7 @@ void *clarityAllocate(Clarity *clarity,
 					  ClarityDestructor destructor)
 {
 	return clarityHeapAllocate(clarity->heap,
+							   clarity,
 							   size,
 							   (ClarityHeapDestructor)destructor);
 }
@@ -158,6 +159,11 @@ void clarityRelease(void *data)
 void *clarityRetain(void *data)
 {
 	return clarityHeapRetain(data);
+}
+
+Clarity *clarity(void *data)
+{
+	return (Clarity *)clarityHeapGetContext(data);
 }
 
 void clarityCollectGarbage(Clarity *clarity)
@@ -190,6 +196,7 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 	Clarity *clarity;
 
 	clarity = clarityHeapAllocate(heap,
+								  NULL,
 								  sizeof(Clarity),
 								  (ClarityHeapDestructor)clarityDestroy);
 
@@ -205,12 +212,13 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 
 void clarityStart(Clarity *clarity)
 {
+	clarityRetain(clarity);
 	clarityEventLoopStart(clarity->eventLoop);
 }
 
 void clarityStop(Clarity *clarity)
 {
 	ClarityHeap *heap = clarity->heap;
-	clarityRelease(clarity->eventLoop);
+	clarityRelease(clarity);
 	clarityHeapRelease(heap);
 }

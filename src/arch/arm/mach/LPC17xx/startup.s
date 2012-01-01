@@ -89,7 +89,7 @@ copy:
 
     ldr      r0, =result
     str      r4, [r0]
-    ldr      r0, =clarity
+    ldr      r0, =start
     bx       r0
     b        .
 
