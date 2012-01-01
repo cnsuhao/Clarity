@@ -228,11 +228,15 @@ void *clarityHeapRetain(void *data)
 
 void *clarityHeapGetContext(void *data)
 {
+	void *retVal;
 	Header *header;
 
+	retVal = NULL;
 	header = heapItemHeader(data);
 
-	return header->context;
+	if (header)
+		retVal = header->context;
+	return retVal;
 }
 
 void clarityHeapCollectGarbage(ClarityHeap *heap)
