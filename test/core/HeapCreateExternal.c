@@ -18,6 +18,7 @@ int main(void)
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	assert(heap != NULL);
+	clarityHeapRetain(heap);
 	clarityHeapRelease(heap);
 	return 0;
 }

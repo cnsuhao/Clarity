@@ -179,11 +179,15 @@ static Header *heapItemHeader(void *data)
 
 static void clarityHeapFree(ClarityHeap *heap, Header *header)
 {
+	ClarityFree free;
+
+	free = heap->free;
+	autoReleasePoolDelete(heap, header);
+
 	if (header->destructor)
 		header->destructor(&header->data);
 
-	autoReleasePoolDelete(heap, header);
-	heap->free(header);
+	free(header);
 }
 
 static void innerRelease(void *data, Release release)
@@ -284,7 +288,7 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 		heap->size = size;
 		heap->blockSize = blockSize;
 	}
-	return heap;
+	return clarityHeapAutoRelease(heap);
 }
 
 ClarityHeap *clarityHeapCreate(void *address, Uint32 size, Uint32 blockSize)

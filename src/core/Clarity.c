@@ -218,7 +218,5 @@ void clarityStart(Clarity *clarity)
 
 void clarityStop(Clarity *clarity)
 {
-	ClarityHeap *heap = clarity->heap;
 	clarityRelease(clarity);
-	clarityHeapRelease(heap);
 }
