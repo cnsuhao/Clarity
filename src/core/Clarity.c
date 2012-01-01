@@ -110,7 +110,6 @@ void claritySetStrCmp(Clarity *clarity, ClarityStrCmp strCmp)
 	clarity->strCmp = strCmp;
 }
 
-
 void *clarityMemCpy(Clarity *clarity,
 					void *dstData,
 					const void *srcData,

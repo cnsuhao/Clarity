@@ -147,7 +147,6 @@ static void *clarityHeapInnerAllocate(ClarityHeap *heap,
 	return retVal;
 }
 
-
 void *clarityHeapAllocate(ClarityHeap *heap,
 						  void *context,
 						  Uint32 size,
