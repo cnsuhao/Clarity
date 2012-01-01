@@ -100,10 +100,10 @@ static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
 	while (item != &LAST_AUTO_RELEASE_ITEM) {
 		next = item->next;
 		if (item->header == header) {
-			if (item == heap->autoReleasePool)
-				heap->autoReleasePool = next;
-			else if (prev)
+			if (prev)
 				prev->next = next;
+			else
+				heap->autoReleasePool = next;
 			clarityHeapRelease(item);
 		} else {
 			prev = item;
