@@ -32,7 +32,7 @@
 
 typedef struct __Clarity Clarity;
 
-typedef void(*ClarityEvent)(Clarity *, void *);
+typedef void(*ClarityEvent)(void *);
 typedef Sint8(*ClarityComparator)(void *, void *);
 typedef void(*ClarityDestructor)(void *);
 

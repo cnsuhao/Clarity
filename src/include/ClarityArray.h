@@ -34,30 +34,28 @@ typedef struct __ClarityArray ClarityArray;
 
 typedef void(*ClarityArrayForEachFunction)(void *,
 										   Uint32,
-										   ClarityArray *,
-										   Clarity *);
+										   ClarityArray *);
 
 typedef void *(*ClarityArrayMapFunction)(void *,
 										 Uint32,
-										 ClarityArray *,
-										 Clarity *);
+										 ClarityArray *);
 
 typedef Bool(*ClarityArrayTestFunction)(void *,
 										Uint32,
-										ClarityArray *,
-										Clarity *);
+										ClarityArray *);
 
-typedef void(*ClarityArrayForEachCallback)(Clarity *, void *);
+typedef void(*ClarityArrayForEachCallback)(void *);
 
-typedef void *(*ClarityArrayMapCallback)(Clarity *, void *, void *);
+typedef void *(*ClarityArrayMapCallback)(void *, void *);
 
-typedef void(*ClarityArrayTestCallback)(Clarity *, Bool, void *);
+typedef void(*ClarityArrayTestCallback)(Bool, void *);
 
 ClarityArray *clarityArrayCreate(Clarity *);
 void clarityArrayPush(ClarityArray *, void *);
 void *clarityArrayPop(ClarityArray *);
 void clarityArrayUnshift(ClarityArray *, void *);
 void *clarityArrayShift(ClarityArray *);
+Clarity *clarityArrayGetClarity(ClarityArray *);
 Uint32 clarityArrayLength(ClarityArray *);
 
 void clarityArrayForEach(ClarityArray *array,

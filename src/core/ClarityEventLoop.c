@@ -78,7 +78,7 @@ static void dequeue(ClarityEventLoop *eventLoop)
 	Event *event;
 
 	event = clarityArrayPop(eventLoop->events);
-	event->function(eventLoop->clarity, event->data);
+	event->function(event->data);
 	clarityCollectGarbage(eventLoop->clarity);
 }
 
@@ -127,6 +127,6 @@ ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
 	eventLoop->clarity = clarityRetain(clarity);
 	eventLoop->events = clarityArrayCreate(eventLoop->clarity);
 	eventLoop->events = clarityRetain(eventLoop->events);
-	clarityEventLoopEnqueue(eventLoop, entry, NULL);
+	clarityEventLoopEnqueue(eventLoop, entry, clarity);
 	return clarityAutoRelease(eventLoop);
 }

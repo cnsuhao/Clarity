@@ -1,10 +1,13 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
+#include "ClarityObject.h"
+#include "ClarityInteger.h"
 #include <stdlib.h>
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
-
+	clarityObjectCreate(clarity);
+	clarityIntegerCreate(clarity, 32);
 }
 
 static void *mainAlloc(Uint32 size)
@@ -23,7 +26,7 @@ void clarity(void)
 	ClarityHeap *heap;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	clarityStart(clarity);
 	clarityStop(clarity);
 }

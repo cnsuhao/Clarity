@@ -19,7 +19,7 @@ static Uint32 testStrLen(Clarity *clarity, const char *cString)
 	return strlen(cString);
 }
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
 	const char *buffer = "TestString";
 
@@ -32,7 +32,7 @@ int main(void)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	claritySetStrLen(clarity, testStrLen);
 	clarityStart(clarity);
 	clarityStop(clarity);

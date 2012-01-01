@@ -23,8 +23,7 @@ static ClarityString *dataString4;
 
 static void testForEach(ClarityString *string,
 						Uint32 index,
-						ClarityArray *array,
-						Clarity *clarity)
+						ClarityArray *array)
 {
 	assert(index < 3);
 	assert(string == dataString1 ||
@@ -32,12 +31,12 @@ static void testForEach(ClarityString *string,
 		   string == dataString3);
 }
 
-static void testForEachDone(Clarity *clarity, ClarityString *string)
+static void testForEachDone(ClarityString *string)
 {
 	assert(string == dataString4);
 }
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
@@ -69,7 +68,7 @@ int main(void)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	clarityStart(clarity);
 	clarityStop(clarity);
 	return 0;

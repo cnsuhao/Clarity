@@ -21,7 +21,7 @@ static Sint8 testStrCmp(Clarity *clarity,
 	return strcmp(cString, cString2);
 }
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
 	const char *testStringBase = "BTestString";
 	const char *testStringMore = "CTestString";
@@ -38,7 +38,7 @@ int main(void)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	claritySetStrCmp(clarity, testStrCmp);
 	clarityStart(clarity);
 	clarityStop(clarity);

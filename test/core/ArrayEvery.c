@@ -21,8 +21,7 @@ static ClarityString *dataString4;
 
 static Bool testEveryWithFalse(ClarityString *string,
 							   Uint32 index,
-							   ClarityArray *array,
-							   Clarity *clarity)
+							   ClarityArray *array)
 {
 	assert(index < 3);
 	return (index == 2);
@@ -30,30 +29,27 @@ static Bool testEveryWithFalse(ClarityString *string,
 
 static Bool testEveryAllTrue(ClarityString *string,
 							 Uint32 index,
-							 ClarityArray *array,
-							 Clarity *clarity)
+							 ClarityArray *array)
 {
 	assert(index < 3);
 	return TRUE;
 }
 
-static void testEveryWithFalseDone(Clarity *clarity,
-								   Bool every,
+static void testEveryWithFalseDone(Bool every,
 								   ClarityString *string)
 {
 	assert(every == FALSE);
 	assert(string == dataString4);
 }
 
-static void testEveryAllTrueDone(Clarity *clarity,
-								 Bool every,
+static void testEveryAllTrueDone(Bool every,
 								 ClarityString *string)
 {
 	assert(every == TRUE);
 	assert(string == dataString4);
 }
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
@@ -90,7 +86,7 @@ int main(void)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	clarityStart(clarity);
 	clarityStop(clarity);
 	return 0;

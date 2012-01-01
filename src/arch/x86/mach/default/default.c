@@ -17,7 +17,7 @@ int clarityMain(ClarityEvent entry)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	clarityStart(clarity);
 	clarityStop(clarity);
 	return 0;

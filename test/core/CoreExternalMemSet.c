@@ -19,7 +19,7 @@ static void *testMemSet(Clarity *clarity, void *data, char value, Uint32 size)
 	return memset(data, value, size);
 }
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
 	static const int BUFFER_SIZE = 3;
 	char buffer[BUFFER_SIZE];
@@ -37,7 +37,7 @@ int main(void)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	claritySetMemSet(clarity, testMemSet);
 	clarityStart(clarity);
 	clarityStop(clarity);

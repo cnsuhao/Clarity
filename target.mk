@@ -42,7 +42,7 @@ BASECFLAGS := -c -Wall -Werror -pedantic -std=c99
 
 ifeq ($(TARGET), release)
 LDFLAGS := $(BASELDFLAGS)
-CFLAGS := $(BASECFLAGS) -O3
+CFLAGS := $(BASECFLAGS) -O2
 else ifeq ($(TARGET), debug)
 LDFLAGS := $(BASELDFLAGS) -g
 CFLAGS := $(BASECFLAGS) -g

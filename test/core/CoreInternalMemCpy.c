@@ -14,7 +14,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
 	static const int BUFFER_SIZE = 11;
 	const char *srcBuffer = "TestString";
@@ -30,7 +30,7 @@ int main(void)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	clarityStart(clarity);
 	clarityStop(clarity);
 	return 0;

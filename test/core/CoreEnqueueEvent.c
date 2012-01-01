@@ -19,7 +19,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void event1(Clarity *clarity, ClarityString *string)
+static void event1(ClarityString *string)
 {
 	const char *cString;
 
@@ -30,7 +30,7 @@ static void event1(Clarity *clarity, ClarityString *string)
 	gotEvent1 = TRUE;
 }
 
-static void event2(Clarity *clarity, ClarityString *string)
+static void event2(ClarityString *string)
 {
 	const char *cString;
 
@@ -41,7 +41,7 @@ static void event2(Clarity *clarity, ClarityString *string)
 	gotEvent2 = TRUE;
 }
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
 	clarityEnqueueEvent(clarity,
 						(ClarityEvent)event1,
@@ -59,7 +59,7 @@ int main(void)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	clarityStart(clarity);
 	assert(gotEvent1 == TRUE);
 	assert(gotEvent2 == TRUE);

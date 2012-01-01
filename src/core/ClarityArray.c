@@ -96,7 +96,7 @@ static Bool iteratorHasItem(Iterator *iterator)
 	return iterator->element != iterator->array->last;
 }
 
-static void iteratorEvent(Clarity *clarity, Iterator *iterator)
+static void iteratorEvent(Iterator *iterator)
 {
 	Element *element = iterator->element->next;
 
@@ -170,7 +170,7 @@ static Test *testCreate(Clarity *clarity,
 	return clarityAutoRelease(test);
 }
 
-static void everyHandler(Clarity *clarity, Iterator *iterator)
+static void everyHandler(Iterator *iterator)
 {
 	Test *test;
 
@@ -179,17 +179,16 @@ static void everyHandler(Clarity *clarity, Iterator *iterator)
 	if (test->retVal) {
 		test->retVal = test->function(iterator->element->data,
 									  iterator->index,
-									  iterator->array,
-									  clarity);
+									  iterator->array);
 	}
 }
 
-static void everyDone(Clarity *clarity, Iterator *iterator)
+static void everyDone(Iterator *iterator)
 {
 	Test *test;
 
 	test = (Test *)iterator->handler;
-	test->callback(clarity, test->retVal, iterator->data);
+	test->callback(test->retVal, iterator->data);
 }
 
 void clarityArrayEvery(ClarityArray *array,
@@ -215,7 +214,7 @@ void clarityArrayEvery(ClarityArray *array,
 	iteratorStart(iterator);
 }
 
-static void someHandler(Clarity *clarity, Iterator *iterator)
+static void someHandler(Iterator *iterator)
 {
 	Test *test;
 	Bool retVal;
@@ -223,18 +222,17 @@ static void someHandler(Clarity *clarity, Iterator *iterator)
 	test = (Test *)iterator->handler;
 	retVal = test->function(iterator->element->data,
 							iterator->index,
-							iterator->array,
-							clarity);
+							iterator->array);
 
 	test->retVal = test->retVal || retVal;
 }
 
-static void someDone(Clarity *clarity, Iterator *iterator)
+static void someDone(Iterator *iterator)
 {
 	Test *test;
 
 	test = (Test *)iterator->handler;
-	test->callback(clarity, test->retVal, iterator->data);
+	test->callback(test->retVal, iterator->data);
 }
 
 void clarityArraySome(ClarityArray *array,
@@ -281,24 +279,23 @@ static ForEach *forEachCreate(Clarity *clarity,
 	return clarityAutoRelease(forEach);
 }
 
-static void forEachHandler(Clarity *clarity, Iterator *iterator)
+static void forEachHandler(Iterator *iterator)
 {
 	ForEach *forEach;
 
 	forEach = (ForEach *)iterator->handler;
 	forEach->function(iterator->element->data,
 					  iterator->index,
-					  iterator->array,
-					  clarity);
+					  iterator->array);
 }
 
-static void forEachDone(Clarity *clarity, Iterator *iterator)
+static void forEachDone(Iterator *iterator)
 {
 	ForEach *forEach;
 
 	forEach = (ForEach *)iterator->handler;
 	if (forEach->callback)
-		forEach->callback(clarity, iterator->data);
+		forEach->callback(iterator->data);
 }
 
 void clarityArrayForEach(ClarityArray *array,
@@ -347,7 +344,7 @@ static Map *mapCreate(Clarity *clarity,
 	return clarityAutoRelease(map);
 }
 
-static void mapHandler(Clarity *clarity, Iterator *iterator)
+static void mapHandler(Iterator *iterator)
 {
 	Map *map;
 	void *newItem;
@@ -355,18 +352,17 @@ static void mapHandler(Clarity *clarity, Iterator *iterator)
 	map = (Map *)iterator->handler;
 	newItem = map->function(iterator->element->data,
 							iterator->index,
-							iterator->array,
-							clarity);
+							iterator->array);
 
 	clarityArrayPush(map->newArray, newItem);
 }
 
-static void mapDone(Clarity *clarity, Iterator *iterator)
+static void mapDone(Iterator *iterator)
 {
 	Map *map;
 
 	map = (Map *)iterator->handler;
-	map->callback(clarity, map->newArray, iterator->data);
+	map->callback(map->newArray, iterator->data);
 }
 
 void clarityArrayMap(ClarityArray *array,
@@ -415,7 +411,7 @@ static Filter *filterCreate(Clarity *clarity,
 	return clarityAutoRelease(filter);
 }
 
-static void filterHandler(Clarity *clarity, Iterator *iterator)
+static void filterHandler(Iterator *iterator)
 {
 	Filter *filter;
 	Bool match;
@@ -424,19 +420,18 @@ static void filterHandler(Clarity *clarity, Iterator *iterator)
 
 	match = filter->function(iterator->element->data,
 							 iterator->index,
-							 iterator->array,
-							 clarity);
+							 iterator->array);
 
 	if (match)
 		clarityArrayPush(filter->newArray, iterator->element->data);
 }
 
-static void filterDone(Clarity *clarity, Iterator *iterator)
+static void filterDone(Iterator *iterator)
 {
 	Filter *filter;
 
 	filter = (Filter *)iterator->handler;
-	filter->callback(clarity, filter->newArray, iterator->data);
+	filter->callback(filter->newArray, iterator->data);
 }
 
 void clarityArrayFilter(ClarityArray *array,
@@ -564,6 +559,11 @@ void *clarityArrayPop(ClarityArray *array)
 		clarityAutoRelease(retVal);
 	}
 	return retVal;
+}
+
+Clarity *clarityArrayGetClarity(ClarityArray *array)
+{
+	return array->clarity;
 }
 
 Uint32 clarityArrayLength(ClarityArray *array)

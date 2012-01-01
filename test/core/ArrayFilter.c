@@ -24,8 +24,7 @@ static ClarityString *dataString4;
 
 static Bool testFilter(ClarityString *string,
 					   Uint32 index,
-					   ClarityArray *array,
-					   Clarity *clarity)
+					   ClarityArray *array)
 {
 	Bool retVal;
 
@@ -44,9 +43,8 @@ static Bool testFilter(ClarityString *string,
 	return retVal;
 }
 
-static void testFilterDone(Clarity *clarity,
-						ClarityArray *array,
-						ClarityString *doneString)
+static void testFilterDone(ClarityArray *array,
+						   ClarityString *doneString)
 {
 	ClarityString *string;
 
@@ -59,7 +57,7 @@ static void testFilterDone(Clarity *clarity,
 	assert(doneString == dataString4);
 }
 
-static void entry(Clarity *clarity, void *data)
+static void entry(Clarity *clarity)
 {
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
@@ -87,7 +85,7 @@ int main(void)
 	Clarity *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate(entry, heap);
+	clarity = clarityCreate((ClarityEvent)entry, heap);
 	clarityStart(clarity);
 	clarityStop(clarity);
 	return 0;
