@@ -30,6 +30,7 @@
 #include "ClarityArray.h"
 
 typedef struct {
+	Clarity *clarity;
 	ClarityEvent function;
 	void *data;
 } Event;
@@ -39,9 +40,10 @@ struct __ClarityEventLoop {
 	Clarity *clarity;
 };
 
-static void eventDestroy(ClarityHeap *heap, Event *event)
+static void eventDestroy(Event *event)
 {
-	clarityHeapRelease(heap, event->data);
+	clarityRelease(event->data);
+	clarityRelease(event->clarity);
 }
 
 static Event *eventCreate(Clarity *clarity,
@@ -49,16 +51,15 @@ static Event *eventCreate(Clarity *clarity,
 						  void *data)
 {
 	Event *event;
-	ClarityHeap *heap;
 
-	heap = clarityGetHeap(clarity);
-	event = clarityHeapAllocate(heap, sizeof(Event),
-								(ClarityHeapDestructor)eventDestroy);
+	event = clarityAllocate(clarity,
+							sizeof(Event),
+							(ClarityDestructor)eventDestroy);
 
-	event->data = clarityHeapRetain(heap, data);
+	event->data = clarityRetain(data);
+	event->clarity = clarityRetain(clarity);
 	event->function = function;
-	clarityHeapAutoRelease(heap, event);
-	return event;
+	return clarityAutoRelease(event);
 }
 
 static Bool hasEvent(ClarityEventLoop *eventLoop)
@@ -66,22 +67,19 @@ static Bool hasEvent(ClarityEventLoop *eventLoop)
 	return clarityArrayLength(eventLoop->events);
 }
 
-static void destroy(ClarityHeap *heap,
-					ClarityEventLoop *eventLoop)
+static void eventLoopDestroy(ClarityEventLoop *eventLoop)
 {
-	clarityHeapRelease(heap, eventLoop->clarity);
-	clarityHeapRelease(heap, eventLoop->events);
+	clarityRelease(eventLoop->events);
+	clarityRelease(eventLoop->clarity);
 }
 
 static void dequeue(ClarityEventLoop *eventLoop)
 {
 	Event *event;
-	ClarityHeap *heap;
 
 	event = clarityArrayPop(eventLoop->events);
 	event->function(eventLoop->clarity, event->data);
-	heap = clarityGetHeap(eventLoop->clarity);
-	clarityHeapCollectGarbage(heap);
+	clarityCollectGarbage(eventLoop->clarity);
 }
 
 typedef void(*Adder)(ClarityArray *, void *);
@@ -120,18 +118,15 @@ void clarityEventLoopStart(ClarityEventLoop *eventLoop)
 ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
 										 ClarityEvent entry)
 {
-	ClarityHeap *heap;
 	ClarityEventLoop *eventLoop;
 
-	heap = clarityGetHeap(clarity);
-	eventLoop = clarityHeapAllocate(heap,
-									sizeof(ClarityEventLoop),
-									(ClarityHeapDestructor)destroy);
+	eventLoop = clarityAllocate(clarity,
+								sizeof(ClarityEventLoop),
+								(ClarityDestructor)eventLoopDestroy);
 
-	eventLoop->clarity = clarityHeapRetain(heap, clarity);
+	eventLoop->clarity = clarityRetain(clarity);
 	eventLoop->events = clarityArrayCreate(eventLoop->clarity);
-	eventLoop->events = clarityHeapRetain(heap, eventLoop->events);
+	eventLoop->events = clarityRetain(eventLoop->events);
 	clarityEventLoopEnqueue(eventLoop, entry, NULL);
-	clarityHeapAutoRelease(heap, eventLoop);
-	return eventLoop;
+	return clarityAutoRelease(eventLoop);
 }

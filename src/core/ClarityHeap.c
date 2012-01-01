@@ -31,6 +31,7 @@
 typedef struct {
 	Uint32 magic;
 	ClarityHeapDestructor destructor;
+	ClarityHeap *heap;
 	Sint32 refCount;
 	Uint32 size;
 	void *data;
@@ -56,7 +57,7 @@ typedef void(*Release)(ClarityHeap *heap, Header *header);
 static const Uint32 HEAP_MAGIC = 0xC0FFEE0D;
 static const AutoReleaseItem LAST_AUTO_RELEASE_ITEM = {NULL, NULL};
 
-static void autoReleaseDestroy(ClarityHeap *heap, void *data)
+static void autoReleaseDestroy(ClarityHeap *heap)
 {
 }
 
@@ -85,7 +86,7 @@ static Header *autoReleasePoolPop(ClarityHeap *heap)
 	item = heap->autoReleasePool;
 	heap->autoReleasePool = item->next;
 	header = item->header;
-	clarityHeapRelease(heap, item);
+	clarityHeapRelease(item);
 	return header;
 }
 
@@ -105,7 +106,7 @@ static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
 				heap->autoReleasePool = next;
 			else if (prev)
 				prev->next = next;
-			clarityHeapRelease(heap, item);
+			clarityHeapRelease(item);
 		} else {
 			prev = item;
 		}
@@ -115,7 +116,8 @@ static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
 	}
 }
 
-static void initializeHeader(Header *header,
+static void initializeHeader(ClarityHeap *heap,
+							 Header *header,
 							 Uint32 size,
 							 ClarityHeapDestructor destructor)
 {
@@ -123,9 +125,11 @@ static void initializeHeader(Header *header,
 	header->destructor = destructor;
 	header->size = size;
 	header->refCount = 1;
+	header->heap = heap;
 }
 
-static void *clarityHeapInnerAllocate(ClarityAlloc alloc,
+static void *clarityHeapInnerAllocate(ClarityHeap *heap,
+									  ClarityAlloc alloc,
 									  Uint32 size,
 									  ClarityHeapDestructor destructor)
 {
@@ -136,7 +140,7 @@ static void *clarityHeapInnerAllocate(ClarityAlloc alloc,
 	header = alloc(size + sizeof(Header));
 
 	if (header) {
-		initializeHeader(header, size, destructor);
+		initializeHeader(heap, header, size, destructor);
 		retVal = &header->data;
 	}
 	return retVal;
@@ -147,7 +151,7 @@ void *clarityHeapAllocate(ClarityHeap *heap,
 						  Uint32 size,
 						  ClarityHeapDestructor destructor)
 {
-	return clarityHeapInnerAllocate(heap->alloc, size, destructor);
+	return clarityHeapInnerAllocate(heap, heap->alloc, size, destructor);
 }
 
 static Header *heapItemHeader(void *data)
@@ -169,12 +173,12 @@ static Header *heapItemHeader(void *data)
 
 static void clarityHeapFree(ClarityHeap *heap, Header *header)
 {
-	header->destructor(heap, &header->data);
+	header->destructor(&header->data);
 	autoReleasePoolDelete(heap, header);
 	heap->free(header);
 }
 
-static void innerRelease(ClarityHeap *heap, void *data, Release release)
+static void innerRelease(void *data, Release release)
 {
 	Header *header;
 
@@ -184,21 +188,22 @@ static void innerRelease(ClarityHeap *heap, void *data, Release release)
 		header->refCount--;
 
 		if (header->refCount == 0)
-			release(heap, header);
+			release(header->heap, header);
 	}
 }
 
-void clarityHeapAutoRelease(ClarityHeap *heap, void *data)
+void *clarityHeapAutoRelease(void *data)
 {
-	innerRelease(heap, data, autoReleasePoolPush);
+	innerRelease(data, autoReleasePoolPush);
+	return data;
 }
 
-void clarityHeapRelease(ClarityHeap *heap, void *data)
+void clarityHeapRelease(void *data)
 {
-	innerRelease(heap, data, clarityHeapFree);
+	innerRelease(data, clarityHeapFree);
 }
 
-void *clarityHeapRetain(ClarityHeap *heap, void *data)
+void *clarityHeapRetain(void *data)
 {
 	Header *header;
 
@@ -221,7 +226,7 @@ void clarityHeapCollectGarbage(ClarityHeap *heap)
 	}
 }
 
-static void destroy(ClarityHeap *heap, void *data)
+static void heapDestroy(ClarityHeap *heap)
 {
 	clarityHeapCollectGarbage(heap);
 }
@@ -245,8 +250,15 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 {
 	ClarityHeap *heap;
 
-	heap = clarityHeapInnerAllocate(alloc, sizeof(ClarityHeap), destroy);
+	heap = clarityHeapInnerAllocate(NULL,
+									alloc,
+									sizeof(ClarityHeap),
+									(ClarityHeapDestructor)heapDestroy);
 	if (heap) {
+		Header *header;
+
+		header = heapItemHeader(heap);
+		header->heap = heap;
 		heap->autoReleasePool = (AutoReleaseItem *)&LAST_AUTO_RELEASE_ITEM;
 		heap->alloc = alloc;
 		heap->free = free;

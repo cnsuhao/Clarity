@@ -27,7 +27,6 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityString.h"
-#include "ClarityHeap.h"
 
 struct __ClarityString {
 	Clarity *clarity;
@@ -35,32 +34,29 @@ struct __ClarityString {
 	char cString;
 };
 
-static void destroy(ClarityHeap *heap, ClarityString *string)
+static void stringDestroy(ClarityString *string)
 {
-	clarityHeapRelease(heap, string->clarity);
+	clarityRelease(string->clarity);
 }
 
 ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
 {
-	ClarityHeap *heap;
 	ClarityString *string;
 	char *cString;
 	Uint32 length;
 
-	heap = clarityGetHeap(clarity);
 	length = clarityStrLen(clarity, newCString);
-	string = clarityHeapAllocate(heap,
-								 sizeof(ClarityString) + length + 1,
-								 (ClarityHeapDestructor)destroy);
+	string = clarityAllocate(clarity,
+							 sizeof(ClarityString) + length + 1,
+							 (ClarityDestructor)stringDestroy);
 
 	string->length = length;
 	cString = &string->cString;
 
-	string->clarity = clarityHeapRetain(heap, clarity);
+	string->clarity = clarityRetain(clarity);
 	clarityMemCpy(clarity, cString, newCString, string->length);
 	cString[string->length] = '\0';
-	clarityHeapAutoRelease(heap, string);
-	return string;
+	return clarityAutoRelease(string);
 }
 
 Sint8 clarityStringCompare(ClarityString *string, ClarityString *string2)

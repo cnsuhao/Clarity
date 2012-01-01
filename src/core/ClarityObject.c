@@ -29,17 +29,16 @@
 #include "ClarityObject.h"
 #include "ClarityDictionary.h"
 #include "ClarityString.h"
-#include "ClarityHeap.h"
 
 struct __ClarityObject {
 	Clarity *clarity;
 	ClarityDictionary *members;
 };
 
-static void destroy(ClarityHeap *heap, ClarityObject *object)
+static void objectDestroy(ClarityObject *object)
 {
-	clarityHeapRelease(heap, object->clarity);
-	clarityHeapRelease(heap, object->members);
+	clarityRelease(object->clarity);
+	clarityRelease(object->members);
 }
 
 void *clarityObjectGetMember(ClarityObject *object, const char *cName)
@@ -62,20 +61,17 @@ void clarityObjectSetMember(ClarityObject *object,
 
 ClarityObject *clarityObjectCreate(Clarity *clarity)
 {
-	ClarityHeap *heap;
 	ClarityObject *object;
 
-	heap = clarityGetHeap(clarity);
-	object = clarityHeapAllocate(heap,
-								 sizeof(ClarityObject),
-								 (ClarityHeapDestructor)destroy);
+	object = clarityAllocate(clarity,
+							 sizeof(ClarityObject),
+							 (ClarityDestructor)objectDestroy);
 
-	object->clarity = clarityHeapRetain(heap, clarity);
+	object->clarity = clarityRetain(clarity);
 	object->members = clarityDictionaryCreate(
 		clarity,
 		(ClarityComparator)clarityStringCompare);
 
-	object->members = clarityHeapRetain(heap, object->members);
-	clarityHeapAutoRelease(heap, object);
-	return object;
+	object->members = clarityRetain(object->members);
+	return clarityAutoRelease(object);
 }

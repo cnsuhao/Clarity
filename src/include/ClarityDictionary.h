@@ -37,6 +37,5 @@ ClarityDictionary *clarityDictionaryCreate(Clarity *,
 
 void clarityDictionarySetObject(ClarityDictionary *, void *, void *);
 void *clarityDictionaryGetObject(ClarityDictionary *, void *);
-void clarityDictionaryRemoveObject(ClarityDictionary *, void *);
 
 #endif

@@ -7,6 +7,6 @@ int main(void)
 	ClarityHeap *heap;
 
 	heap = clarityHeapCreate(0, 1024, 32);
-	clarityHeapRelease(heap, heap);
+	clarityHeapRelease(heap);
 	return 0;
 }

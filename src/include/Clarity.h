@@ -34,6 +34,7 @@ typedef struct __Clarity Clarity;
 
 typedef void(*ClarityEvent)(Clarity *, void *);
 typedef Sint8(*ClarityComparator)(void *, void *);
+typedef void(*ClarityDestructor)(void *);
 
 typedef void*(*ClarityMemCpy)(Clarity *, void *, const void *, Uint32);
 typedef void*(*ClarityMemSet)(Clarity *, void *, char, Uint32);
@@ -45,7 +46,11 @@ void claritySetMemSet(Clarity *, ClarityMemSet);
 void claritySetStrLen(Clarity *, ClarityStrLen);
 void claritySetStrCmp(Clarity *, ClarityStrCmp);
 
-ClarityHeap *clarityGetHeap(Clarity *);
+void *clarityAllocate(Clarity *, Uint32, ClarityDestructor);
+void *clarityAutoRelease(void *);
+void clarityRelease(void *);
+void *clarityRetain(void *);
+void clarityCollectGarbage(Clarity *);
 
 void *clarityMemCpy(Clarity *, void *, const void *, Uint32);
 void *clarityMemSet(Clarity *, void *, char, Uint32);

@@ -27,10 +27,10 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityDictionary.h"
-#include "ClarityHeap.h"
 
 typedef struct __Node Node;
 struct __Node {
+	Clarity *clarity;
 	void *object;
 	void *key;
 	Node *left;
@@ -44,37 +44,35 @@ struct __ClarityDictionary {
 	ClarityComparator comparator;
 };
 
-static void itemDestroy(ClarityHeap *heap, Node *node)
+static void itemDestroy(Node *node)
 {
-	clarityHeapRelease(heap, node->key);
-	clarityHeapRelease(heap, node->object);
-	clarityHeapRelease(heap, node->left);
-	clarityHeapRelease(heap, node->right);
+	clarityRelease(node->key);
+	clarityRelease(node->object);
+	clarityRelease(node->left);
+	clarityRelease(node->right);
+	clarityRelease(node->clarity);
 }
 
 static Node *itemCreate(Clarity *clarity, void *key, void *object, void *parent)
 {
 	Node *node;
-	ClarityHeap *heap;
-
-	heap = clarityGetHeap(clarity);
-	node = clarityHeapAllocate(heap,
+	node = clarityAllocate(clarity,
 							   sizeof(Node),
-							   (ClarityHeapDestructor)itemDestroy);
+							   (ClarityDestructor)itemDestroy);
 
-	node->key = clarityHeapRetain(heap, key);
-	node->object = clarityHeapRetain(heap, object);
+	node->key = clarityRetain(key);
+	node->object = clarityRetain(object);
+	node->clarity = clarityRetain(clarity);
 	node->left = NULL;
 	node->right = NULL;
 	node->parent = parent;
-	clarityHeapAutoRelease(heap, node);
-	return node;
+	return clarityAutoRelease(node);
 }
 
-static void destroy(ClarityHeap *heap, ClarityDictionary *dictionary)
+static void dictionaryDestroy(ClarityDictionary *dictionary)
 {
-	clarityHeapRelease(heap, dictionary->clarity);
-	clarityHeapRelease(heap, dictionary->root);
+	clarityRelease(dictionary->root);
+	clarityRelease(dictionary->clarity);
 }
 
 static Node *getNode(ClarityDictionary *dictionary, void *key)
@@ -111,29 +109,6 @@ void *clarityDictionaryGetObject(ClarityDictionary *dictionary, void *key)
 	return retVal;
 }
 
-void clarityDictionaryRemoveObject(ClarityDictionary *dictionary, void *key)
-{
-	Node *node;
-
-	node = getNode(dictionary, key);
-
-	if (node) {
-		ClarityHeap *heap;
-
-		heap = clarityGetHeap(dictionary->clarity);
-
-		if (node->left == NULL && node->right == NULL) {
-			if (node->parent->left == node)
-				node->parent->left = NULL;
-			else if (node->parent->right == node)
-				node->parent->right = NULL;
-			clarityHeapRelease(heap, node);
-		}
-
-		/*TODO release items with children */
-	}
-}
-
 void clarityDictionarySetObject(ClarityDictionary *dictionary,
 								void *key,
 								void *object)
@@ -141,9 +116,6 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 	Node *node;
 	Node *parent;
 	Node **assignee;
-	ClarityHeap *heap;
-
-	heap = clarityGetHeap(dictionary->clarity);
 	node = dictionary->root;
 	assignee = &dictionary->root;
 	parent = NULL;
@@ -154,8 +126,8 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 		compare = dictionary->comparator(key, node->key);
 
 		if (compare == 0) {
-			clarityHeapRelease(heap, node->object);
-			node->object = clarityHeapRetain(heap, object);
+			clarityRelease(node->object);
+			node->object = clarityRetain(object);
 			return;
 		} else if (compare > 0)
 			assignee = &node->left;
@@ -165,23 +137,21 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 		node = *assignee;
 	}
 	*assignee = itemCreate(dictionary->clarity, key, object, parent);
-	*assignee = clarityHeapRetain(heap, *assignee);
+	*assignee = clarityRetain(*assignee);
 
 }
 
 ClarityDictionary *clarityDictionaryCreate(Clarity *clarity,
 										   ClarityComparator comp)
 {
-	ClarityHeap *heap;
 	ClarityDictionary *dictionary;
 
-	heap = clarityGetHeap(clarity);
-	dictionary = clarityHeapAllocate(heap, sizeof(ClarityDictionary),
-									 (ClarityHeapDestructor)destroy);
+	dictionary = clarityAllocate(clarity,
+								 sizeof(ClarityDictionary),
+								 (ClarityDestructor)dictionaryDestroy);
 
-	dictionary->clarity = clarityHeapRetain(heap, clarity);
+	dictionary->clarity = clarityRetain(clarity);
 	dictionary->comparator = comp;
 	dictionary->root = NULL;
-	clarityHeapAutoRelease(heap, dictionary);
-	return dictionary;
+	return clarityAutoRelease(dictionary);
 }

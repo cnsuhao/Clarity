@@ -27,32 +27,28 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityInteger.h"
-#include "ClarityHeap.h"
 
 struct __ClarityInteger {
 	Clarity *clarity;
 	Uint32 uint32;
 };
 
-static void destroy(ClarityHeap *heap, ClarityInteger *integer)
+static void integerDestroy(ClarityInteger *integer)
 {
-	clarityHeapRelease(heap, integer->clarity);
+	clarityRelease(integer->clarity);
 }
 
 ClarityInteger *clarityIntegerCreate(Clarity *clarity, Uint32 uint32)
 {
-	ClarityHeap *heap;
 	ClarityInteger *integer;
 
-	heap = clarityGetHeap(clarity);
-	integer = clarityHeapAllocate(heap,
-								  sizeof(ClarityInteger),
-								  (ClarityHeapDestructor)destroy);
+	integer = clarityAllocate(clarity,
+							  sizeof(ClarityInteger),
+							  (ClarityDestructor)integerDestroy);
 
-	integer->clarity = clarityHeapRetain(heap, clarity);
-	clarityHeapAutoRelease(heap, integer);
+	integer->clarity = clarityRetain(clarity);
 	integer->uint32 = uint32;
-	return integer;
+	return clarityAutoRelease(integer);
 }
 
 Uint32 clarityIntegerGetUint32(ClarityInteger *integer)

@@ -25,7 +25,6 @@ int main(void)
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate(entry, heap);
 	clarityStart(clarity);
-	assert(clarityGetHeap(clarity) == heap);
 	clarityStop(clarity);
 	return 0;
 }

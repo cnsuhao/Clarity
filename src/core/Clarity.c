@@ -136,9 +136,33 @@ Sint8 clarityStrCmp(Clarity *clarity,
 	return clarity->strCmp(clarity, cString, cString2);
 }
 
-ClarityHeap *clarityGetHeap(Clarity *clarity)
+void *clarityAllocate(Clarity *clarity,
+					  Uint32 size,
+					  ClarityDestructor destructor)
 {
-	return clarity->heap;
+	return clarityHeapAllocate(clarity->heap,
+							   size,
+							   (ClarityHeapDestructor)destructor);
+}
+
+void *clarityAutoRelease(void *data)
+{
+	return clarityHeapAutoRelease(data);
+}
+
+void clarityRelease(void *data)
+{
+	clarityHeapRelease(data);
+}
+
+void *clarityRetain(void *data)
+{
+	return clarityHeapRetain(data);
+}
+
+void clarityCollectGarbage(Clarity *clarity)
+{
+	clarityHeapCollectGarbage(clarity->heap);
 }
 
 void clarityEnqueueEvent(Clarity *clarity,
@@ -155,10 +179,10 @@ void clarityPushEvent(Clarity *clarity,
 	clarityEventLoopPush(clarity->eventLoop, function, data);
 }
 
-static void destroy(ClarityHeap *heap, Clarity *clarity)
+static void clarityDestroy(Clarity *clarity)
 {
-	clarityHeapRelease(heap, clarity->eventLoop);
-	clarityHeapRelease(heap, clarity->heap);
+	clarityRelease(clarity->eventLoop);
+	clarityRelease(clarity->heap);
 }
 
 Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
@@ -167,17 +191,16 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 
 	clarity = clarityHeapAllocate(heap,
 								  sizeof(Clarity),
-								  (ClarityHeapDestructor)destroy);
+								  (ClarityHeapDestructor)clarityDestroy);
 
 	clarity->memSet = defaultMemSet;
 	clarity->memCpy = defaultMemCpy;
 	clarity->strLen = defaultStrLen;
 	clarity->strCmp = defaultStrCmp;
-	clarity->heap = clarityHeapRetain(heap, heap);
+	clarity->heap = clarityRetain(heap);
 	clarity->eventLoop = clarityEventLoopCreate(clarity, entry);
-	clarity->eventLoop = clarityHeapRetain(heap, clarity->eventLoop);
-	clarityHeapAutoRelease(heap, clarity);
-	return clarity;
+	clarity->eventLoop = clarityRetain(clarity->eventLoop);
+	return clarityAutoRelease(clarity);
 }
 
 void clarityStart(Clarity *clarity)
@@ -187,9 +210,7 @@ void clarityStart(Clarity *clarity)
 
 void clarityStop(Clarity *clarity)
 {
-	ClarityHeap *heap;
-
-	heap = clarity->heap;
-	clarityHeapRelease(heap, clarity->eventLoop);
-	clarityHeapRelease(heap, heap);
+	ClarityHeap *heap = clarity->heap;
+	clarityRelease(clarity->eventLoop);
+	clarityHeapRelease(heap);
 }
