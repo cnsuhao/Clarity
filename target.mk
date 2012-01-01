@@ -165,7 +165,7 @@ $(OUTDIR)/%.o : %.c
 $(OUTDIR)/%.o : %.s
 	@ mkdir -p $(dir $@)
 	$(info Compiling $<)
-	$(CROSS_COMPILE)$(AS) $(ASFLAGS) -o $@ $(abspath $<)
+	@ $(CROSS_COMPILE)$(AS) $(ASFLAGS) -o $@ $(abspath $<)
 
 $(DEPENDENCYDIR)/%.d : %.c
 	@ mkdir -p $(dir $@)
