@@ -32,7 +32,7 @@
 
 typedef struct __ClarityDictionary ClarityDictionary;
 
-ClarityDictionary *clarityDictionaryCreate(Clarity *,
+ClarityDictionary *clarityDictionaryCreate(ClarityCore *,
 										   ClarityComparator);
 
 void clarityDictionarySetObject(ClarityDictionary *, void *, void *);

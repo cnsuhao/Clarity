@@ -50,12 +50,15 @@ static void itemDestroy(Node *node)
 	clarityRelease(node->right);
 }
 
-static Node *itemCreate(Clarity *clarity, void *key, void *object, void *parent)
+static Node *itemCreate(ClarityCore *core,
+						void *key,
+						void *object,
+						void *parent)
 {
 	Node *node;
-	node = clarityAllocate(clarity,
-							   sizeof(Node),
-							   (ClarityDestructor)itemDestroy);
+	node = clarityAllocate(core,
+						   sizeof(Node),
+						   (ClarityDestructor)itemDestroy);
 
 	node->key = clarityRetain(key);
 	node->object = clarityRetain(object);
@@ -131,17 +134,17 @@ void clarityDictionarySetObject(ClarityDictionary *dictionary,
 		parent = node;
 		node = *assignee;
 	}
-	*assignee = itemCreate(clarity(dictionary), key, object, parent);
+	*assignee = itemCreate(clarityCore(dictionary), key, object, parent);
 	*assignee = clarityRetain(*assignee);
 
 }
 
-ClarityDictionary *clarityDictionaryCreate(Clarity *clarity,
+ClarityDictionary *clarityDictionaryCreate(ClarityCore *core,
 										   ClarityComparator comp)
 {
 	ClarityDictionary *dictionary;
 
-	dictionary = clarityAllocate(clarity,
+	dictionary = clarityAllocate(core,
 								 sizeof(ClarityDictionary),
 								 (ClarityDestructor)dictionaryDestroy);
 

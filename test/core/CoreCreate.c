@@ -13,14 +13,14 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(Clarity *clarity)
+static void entry(ClarityCore *clarity)
 {
 }
 
 int main(void)
 {
 	ClarityHeap *heap;
-	Clarity *clarity;
+	ClarityCore *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate((ClarityEvent)entry, heap);

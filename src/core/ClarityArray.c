@@ -97,27 +97,27 @@ static void iteratorEvent(Iterator *iterator)
 	iterator->index++;
 
 	if (iteratorHasItem(iterator)) {
-		clarityEnqueueEvent(clarity(iterator),
+		clarityEnqueueEvent(clarityCore(iterator),
 							iterator->handle,
 							iterator);
 
-		clarityEnqueueEvent(clarity(iterator),
+		clarityEnqueueEvent(clarityCore(iterator),
 							(ClarityEvent)iteratorEvent,
 							iterator);
 	} else
-		clarityEnqueueEvent(clarity(iterator),
+		clarityEnqueueEvent(clarityCore(iterator),
 							iterator->done,
 							iterator);
 }
 
 static void iteratorStart(Iterator *iterator)
 {
-	clarityEnqueueEvent(clarity(iterator),
+	clarityEnqueueEvent(clarityCore(iterator),
 						(ClarityEvent)iteratorEvent,
 						iterator);
 }
 
-static Iterator *iteratorCreate(Clarity *clarity,
+static Iterator *iteratorCreate(ClarityCore *clarity,
 								ClarityArray *array,
 								void *data,
 								ClarityEvent handle,
@@ -140,7 +140,7 @@ static Iterator *iteratorCreate(Clarity *clarity,
 	return clarityAutoRelease(iterator);
 }
 
-static Test *testCreate(Clarity *clarity,
+static Test *testCreate(ClarityCore *clarity,
 						ClarityArrayTestFunction function,
 						ClarityArrayTestCallback callback)
 {
@@ -184,11 +184,11 @@ void clarityArrayEvery(ClarityArray *array,
 	Test *test;
 	Iterator *iterator;
 
-	test = testCreate(clarity(array),
+	test = testCreate(clarityCore(array),
 					  function,
 					  callback);
 
-	iterator = iteratorCreate(clarity(array),
+	iterator = iteratorCreate(clarityCore(array),
 							  array,
 							  data,
 							  (ClarityEvent)everyHandler,
@@ -228,11 +228,11 @@ void clarityArraySome(ClarityArray *array,
 	Test *test;
 	Iterator *iterator;
 
-	test = testCreate(clarity(array),
+	test = testCreate(clarityCore(array),
 					  function,
 					  callback);
 
-	iterator = iteratorCreate(clarity(array),
+	iterator = iteratorCreate(clarityCore(array),
 							  array,
 							  data,
 							  (ClarityEvent)someHandler,
@@ -243,7 +243,7 @@ void clarityArraySome(ClarityArray *array,
 	iteratorStart(iterator);
 }
 
-static ForEach *forEachCreate(Clarity *clarity,
+static ForEach *forEachCreate(ClarityCore *clarity,
 							  ClarityArrayForEachFunction function,
 							  ClarityArrayForEachCallback callback)
 {
@@ -285,11 +285,11 @@ void clarityArrayForEach(ClarityArray *array,
 	ForEach *forEach;
 	Iterator *iterator;
 
-	forEach = forEachCreate(clarity(array),
+	forEach = forEachCreate(clarityCore(array),
 							function,
 							callback);
 
-	iterator = iteratorCreate(clarity(array),
+	iterator = iteratorCreate(clarityCore(array),
 							  array,
 							  data,
 							  (ClarityEvent)forEachHandler,
@@ -304,7 +304,7 @@ static void mapDestroy(Map *map)
 	clarityRelease(map->newArray);
 }
 
-static Map *mapCreate(Clarity *clarity,
+static Map *mapCreate(ClarityCore *clarity,
 					  ClarityArrayMapFunction function,
 					  ClarityArrayMapCallback callback)
 {
@@ -349,11 +349,11 @@ void clarityArrayMap(ClarityArray *array,
 	Map *map;
 	Iterator *iterator;
 
-	map = mapCreate(clarity(array),
+	map = mapCreate(clarityCore(array),
 					function,
 					callback);
 
-	iterator = iteratorCreate(clarity(array),
+	iterator = iteratorCreate(clarityCore(array),
 							  array,
 							  data,
 							  (ClarityEvent)mapHandler,
@@ -368,7 +368,7 @@ static void filterDestroy(Filter *filter)
 	clarityRelease(filter->newArray);
 }
 
-static Filter *filterCreate(Clarity *clarity,
+static Filter *filterCreate(ClarityCore *clarity,
 							ClarityArrayTestFunction function,
 							ClarityArrayMapCallback callback)
 {
@@ -415,11 +415,11 @@ void clarityArrayFilter(ClarityArray *array,
 	Filter *filter;
 	Iterator *iterator;
 
-	filter = filterCreate(clarity(array),
+	filter = filterCreate(clarityCore(array),
 						  function,
 						  callback);
 
-	iterator = iteratorCreate(clarity(array),
+	iterator = iteratorCreate(clarityCore(array),
 							  array,
 							  data,
 							  (ClarityEvent)filterHandler,
@@ -434,7 +434,7 @@ static void elementDestroy(Element *element)
 	clarityRelease(element->data);
 }
 
-static Element *elementCreate(Clarity *clarity, void *data)
+static Element *elementCreate(ClarityCore *clarity, void *data)
 {
 	Element *element;
 
@@ -468,7 +468,7 @@ void clarityArrayUnshift(ClarityArray *array, void *data)
 {
 	Element *newElement;
 
-	newElement = elementCreate(clarity(array), data);
+	newElement = elementCreate(clarityCore(array), data);
 	newElement = clarityRetain(newElement);
 	newElement->next = array->first->next;
 	newElement->prev = array->first;
@@ -502,7 +502,7 @@ void clarityArrayPush(ClarityArray *array, void *data)
 {
 	Element *newElement;
 
-	newElement = elementCreate(clarity(array), data);
+	newElement = elementCreate(clarityCore(array), data);
 	newElement = clarityRetain(newElement);
 	newElement->prev = array->last->prev;
 	newElement->next = array->last;
@@ -536,7 +536,7 @@ Uint32 clarityArrayLength(ClarityArray *array)
 	return array->length;
 }
 
-ClarityArray *clarityArrayCreate(Clarity *clarity)
+ClarityArray *clarityArrayCreate(ClarityCore *clarity)
 {
 	ClarityArray *array;
 

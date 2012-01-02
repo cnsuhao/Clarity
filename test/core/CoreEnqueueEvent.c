@@ -41,7 +41,7 @@ static void event2(ClarityString *string)
 	gotEvent2 = TRUE;
 }
 
-static void entry(Clarity *clarity)
+static void entry(ClarityCore *clarity)
 {
 	clarityEnqueueEvent(clarity,
 						(ClarityEvent)event1,
@@ -56,7 +56,7 @@ static void entry(Clarity *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	Clarity *clarity;
+	ClarityCore *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate((ClarityEvent)entry, heap);

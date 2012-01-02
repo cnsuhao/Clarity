@@ -31,7 +31,7 @@
 #include "ClarityString.h"
 
 struct __ClarityObject {
-	Clarity *clarity;
+	ClarityCore *clarity;
 	ClarityDictionary *members;
 };
 
@@ -44,7 +44,7 @@ void *clarityObjectGetMember(ClarityObject *object, const char *cName)
 {
 	ClarityString *name;
 
-	name = clarityStringCreate(clarity(object), cName);
+	name = clarityStringCreate(clarityCore(object), cName);
 	return clarityDictionaryGetObject(object->members, name);
 }
 
@@ -54,11 +54,11 @@ void clarityObjectSetMember(ClarityObject *object,
 {
 	ClarityString *name;
 
-	name = clarityStringCreate(clarity(object), cName);
+	name = clarityStringCreate(clarityCore(object), cName);
 	clarityDictionarySetObject(object->members, name, member);
 }
 
-ClarityObject *clarityObjectCreate(Clarity *clarity)
+ClarityObject *clarityObjectCreate(ClarityCore *clarity)
 {
 	ClarityObject *object;
 

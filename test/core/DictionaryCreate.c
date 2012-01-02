@@ -20,7 +20,7 @@ static Sint8 compare(void *first, void *second)
 	return 0;
 }
 
-static void entry(Clarity *clarity)
+static void entry(ClarityCore *clarity)
 {
 	ClarityDictionary *dictionary;
 
@@ -31,7 +31,7 @@ static void entry(Clarity *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	Clarity *clarity;
+	ClarityCore *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate((ClarityEvent)entry, heap);

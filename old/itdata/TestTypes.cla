@@ -20,6 +20,3 @@
 
 @SomeInData $>
 	\Uint16\slotReference
-
-@FuncType \SomeInData\inData \SomeOutData\outData >>
-FuncTypeLocal \SomeInData\inData \SomeOutData\outData >>

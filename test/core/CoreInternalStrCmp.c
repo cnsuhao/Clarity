@@ -14,7 +14,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(Clarity *clarity)
+static void entry(ClarityCore *clarity)
 {
 	const char *testStringBase = "BTestString";
 	const char *testStringMore = "CTestString";
@@ -28,7 +28,7 @@ static void entry(Clarity *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	Clarity *clarity;
+	ClarityCore *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate((ClarityEvent)entry, heap);

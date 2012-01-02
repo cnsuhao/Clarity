@@ -57,7 +57,7 @@ static void testFilterDone(ClarityArray *array,
 	assert(doneString == dataString4);
 }
 
-static void entry(Clarity *clarity)
+static void entry(ClarityCore *clarity)
 {
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
@@ -82,7 +82,7 @@ static void entry(Clarity *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	Clarity *clarity;
+	ClarityCore *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate((ClarityEvent)entry, heap);

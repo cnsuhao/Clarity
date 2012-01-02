@@ -32,7 +32,7 @@
 
 typedef struct __ClarityInteger ClarityInteger;
 
-ClarityInteger *clarityIntegerCreate(Clarity *, Uint32);
+ClarityInteger *clarityIntegerCreate(ClarityCore *, Uint32);
 Uint32 clarityIntegerGetUint32(ClarityInteger *);
 
 #endif

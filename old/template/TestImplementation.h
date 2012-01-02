@@ -1,10 +1,8 @@
-#ifndef __TESTTYPES_H__
-#define __TESTTYPES_H__
+#ifndef __TESTIMPLEMENTATION_H__
+#define __TESTIMPLEMENTATION_H__
 #include "Clarity.h"
-#include "TestTypes.h"
-#include "TestC.h"
 
-void mainFunction(SomeInData *inData, SomeOutData *outData);
-void entry(void);
+const ClarityFunction *entry;
+const ClarityFunction *mainFunction;
 
 #endif

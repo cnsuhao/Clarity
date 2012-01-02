@@ -26,14 +26,43 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
+#ifndef __CLARITYCORE_H__
+#define __CLARITYCORE_H__
+#include "ClarityHeap.h"
 
-#include "ClarityCore.h"
-#include "ClarityObject.h"
-#include "ClarityFunction.h"
-#include "ClarityArray.h"
-#include "ClarityString.h"
-#include "ClarityInteger.h"
+typedef struct __ClarityCore ClarityCore;
+
+typedef void(*ClarityEvent)(void *);
+typedef Sint8(*ClarityComparator)(void *, void *);
+typedef void(*ClarityDestructor)(void *);
+
+typedef void*(*ClarityMemCpy)(ClarityCore *, void *, const void *, Uint32);
+typedef void*(*ClarityMemSet)(ClarityCore *, void *, char, Uint32);
+typedef Uint32(*ClarityStrLen)(ClarityCore *, const char *);
+typedef Sint8(*ClarityStrCmp)(ClarityCore *, const char *, const char *);
+
+void claritySetMemCpy(ClarityCore *, ClarityMemCpy);
+void claritySetMemSet(ClarityCore *, ClarityMemSet);
+void claritySetStrLen(ClarityCore *, ClarityStrLen);
+void claritySetStrCmp(ClarityCore *, ClarityStrCmp);
+
+void *clarityAllocate(ClarityCore *, Uint32, ClarityDestructor);
+void *clarityAutoRelease(void *);
+void clarityRelease(void *);
+void *clarityRetain(void *);
+void clarityCollectGarbage(ClarityCore *);
+
+ClarityCore *clarityCore(void *);
+
+void *clarityMemCpy(ClarityCore *, void *, const void *, Uint32);
+void *clarityMemSet(ClarityCore *, void *, char, Uint32);
+Uint32 clarityStrLen(ClarityCore *, const char *);
+Sint8 clarityStrCmp(ClarityCore *, const char *, const char *);
+
+ClarityCore *clarityCreate(ClarityEvent, ClarityHeap *);
+void clarityEnqueueEvent(ClarityCore *, ClarityEvent, void *);
+void clarityPushEvent(ClarityCore *, ClarityEvent, void *);
+void clarityStart(ClarityCore *);
+void clarityStop(ClarityCore *);
 
 #endif

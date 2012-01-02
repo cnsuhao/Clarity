@@ -50,7 +50,7 @@ typedef void *(*ClarityArrayMapCallback)(void *, void *);
 
 typedef void(*ClarityArrayTestCallback)(Bool, void *);
 
-ClarityArray *clarityArrayCreate(Clarity *);
+ClarityArray *clarityArrayCreate(ClarityCore *);
 void clarityArrayPush(ClarityArray *, void *);
 void *clarityArrayPop(ClarityArray *);
 void clarityArrayUnshift(ClarityArray *, void *);

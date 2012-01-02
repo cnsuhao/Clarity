@@ -14,7 +14,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(Clarity *clarity)
+static void entry(ClarityCore *clarity)
 {
 	static const int BUFFER_SIZE = 11;
 	const char *srcBuffer = "TestString";
@@ -24,7 +24,7 @@ static void entry(Clarity *clarity)
 	assert(strcmp(srcBuffer, dstBuffer) == 0);
 }
 
-static void *testMemCpy(Clarity *clarity,
+static void *testMemCpy(ClarityCore *clarity,
 					void *dstData,
 					const void *srcData,
 					Uint32 size)
@@ -35,7 +35,7 @@ static void *testMemCpy(Clarity *clarity,
 int main(void)
 {
 	ClarityHeap *heap;
-	Clarity *clarity;
+	ClarityCore *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate((ClarityEvent)entry, heap);

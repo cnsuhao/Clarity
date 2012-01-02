@@ -32,7 +32,7 @@
 
 typedef struct __ClarityObject ClarityObject;
 
-ClarityObject *clarityObjectCreate(Clarity *);
+ClarityObject *clarityObjectCreate(ClarityCore *);
 
 void clarityObjectSetMember(ClarityObject *, const char *, void *);
 void *clarityObjectGetMember(ClarityObject *, const char *);

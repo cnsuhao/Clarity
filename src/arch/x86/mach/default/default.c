@@ -14,7 +14,7 @@ static void mainFree(void *data)
 int clarityMain(ClarityEvent entry)
 {
 	ClarityHeap *heap;
-	Clarity *clarity;
+	ClarityCore *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate((ClarityEvent)entry, heap);

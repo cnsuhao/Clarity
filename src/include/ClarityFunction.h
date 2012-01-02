@@ -26,14 +26,13 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
+#ifndef __CLARITYFUNCTION_H__
+#define __CLARITYFUNCTION_H__
 
-#include "ClarityCore.h"
-#include "ClarityObject.h"
-#include "ClarityFunction.h"
-#include "ClarityArray.h"
-#include "ClarityString.h"
-#include "ClarityInteger.h"
+typedef void *(*ClarityFunctionPointer)(void *data, ...);
+
+typedef struct {
+	ClarityFunctionPointer function;
+} ClarityFunction;
 
 #endif

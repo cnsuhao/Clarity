@@ -32,11 +32,11 @@ static void *testMap(ClarityString *string,
 	assert(index < 3);
 
 	if (string == dataString1)
-		retVal = clarityIntegerCreate(clarity(array), 1);
+		retVal = clarityIntegerCreate(clarityCore(array), 1);
 	else if (string == dataString2)
-		retVal = clarityIntegerCreate(clarity(array), 8);
+		retVal = clarityIntegerCreate(clarityCore(array), 8);
 	else if (string == dataString3)
-		retVal = clarityIntegerCreate(clarity(array), 6);
+		retVal = clarityIntegerCreate(clarityCore(array), 6);
 	else
 		assert(FALSE);
 
@@ -59,7 +59,7 @@ static void testMapDone(ClarityArray *array,
 	assert(string == dataString4);
 }
 
-static void entry(Clarity *clarity)
+static void entry(ClarityCore *clarity)
 {
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
@@ -84,7 +84,7 @@ static void entry(Clarity *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	Clarity *clarity;
+	ClarityCore *clarity;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
 	clarity = clarityCreate((ClarityEvent)entry, heap);

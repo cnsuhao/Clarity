@@ -1,25 +1,32 @@
 @requires TestTypes
 
-@mainFunction = (\SomeInData\inData, \SomeOutData\outData) ->
-	\Uint16\data
-	someFunction *data
+@mainFunction = (inData, outData) ->
 	myInternalFunction inData, outData
 	otherFunction outData
 
-myInternalFunction = (\SomeInData\inData, \SomeOutData\outData) ->
-	myOtherInternalFunction inData, outData, (\SomeOutData\returnData) ->
+myInternalFunction = (inData, outData) ->
+	myOtherInternalFunction inData, outData, (returnData) ->
 		OtherFunction returnData
 
-myOtherInternalFunction = (\SomeInData\inData \SomeOutData\outData, \FuncType\callback) =>
+myOtherInternalFunction = (inData, outData, callback) =>
 	myThirdInternalFunction outData
 	otherFunction outData
 	callback inData, outData
 
-myThirdInternalFunction = (\SomeOutData\outData) ->
+myThirdInternalFunction = (outData) ->
 	otherFunction outData
 
 @entry = ->
-	\SomeInData\inData = \SomeInData\
-	\SomeOutData\outData = \SomeOutData\
+	inData = 
+		aString: "hej"
+		aNumber: 23
+	outData = 
+		anObject:
+			anotherString: "hepp"
+			anObject: inData
+	anArray =
+		"hej"
+		23
+		33
 	mainFunction inData, outData
 	myInternalFunction inData, outData

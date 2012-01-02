@@ -1,64 +1,90 @@
 #include "TestImplementation.h"
 
-void mainFunction(Clarity *clarity, SomeInData *inData, SomeOutData *outData)
+static void *_otherFunction(void *inData, void *outData);
+static const ClarityFunction __otherFunction = {.function = (ClarityFunctionPointer)_otherFunction};
+static const ClarityFunction *otherFunction = &__otherFunction;
+
+static void *_myInternalFunction(void *inData, void *outData);
+static const ClarityFunction __myInternalFunction = {.function = (ClarityFunctionPointer)_myInternalFunction};
+static const ClarityFunction *myInternalFunction = &__myInternalFunction;
+
+static void *_myOtherInternalFunction(void *inData, void *outData, void *callback);
+static const ClarityFunction __myOtherInternalFunction = {.function = (ClarityFunctionPointer)_myOtherInternalFunction};
+static const ClarityFunction *myOtherInternalFunction = &__myOtherInternalFunction;
+
+static void *_myThirdInternalFunction(void *outData);
+static const ClarityFunction __myThirdInternalFunction = {.function = (ClarityFunctionPointer)_myThirdInternalFunction};
+static const ClarityFunction *myThirdInternalFunction = &__myThirdInternalFunction;
+
+static void *_entry(ClarityCore *clarity);
+static const ClarityFunction __entry = {.function = (ClarityFunctionPointer)_entry};
+const ClarityFunction *entry = &__entry;
+
+static void *_mainFunction(void *data1, void *data2);
+static const ClarityFunction __mainFunction = {.function = (ClarityFunctionPointer)_mainFunction};
+const ClarityFunction *mainFunction = &__mainFunction;
+
+static void *_otherFunction(void *inData, void *outData)
 {
-	\Uint16\data;
-	someFunction(clarity, *data);
-	myInternalFunction(clarity, inData, outData);
-	otherFunction(clarity, outData);
+	return clarityIntegerCreate(clarityCore(inData), 23);
 }
 
-static void myInternalFunction_myOtherInternalFunctionFunction$1(Clarity *clarity, SomeOutData *returnData)
+static void *_mainFunction(void *inData, void *outData)
 {
-	OtherFunction(clarity, returnData);
+	return myInternalFunction->function(inData, outData);
 }
 
-void myInternalFunction(Clarity *clarity, SomeInData *inData, SomeOutData *outData)
+static void myInternalFunction$Anonymous$1(void *returnData)
 {
-	myOtherInternalFunction(clarity, inData, outData, myInternalFunction_myOtherInternalFunction$1);
+	otherFunction->function(returnData);
 }
 
-typedef struct
+static void *_myInternalFunction(void *inData, void *outData)
 {
-	SomeInData *inData;
-	SomeOutData *outData;
-	FuncType *callback;
-} myOtherInternalFunction$Struct$1;
-
-static void myOtherInternalFunction$Internal$1(Clarity *clarity, SomeInData *inData, SomeOutData *outData, FuncType *callback)
-{
-	myThirdInternalFunction(clarity, outData);
-	otherFunction(clarity, outData);
-	callback->func(clarity, outData);
+	return myOtherInternalFunction->function(inData, outData, myInternalFunction$Anonymous$1);
 }
 
-static void myInternalFunction_myOtherInternalFunction$Event$1(Clarity *clarity, myOtherInternalFunction$Struct$1 *eventData)
+static void myOtherInternalFunctionEvent(ClarityObject *eventData)
 {
-	myOtherInternalFunction$Internal$1(clarity, eventData->inData, eventData->outData, eventData->callback);
-	clarityRelease(clarity, eventData);
-	clarityRelease(clarity, eventData->inData);
-	clarityRelease(clarity, eventData->outData);
-	clarityRelease(clarity, eventData->callback);
+	void *inData = clarityObjectGetMember(eventData, "inData");
+	void *outData = clarityObjectGetMember(eventData, "outData");
+	void *callback = clarityObjectGetMember(eventData, "callback");
+	myThirdInternalFunction->function(outData);
+	otherFunction->function(outData);
+	((ClarityFunction*)callback)->function(inData, outData);
 }
 
-void myOtherInternalFunction(clarity,SomeInData *inData, SomeOutData *outData, FuncType *callback)
+static void *_myOtherInternalFunction(void *inData, void *outData, void *callback)
 {
-	myOtherInternalFunction$Struct$1 *eventData = clarityAlloc(clarity, sizeof(myOtherInternalFunction$Struct$1));
-	eventData->inData = clarityRetain(clarity, inData);
-	eventData->outData = clarityRetain(clarity, outData);
-	eventData->callback = clarityRetain(clarity, callback);
-	clarityPushEvent(clarity, myInternalFunction_myOtherInternalFunction$Event$1, eventData);
+	ClarityCore *clarity = clarityCore(inData);
+	ClarityObject *eventData = clarityObjectCreate(clarity);
+	clarityObjectSetMember(eventData, "inData", inData);
+	clarityObjectSetMember(eventData, "outData", outData);
+	clarityObjectSetMember(eventData, "callback", callback);
+	clarityEnqueueEvent(clarity, (ClarityEvent)myOtherInternalFunctionEvent, eventData);
+	return 0;
 }
 
-void myThirdInternalFunction(SomeOutData *outData)
+static void *_myThirdInternalFunction(void *outData)
 {
-	otherFunction(outData);
+	return otherFunction->function(outData);
 }
 
-void entry(Clarity *clarity)
+static void *_entry(ClarityCore *clarity)
 {
-	\SomeInData\inData = \SomeInData\;
-	\SomeOutData\outData = \SomeOutData\;
-	mainFunction(clarity, inData, outData);
-	myInternalFunction(clarity, inData, outData);
+	ClarityObject *inData = clarityObjectCreate(clarity);
+	ClarityObject *outData = clarityObjectCreate(clarity);
+	ClarityObject *anObject = clarityObjectCreate(clarity);
+	ClarityArray *anArray = clarityArrayCreate(clarity);
+
+	clarityObjectSetMember(inData, "astring", clarityStringCreate(clarity, "hej"));
+	clarityObjectSetMember(inData, "aNumber", clarityIntegerCreate(clarity, 23));
+	clarityObjectSetMember(outData, "anObject", anObject);
+	clarityObjectSetMember(anObject, "anotherString", clarityStringCreate(clarity, "hepp"));
+	clarityObjectSetMember(anObject, "anObject", inData);
+	clarityArrayUnshift(anArray, clarityStringCreate(clarity, "hepp"));
+	clarityArrayUnshift(anArray, clarityIntegerCreate(clarity, 23));
+	clarityArrayUnshift(anArray, clarityIntegerCreate(clarity, 33));
+	mainFunction->function(inData, outData);
+	return myInternalFunction->function(inData, outData);
 }

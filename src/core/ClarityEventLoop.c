@@ -43,7 +43,7 @@ static void eventDestroy(Event *event)
 	clarityRelease(event->data);
 }
 
-static Event *eventCreate(Clarity *clarity,
+static Event *eventCreate(ClarityCore *clarity,
 						  ClarityEvent function,
 						  void *data)
 {
@@ -74,7 +74,7 @@ static void dequeue(ClarityEventLoop *eventLoop)
 
 	event = clarityArrayPop(eventLoop->events);
 	event->function(event->data);
-	clarityCollectGarbage(clarity(eventLoop));
+	clarityCollectGarbage(clarityCore(eventLoop));
 }
 
 typedef void(*Adder)(ClarityArray *, void *);
@@ -86,7 +86,7 @@ static void clarityEventLoopAdd(ClarityEventLoop *eventLoop,
 {
 	Event *event;
 
-	event = eventCreate(clarity(eventLoop), function, data);
+	event = eventCreate(clarityCore(eventLoop), function, data);
 	adder(eventLoop->events, event);
 }
 
@@ -110,7 +110,7 @@ void clarityEventLoopStart(ClarityEventLoop *eventLoop)
 		dequeue(eventLoop);
 }
 
-ClarityEventLoop *clarityEventLoopCreate(Clarity *clarity,
+ClarityEventLoop *clarityEventLoopCreate(ClarityCore *clarity,
 										 ClarityEvent entry)
 {
 	ClarityEventLoop *eventLoop;

@@ -29,33 +29,35 @@
 #include "ClarityString.h"
 
 struct __ClarityString {
-	Clarity *clarity;
+	ClarityCore *clarity;
 	Uint32 length;
 	char cString;
 };
 
-ClarityString *clarityStringCreate(Clarity *clarity, const char *newCString)
+ClarityString *clarityStringCreate(ClarityCore *core, const char *newCString)
 {
 	ClarityString *string;
 	char *cString;
 	Uint32 length;
 
-	length = clarityStrLen(clarity, newCString);
-	string = clarityAllocate(clarity,
+	length = clarityStrLen(core, newCString);
+	string = clarityAllocate(core,
 							 sizeof(ClarityString) + length + 1,
 							 (ClarityDestructor)NULL);
 
 	string->length = length;
 	cString = &string->cString;
 
-	clarityMemCpy(clarity, cString, newCString, string->length);
+	clarityMemCpy(core, cString, newCString, string->length);
 	cString[string->length] = '\0';
 	return clarityAutoRelease(string);
 }
 
 Sint8 clarityStringCompare(ClarityString *string, ClarityString *string2)
 {
-	return clarityStrCmp(clarity(string), &string->cString, &string2->cString);
+	return clarityStrCmp(clarityCore(string),
+						 &string->cString,
+						 &string2->cString);
 }
 
 Uint32 clarityStringLength(ClarityString *string)

@@ -4,7 +4,7 @@
 #include "ClarityInteger.h"
 #include <stdlib.h>
 
-static void entry(Clarity *clarity)
+static void entry(ClarityCore *clarity)
 {
 	clarityObjectCreate(clarity);
 	clarityIntegerCreate(clarity, 32);
@@ -22,7 +22,7 @@ static void mainFree(void *data)
 
 void start(void)
 {
-	Clarity *clarity;
+	ClarityCore *clarity;
 	ClarityHeap *heap;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
