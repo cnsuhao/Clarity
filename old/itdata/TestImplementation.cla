@@ -1,32 +1,28 @@
-@requires TestTypes
+@mainFunction = (data1, data2) ->
+	myInternalFunction data1, data2
 
-@mainFunction = (inData, outData) ->
-	myInternalFunction inData, outData
-	otherFunction outData
+myInternalFunction = (data1, data2) ->
+	myOtherInternalFunction data1, (returnData) ->
+		otherFunction returnData, data2
 
-myInternalFunction = (inData, outData) ->
-	myOtherInternalFunction inData, outData, (returnData) ->
-		OtherFunction returnData
+myOtherInternalFunction = (data, callback) =>
+	myThirdInternalFunction data
+	callback data
 
-myOtherInternalFunction = (inData, outData, callback) =>
-	myThirdInternalFunction outData
-	otherFunction outData
-	callback inData, outData
-
-myThirdInternalFunction = (outData) ->
-	otherFunction outData
+myThirdInternalFunction = (data) ->
+	otherFunction data, 34
 
 @entry = ->
-	inData = 
+	data1 = 
 		aString: "hej"
 		aNumber: 23
-	outData = 
+	data2 = 
 		anObject:
 			anotherString: "hepp"
 			anObject: inData
 	anArray =
 		"hej"
-		23
+		data1.aNumber
 		33
-	mainFunction inData, outData
-	myInternalFunction inData, outData
+	mainFunction data1, data2
+	myInternalFunction data2.anObject, anArray

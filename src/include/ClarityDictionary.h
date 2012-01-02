@@ -28,7 +28,7 @@
  */
 #ifndef __CLARITYDICTIONARY_H__
 #define __CLARITYDICTIONARY_H__
-#include "Clarity.h"
+#include "ClarityCore.h"
 
 typedef struct __ClarityDictionary ClarityDictionary;
 

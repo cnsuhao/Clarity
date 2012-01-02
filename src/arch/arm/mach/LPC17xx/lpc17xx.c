@@ -2,12 +2,22 @@
 #include "ClarityHeap.h"
 #include "ClarityObject.h"
 #include "ClarityInteger.h"
+#include "ClarityStringObject.h"
+#include "ClarityFunctionObject.h"
 #include <stdlib.h>
 
-static void entry(ClarityCore *clarity)
+static void *testFunction(void)
 {
-	clarityObjectCreate(clarity);
-	clarityIntegerCreate(clarity, 32);
+	return NULL;
+}
+
+static void entry(ClarityCore *core)
+{
+	clarityObjectCreate(core);
+	clarityStringObjectCreate(core, "string");
+	clarityFunctionObjectCreate(core,
+		(ClarityFunctionPointer)testFunction);
+	clarityIntegerCreate(core, 32);
 }
 
 static void *mainAlloc(Uint32 size)

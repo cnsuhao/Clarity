@@ -72,19 +72,18 @@ static void *_myThirdInternalFunction(void *outData)
 
 static void *_entry(ClarityCore *clarity)
 {
-	ClarityObject *inData = clarityObjectCreate(clarity);
-	ClarityObject *outData = clarityObjectCreate(clarity);
-	ClarityObject *anObject = clarityObjectCreate(clarity);
+	ClarityObject *data1 = clarityObjectCreate(clarity);
+	ClarityObject *data2 = clarityObjectCreate(clarity);
 	ClarityArray *anArray = clarityArrayCreate(clarity);
 
-	clarityObjectSetMember(inData, "astring", clarityStringCreate(clarity, "hej"));
-	clarityObjectSetMember(inData, "aNumber", clarityIntegerCreate(clarity, 23));
-	clarityObjectSetMember(outData, "anObject", anObject);
-	clarityObjectSetMember(anObject, "anotherString", clarityStringCreate(clarity, "hepp"));
-	clarityObjectSetMember(anObject, "anObject", inData);
+	clarityObjectSetMember(data1, "astring", clarityStringCreate(clarity, "hej"));
+	clarityObjectSetMember(data1, "aNumber", clarityIntegerCreate(clarity, 23));
+	clarityObjectSetMember(data2, "anObject", clarityObjectCreate(clarity));
+	clarityObjectSetMember(clarityObjectGetMember(data2, "anObject"), "anotherString", clarityStringCreate(clarity, "hepp"));
+	clarityObjectSetMember(clarityObjectGetMember(data2, "anObject"), "anObject", inData);
 	clarityArrayUnshift(anArray, clarityStringCreate(clarity, "hepp"));
-	clarityArrayUnshift(anArray, clarityIntegerCreate(clarity, 23));
+	clarityArrayUnshift(anArray, clarityObjectGetMember(data1, "aNumber"));
 	clarityArrayUnshift(anArray, clarityIntegerCreate(clarity, 33));
-	mainFunction->function(inData, outData);
-	return myInternalFunction->function(inData, outData);
+	mainFunction->function(data1, data2);
+	return myInternalFunction->function(clarityObjectGetMember(data2, "anObject"), anArray);
 }

@@ -28,11 +28,12 @@
  */
 #ifndef __CLARITYOBJECT_H__
 #define __CLARITYOBJECT_H__
-#include "Clarity.h"
+#include "ClarityCore.h"
 
 typedef struct __ClarityObject ClarityObject;
 
 ClarityObject *clarityObjectCreate(ClarityCore *);
+ClarityObject *clarityObjectCreateType(ClarityCore *, const char *);
 
 void clarityObjectSetMember(ClarityObject *, const char *, void *);
 void *clarityObjectGetMember(ClarityObject *, const char *);

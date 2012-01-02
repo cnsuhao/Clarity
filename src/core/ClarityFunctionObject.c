@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Patchwork Solutions AB. All rights reserved.
+ * Copyright 2012 Patchwork Solutions AB. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,13 +26,39 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYFUNCTION_H__
-#define __CLARITYFUNCTION_H__
-
-typedef void *(*ClarityFunctionPointer)(void *data, ...);
+#include "ClarityFunctionObject.h"
 
 typedef struct {
-	ClarityFunctionPointer function;
+	ClarityFunctionPointer functionPointer;
 } ClarityFunction;
 
-#endif
+static ClarityFunction *clarityFunctionCreate(ClarityCore *core,
+	ClarityFunctionPointer functionPointer)
+{
+	ClarityFunction *function;
+	function = clarityAllocate(core,
+							   sizeof(ClarityFunction),
+							   (ClarityDestructor)NULL);
+
+	function->functionPointer = functionPointer;
+	return clarityAutoRelease(function);
+}
+
+ClarityObject *clarityFunctionObjectCreate(ClarityCore *core,
+	ClarityFunctionPointer functionPointer)
+{
+	ClarityObject *function;
+
+	function = clarityObjectCreateType(core, "function");
+
+	clarityObjectSetMember(function, "function",
+		clarityFunctionCreate(core, functionPointer));
+
+	return clarityAutoRelease(function);
+}
+
+ClarityFunctionPointer clarityFunctionPointer(ClarityObject *function)
+{
+	return ((ClarityFunction *)clarityObjectGetMember(function,
+		"function"))->functionPointer;
+}

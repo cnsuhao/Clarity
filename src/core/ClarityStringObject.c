@@ -26,15 +26,41 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
-#include "ClarityTypes.h"
-#include "ClarityCore.h"
-#include "ClarityArray.h"
 #include "ClarityString.h"
-#include "ClarityInteger.h"
 #include "ClarityObject.h"
-#include "ClarityStringObject.h"
 #include "ClarityFunctionObject.h"
 
-#endif
+static Sint8 clarityStringObjectCompare(ClarityObject *string,
+										ClarityObject *string2)
+{
+	return clarityStringCompare(
+		clarityObjectGetMember(string, "data"),
+		clarityObjectGetMember(string2, "data"));
+}
+
+static Uint32 clarityStringObjectLength(ClarityObject *string)
+{
+	return clarityStringLength(
+		clarityObjectGetMember(string, "data"));
+}
+
+ClarityObject *clarityStringObjectCreate(ClarityCore *core,
+										 const char *cString)
+{
+	ClarityObject *string;
+
+	string = clarityObjectCreateType(core, "string");
+
+	clarityObjectSetMember(string, "data",
+		clarityStringCreate(core, cString));
+
+	clarityObjectSetMember(string, "compare",
+		clarityFunctionObjectCreate(core,
+			(ClarityFunctionPointer)clarityStringObjectCompare));
+
+	clarityObjectSetMember(string, "length",
+		clarityFunctionObjectCreate(core,
+			(ClarityFunctionPointer)clarityStringObjectLength));
+
+	return clarityAutoRelease(string);
+}

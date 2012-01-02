@@ -33,11 +33,13 @@
 struct __ClarityObject {
 	ClarityCore *clarity;
 	ClarityDictionary *members;
+	ClarityString *type;
 };
 
 static void objectDestroy(ClarityObject *object)
 {
 	clarityRelease(object->members);
+	clarityRelease(object->type);
 }
 
 void *clarityObjectGetMember(ClarityObject *object, const char *cName)
@@ -58,16 +60,23 @@ void clarityObjectSetMember(ClarityObject *object,
 	clarityDictionarySetObject(object->members, name, member);
 }
 
-ClarityObject *clarityObjectCreate(ClarityCore *clarity)
+ClarityObject *clarityObjectCreate(ClarityCore *core)
+{
+	return clarityObjectCreateType(core, "object");
+
+}
+
+ClarityObject *clarityObjectCreateType(ClarityCore *core, const char *type)
 {
 	ClarityObject *object;
 
-	object = clarityAllocate(clarity,
+	object = clarityAllocate(core,
 							 sizeof(ClarityObject),
 							 (ClarityDestructor)objectDestroy);
 
+	object->type = clarityRetain(clarityStringCreate(core, type));
 	object->members = clarityRetain(clarityDictionaryCreate(
-		clarity,
+		core,
 		(ClarityComparator)clarityStringCompare));
 
 	return clarityAutoRelease(object);

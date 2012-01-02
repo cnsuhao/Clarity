@@ -28,6 +28,7 @@
  */
 #ifndef __CLARITYCORE_H__
 #define __CLARITYCORE_H__
+#include "ClarityTypes.h"
 #include "ClarityHeap.h"
 
 typedef struct __ClarityCore ClarityCore;

@@ -28,7 +28,7 @@
  */
 #ifndef __CLARITYSTRING_H__
 #define __CLARITYSTRING_H__
-#include "Clarity.h"
+#include "ClarityCore.h"
 
 typedef struct __ClarityString ClarityString;
 

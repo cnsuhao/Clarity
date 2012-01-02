@@ -28,7 +28,8 @@
  */
 #ifndef __CLARITYEVENTLOOP_H__
 #define __CLARITYEVENTLOOP_H__
-#include "Clarity.h"
+#include "ClarityCore.h"
+
 typedef struct __ClarityEventLoop ClarityEventLoop;
 
 void clarityEventLoopEnqueue(ClarityEventLoop *, ClarityEvent, void *);

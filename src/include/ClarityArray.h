@@ -28,7 +28,7 @@
  */
 #ifndef __CLARITYARRAY_H__
 #define __CLARITYARRAY_H__
-#include "Clarity.h"
+#include "ClarityCore.h"
 
 typedef struct __ClarityArray ClarityArray;
 
