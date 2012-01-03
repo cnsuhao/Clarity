@@ -32,7 +32,6 @@ typedef struct {
 	Uint32 magic;
 	ClarityHeapDestructor destructor;
 	ClarityHeap *heap;
-	void *context;
 	Sint32 refCount;
 	Uint32 size;
 	void *data;
@@ -49,6 +48,7 @@ struct __ClarityHeap {
 	Uint32 size;
 	Uint32 blockSize;
 	void *address;
+	void *context;
 	ClarityAlloc alloc;
 	ClarityFree free;
 };
@@ -63,7 +63,6 @@ static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
 	AutoReleaseItem *newItem;
 
 	newItem = clarityHeapAllocate(heap,
-								  NULL,
 								  sizeof(AutoReleaseItem));
 	if (newItem) {
 		AutoReleaseItem *pool;
@@ -114,7 +113,6 @@ static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
 }
 
 static void initializeHeader(ClarityHeap *heap,
-							 void *context,
 							 Header *header,
 							 Uint32 size,
 							 ClarityHeapDestructor destructor)
@@ -124,11 +122,9 @@ static void initializeHeader(ClarityHeap *heap,
 	header->size = size;
 	header->refCount = 1;
 	header->heap = heap;
-	header->context = context;
 }
 
 static void *clarityHeapInnerAllocate(ClarityHeap *heap,
-									  void *context,
 									  ClarityAlloc alloc,
 									  Uint32 size,
 									  ClarityHeapDestructor destructor)
@@ -140,19 +136,17 @@ static void *clarityHeapInnerAllocate(ClarityHeap *heap,
 	header = alloc(size + sizeof(Header));
 
 	if (header) {
-		initializeHeader(heap, context, header, size, destructor);
+		initializeHeader(heap, header, size, destructor);
 		retVal = &header->data;
 	}
 	return retVal;
 }
 
 void *clarityHeapAllocateWithDestructor(ClarityHeap *heap,
-										void *context,
 										Uint32 size,
 										ClarityHeapDestructor destructor)
 {
 	return clarityHeapInnerAllocate(heap,
-									context,
 									heap->alloc,
 									size,
 									destructor);
@@ -163,11 +157,9 @@ static void emptyDestroy(void *data)
 }
 
 void *clarityHeapAllocate(ClarityHeap *heap,
-						  void *context,
 						  Uint32 size)
 {
 	return clarityHeapAllocateWithDestructor(heap,
-											 context,
 											 size,
 											 emptyDestroy);
 }
@@ -235,7 +227,7 @@ void *clarityHeapRetain(void *data)
 	return data;
 }
 
-void *clarityHeapGetContext(void *data)
+ClarityHeap *clarityHeapGetHeap(void *data)
 {
 	void *retVal;
 	Header *header;
@@ -244,8 +236,18 @@ void *clarityHeapGetContext(void *data)
 	header = heapItemHeader(data);
 
 	if (header)
-		retVal = header->context;
+		retVal = header->heap;
 	return retVal;
+}
+
+void *clarityHeapGetContext(ClarityHeap *heap)
+{
+	return heap->context;
+}
+
+void clarityHeapSetContext(ClarityHeap *heap, void *context)
+{
+	heap->context = context;
 }
 
 void clarityHeapCollectGarbage(ClarityHeap *heap)
@@ -285,7 +287,6 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 	ClarityHeap *heap;
 
 	heap = clarityHeapInnerAllocate(NULL,
-									NULL,
 									alloc,
 									sizeof(ClarityHeap),
 									(ClarityHeapDestructor)heapDestroy);
@@ -300,6 +301,7 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 		heap->address = address;
 		heap->size = size;
 		heap->blockSize = blockSize;
+		heap->context = NULL;
 	}
 	return clarityHeapAutoRelease(heap);
 }

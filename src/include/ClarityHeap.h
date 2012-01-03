@@ -36,18 +36,20 @@ typedef void(*ClarityFree)(void *);
 typedef void(*ClarityHeapDestructor)(void *);
 
 void *clarityHeapAllocateWithDestructor(ClarityHeap *,
-										void *,
 										Uint32,
 										ClarityHeapDestructor);
 
-void *clarityHeapAllocate(ClarityHeap *, void *, Uint32);
+void *clarityHeapAllocate(ClarityHeap *, Uint32);
 void *clarityHeapAutoRelease(void *);
 void clarityHeapRelease(void *);
 void *clarityHeapRetain(void *);
-void *clarityHeapGetContext(void *);
+ClarityHeap *clarityHeapGetHeap(void *);
 void clarityHeapCollectGarbage(ClarityHeap *);
 
 ClarityHeap *clarityHeapCreate(void *, Uint32, Uint32);
 ClarityHeap *clarityHeapCreateExternal(ClarityAlloc, ClarityFree);
+
+void *clarityHeapGetContext(ClarityHeap *);
+void clarityHeapSetContext(ClarityHeap *, void*);
 
 #endif
