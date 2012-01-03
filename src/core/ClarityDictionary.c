@@ -34,7 +34,6 @@ struct __Node {
 	void *key;
 	Node *left;
 	Node *right;
-	Node *parent;
 };
 
 struct __ClarityDictionary {
@@ -52,8 +51,7 @@ static void itemDestroy(Node *node)
 
 static Node *itemCreate(ClarityCore *core,
 						void *key,
-						void *object,
-						void *parent)
+						void *object)
 {
 	Node *node;
 	node = clarityAllocateWithDestructor(core,
@@ -64,7 +62,6 @@ static Node *itemCreate(ClarityCore *core,
 	node->object = clarityRetain(object);
 	node->left = NULL;
 	node->right = NULL;
-	node->parent = parent;
 	return clarityAutoRelease(node);
 }
 
@@ -73,11 +70,18 @@ static void dictionaryDestroy(ClarityDictionary *dictionary)
 	clarityRelease(dictionary->root);
 }
 
-static Node *getNode(ClarityDictionary *dictionary, void *key)
+typedef void*(*NodeApplier)(Node **, void *, void *);
+
+static void *applyNode(ClarityDictionary *dictionary,
+					   void *key,
+					   void *object,
+					   NodeApplier found,
+					   NodeApplier notFound)
 {
 	Node *node;
-
+	Node **assignee;
 	node = dictionary->root;
+	assignee = &dictionary->root;
 
 	while (node != NULL) {
 		Sint8 compare;
@@ -85,58 +89,49 @@ static Node *getNode(ClarityDictionary *dictionary, void *key)
 		compare = dictionary->comparator(key, node->key);
 
 		if (compare == 0)
-			return node;
+			return found(&node, key, object);
 		else if (compare > 0)
-			node = node->left;
+			assignee = &node->left;
 		else
-			node = node->right;
+			assignee = &node->right;
+		node = *assignee;
 	}
+	return notFound(assignee, key, object);
+}
+
+static void *getObjectFound(Node **node, void *key, void *object)
+{
+	return (*node)->object;
+}
+
+static void *getObjectNotFound(Node **node, void *key, void *object)
+{
 	return NULL;
 }
 
 void *clarityDictionaryGetObject(ClarityDictionary *dictionary, void *key)
 {
-	Node *node;
-	void *retVal;
+	return applyNode(dictionary, key, NULL, getObjectFound, getObjectNotFound);
+}
 
-	node = getNode(dictionary, key);
-	retVal = NULL;
+static void *setObjectFound(Node **node, void *key, void *object)
+{
+	clarityRelease((*node)->object);
+	(*node)->object = clarityRetain(object);
+	return *node;
+}
 
-	if (node)
-		retVal = node->object;
-	return retVal;
+static void *setObjectNotFound(Node **node, void *key, void *object)
+{
+	*node = clarityRetain(itemCreate(clarityCore(key), key, object));
+	return *node;
 }
 
 void clarityDictionarySetObject(ClarityDictionary *dictionary,
 								void *key,
 								void *object)
 {
-	Node *node;
-	Node *parent;
-	Node **assignee;
-	node = dictionary->root;
-	assignee = &dictionary->root;
-	parent = NULL;
-
-	while (node != NULL) {
-		Sint8 compare;
-
-		compare = dictionary->comparator(key, node->key);
-
-		if (compare == 0) {
-			clarityRelease(node->object);
-			node->object = clarityRetain(object);
-			return;
-		} else if (compare > 0)
-			assignee = &node->left;
-		else
-			assignee = &node->right;
-		parent = node;
-		node = *assignee;
-	}
-	*assignee = itemCreate(clarityCore(dictionary), key, object, parent);
-	*assignee = clarityRetain(*assignee);
-
+	applyNode(dictionary, key, object, setObjectFound, setObjectNotFound);
 }
 
 ClarityDictionary *clarityDictionaryCreate(ClarityCore *core,
