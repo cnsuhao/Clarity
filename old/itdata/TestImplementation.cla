@@ -23,6 +23,6 @@ myThirdInternalFunction = (data) ->
 	anArray =
 		"hej"
 		data1.aNumber
-		33
+		data.aString.length()
 	mainFunction data1, data2
 	myInternalFunction data2.anObject, anArray
