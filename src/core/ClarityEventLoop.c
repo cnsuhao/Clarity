@@ -49,9 +49,9 @@ static Event *eventCreate(ClarityCore *clarity,
 {
 	Event *event;
 
-	event = clarityAllocate(clarity,
-							sizeof(Event),
-							(ClarityDestructor)eventDestroy);
+	event = clarityAllocateWithDestructor(clarity,
+										  sizeof(Event),
+										  (ClarityDestructor)eventDestroy);
 
 	event->data = clarityRetain(data);
 	event->function = function;
@@ -115,9 +115,10 @@ ClarityEventLoop *clarityEventLoopCreate(ClarityCore *clarity,
 {
 	ClarityEventLoop *eventLoop;
 
-	eventLoop = clarityAllocate(clarity,
-								sizeof(ClarityEventLoop),
-								(ClarityDestructor)eventLoopDestroy);
+	eventLoop = clarityAllocateWithDestructor(
+		clarity,
+		sizeof(ClarityEventLoop),
+		(ClarityDestructor)eventLoopDestroy);
 
 	eventLoop->events = clarityRetain(clarityArrayCreate(clarity));
 	clarityEventLoopEnqueue(eventLoop, entry, clarity);

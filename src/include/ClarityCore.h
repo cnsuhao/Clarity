@@ -47,7 +47,11 @@ void claritySetMemSet(ClarityCore *, ClarityMemSet);
 void claritySetStrLen(ClarityCore *, ClarityStrLen);
 void claritySetStrCmp(ClarityCore *, ClarityStrCmp);
 
-void *clarityAllocate(ClarityCore *, Uint32, ClarityDestructor);
+void *clarityAllocate(ClarityCore *, Uint32);
+void *clarityAllocateWithDestructor(ClarityCore *core,
+									Uint32 size,
+									ClarityDestructor destructor);
+
 void *clarityAutoRelease(void *);
 void clarityRelease(void *);
 void *clarityRetain(void *);

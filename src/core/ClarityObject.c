@@ -70,9 +70,10 @@ ClarityObject *clarityObjectCreateType(ClarityCore *core, const char *type)
 {
 	ClarityObject *object;
 
-	object = clarityAllocate(core,
-							 sizeof(ClarityObject),
-							 (ClarityDestructor)objectDestroy);
+	object = clarityAllocateWithDestructor(
+		core,
+		sizeof(ClarityObject),
+		(ClarityDestructor)objectDestroy);
 
 	object->type = clarityRetain(clarityStringCreate(core, type));
 	object->members = clarityRetain(clarityDictionaryCreate(

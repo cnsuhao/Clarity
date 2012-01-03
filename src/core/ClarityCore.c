@@ -135,15 +135,25 @@ Sint8 clarityStrCmp(ClarityCore *core,
 	return core->strCmp(core, cString, cString2);
 }
 
+void *clarityAllocateWithDestructor(ClarityCore *core,
+									Uint32 size,
+									ClarityDestructor destructor)
+{
+	return clarityHeapAllocateWithDestructor(
+		core->heap,
+		core,
+		size,
+		(ClarityHeapDestructor)destructor);
+}
+
 void *clarityAllocate(ClarityCore *core,
-					  Uint32 size,
-					  ClarityDestructor destructor)
+					  Uint32 size)
 {
 	return clarityHeapAllocate(core->heap,
 							   core,
-							   size,
-							   (ClarityHeapDestructor)destructor);
+							   size);
 }
+
 
 void *clarityAutoRelease(void *data)
 {
@@ -194,10 +204,11 @@ ClarityCore *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 {
 	ClarityCore *core;
 
-	core = clarityHeapAllocate(heap,
-							   NULL,
-							   sizeof(ClarityCore),
-							   (ClarityHeapDestructor)clarityDestroy);
+	core = clarityHeapAllocateWithDestructor(
+		heap,
+		NULL,
+		sizeof(ClarityCore),
+		(ClarityHeapDestructor)clarityDestroy);
 
 	core->memSet = defaultMemSet;
 	core->memCpy = defaultMemCpy;

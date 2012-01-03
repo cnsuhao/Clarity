@@ -37,8 +37,7 @@ ClarityInteger *clarityIntegerCreate(ClarityCore *clarity, Uint32 uint32)
 	ClarityInteger *integer;
 
 	integer = clarityAllocate(clarity,
-							  sizeof(ClarityInteger),
-							  (ClarityDestructor)NULL);
+							  sizeof(ClarityInteger));
 
 	integer->uint32 = uint32;
 	return clarityAutoRelease(integer);

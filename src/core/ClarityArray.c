@@ -126,9 +126,10 @@ static Iterator *iteratorCreate(ClarityCore *clarity,
 {
 	Iterator *iterator;
 
-	iterator = clarityAllocate(clarity,
-							   sizeof(Iterator),
-							   (ClarityDestructor)iteratorDestroy);
+	iterator = clarityAllocateWithDestructor(
+		clarity,
+		sizeof(Iterator),
+		(ClarityDestructor)iteratorDestroy);
 
 	iterator->index = -1;
 	iterator->array = clarityRetain(array);
@@ -147,8 +148,7 @@ static Test *testCreate(ClarityCore *clarity,
 	Test *test;
 
 	test = clarityAllocate(clarity,
-						   sizeof(Test),
-						   (ClarityDestructor)NULL);
+						   sizeof(Test));
 
 	test->function = function;
 	test->callback = callback;
@@ -250,8 +250,7 @@ static ForEach *forEachCreate(ClarityCore *clarity,
 	ForEach *forEach;
 
 	forEach = clarityAllocate(clarity,
-							  sizeof(ForEach),
-							  (ClarityDestructor)NULL);
+							  sizeof(ForEach));
 
 	forEach->function = function;
 	forEach->callback = callback;
@@ -310,9 +309,9 @@ static Map *mapCreate(ClarityCore *clarity,
 {
 	Map *map;
 
-	map = clarityAllocate(clarity,
-						  sizeof(Map),
-						  (ClarityDestructor)mapDestroy);
+	map = clarityAllocateWithDestructor(clarity,
+										sizeof(Map),
+										(ClarityDestructor)mapDestroy);
 
 	map->newArray = clarityRetain(clarityArrayCreate(clarity));
 	map->function = function;
@@ -374,9 +373,9 @@ static Filter *filterCreate(ClarityCore *clarity,
 {
 	Filter *filter;
 
-	filter = clarityAllocate(clarity,
-							 sizeof(Filter),
-							 (ClarityDestructor)filterDestroy);
+	filter = clarityAllocateWithDestructor(clarity,
+										   sizeof(Filter),
+										   (ClarityDestructor)filterDestroy);
 
 	filter->newArray = clarityRetain(clarityArrayCreate(clarity));
 	filter->function = function;
@@ -438,9 +437,9 @@ static Element *elementCreate(ClarityCore *clarity, void *data)
 {
 	Element *element;
 
-	element = clarityAllocate(clarity,
-							  sizeof(Element),
-							  (ClarityDestructor)elementDestroy);
+	element = clarityAllocateWithDestructor(clarity,
+											sizeof(Element),
+											(ClarityDestructor)elementDestroy);
 
 	element->data = clarityRetain(data);
 	element->next = NULL;
@@ -540,9 +539,9 @@ ClarityArray *clarityArrayCreate(ClarityCore *clarity)
 {
 	ClarityArray *array;
 
-	array = clarityAllocate(clarity,
-							sizeof(ClarityArray),
-							(ClarityDestructor)arrayDestroy);
+	array = clarityAllocateWithDestructor(clarity,
+										  sizeof(ClarityArray),
+										  (ClarityDestructor)arrayDestroy);
 
 	array->length = 0;
 	array->first = clarityRetain(elementCreate(clarity, NULL));

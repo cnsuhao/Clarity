@@ -42,8 +42,7 @@ ClarityString *clarityStringCreate(ClarityCore *core, const char *newCString)
 
 	length = clarityStrLen(core, newCString);
 	string = clarityAllocate(core,
-							 sizeof(ClarityString) + length + 1,
-							 (ClarityDestructor)NULL);
+							 sizeof(ClarityString) + length + 1);
 
 	string->length = length;
 	cString = &string->cString;

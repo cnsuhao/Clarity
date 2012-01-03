@@ -37,8 +37,7 @@ static ClarityFunction *clarityFunctionCreate(ClarityCore *core,
 {
 	ClarityFunction *function;
 	function = clarityAllocate(core,
-							   sizeof(ClarityFunction),
-							   (ClarityDestructor)NULL);
+							   sizeof(ClarityFunction));
 
 	function->functionPointer = functionPointer;
 	return clarityAutoRelease(function);

@@ -56,9 +56,9 @@ static Node *itemCreate(ClarityCore *core,
 						void *parent)
 {
 	Node *node;
-	node = clarityAllocate(core,
-						   sizeof(Node),
-						   (ClarityDestructor)itemDestroy);
+	node = clarityAllocateWithDestructor(core,
+										 sizeof(Node),
+										 (ClarityDestructor)itemDestroy);
 
 	node->key = clarityRetain(key);
 	node->object = clarityRetain(object);
@@ -144,9 +144,10 @@ ClarityDictionary *clarityDictionaryCreate(ClarityCore *core,
 {
 	ClarityDictionary *dictionary;
 
-	dictionary = clarityAllocate(core,
-								 sizeof(ClarityDictionary),
-								 (ClarityDestructor)dictionaryDestroy);
+	dictionary = clarityAllocateWithDestructor(
+		core,
+		sizeof(ClarityDictionary),
+		(ClarityDestructor)dictionaryDestroy);
 
 	dictionary->comparator = comp;
 	dictionary->root = NULL;
