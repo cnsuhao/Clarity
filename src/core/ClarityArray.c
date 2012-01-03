@@ -272,8 +272,18 @@ static void forEachDone(Iterator *iterator)
 	ForEach *forEach;
 
 	forEach = (ForEach *)iterator->handler;
-	if (forEach->callback)
-		forEach->callback(iterator->data);
+	forEach->callback(iterator->data);
+}
+
+static void emptyForEachCallback(void *data)
+{
+}
+
+void clarityArrayForEachWithoutCallback(
+	ClarityArray *array,
+	ClarityArrayForEachFunction function)
+{
+	clarityArrayForEach(array, function, emptyForEachCallback, NULL);
 }
 
 void clarityArrayForEach(ClarityArray *array,

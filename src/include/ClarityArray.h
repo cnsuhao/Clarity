@@ -62,6 +62,10 @@ void clarityArrayForEach(ClarityArray *array,
 						 ClarityEvent callback,
 						 void *data);
 
+void clarityArrayForEachWithoutCallback(
+	ClarityArray *array,
+	ClarityArrayForEachFunction function);
+
 void clarityArrayMap(ClarityArray *array,
 					 ClarityArrayMapFunction function,
 					 ClarityArrayMapCallback callback,

@@ -56,10 +56,8 @@ static void entry(ClarityCore *clarity)
 						(ClarityArrayForEachFunction)testForEach,
 						(ClarityArrayForEachCallback)testForEachDone,
 						dataString4);
-	clarityArrayForEach(array,
-						(ClarityArrayForEachFunction)testForEach,
-						NULL,
-						NULL);
+	clarityArrayForEachWithoutCallback(array,
+						(ClarityArrayForEachFunction)testForEach);
 }
 
 int main(void)
