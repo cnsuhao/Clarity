@@ -43,15 +43,13 @@ static void eventDestroy(Event *event)
 	clarityRelease(event->data);
 }
 
-static Event *eventCreate(ClarityCore *clarity,
-						  ClarityEvent function,
-						  void *data)
+static Event *eventCreate(ClarityCore *core, ClarityEvent function,
+	void *data)
 {
 	Event *event;
 
-	event = clarityAllocateWithDestructor(clarity,
-										  sizeof(Event),
-										  (ClarityDestructor)eventDestroy);
+	event = clarityAllocateWithDestructor(core, sizeof(Event),
+		(ClarityDestructor)eventDestroy);
 
 	event->data = clarityRetain(data);
 	event->function = function;
@@ -80,9 +78,7 @@ static void dequeue(ClarityEventLoop *eventLoop)
 typedef void(*Adder)(ClarityArray *, void *);
 
 static void clarityEventLoopAdd(ClarityEventLoop *eventLoop,
-								ClarityEvent function,
-								void *data,
-								Adder adder)
+	ClarityEvent function, void *data, Adder adder)
 {
 	Event *event;
 
@@ -91,15 +87,13 @@ static void clarityEventLoopAdd(ClarityEventLoop *eventLoop,
 }
 
 void clarityEventLoopEnqueue(ClarityEventLoop *eventLoop,
-							 ClarityEvent function,
-							 void *data)
+	ClarityEvent function, void *data)
 {
 	clarityEventLoopAdd(eventLoop, function, data, clarityArrayUnshift);
 }
 
-void clarityEventLoopPush(ClarityEventLoop *eventLoop,
-						  ClarityEvent function,
-						  void *data)
+void clarityEventLoopPush(ClarityEventLoop *eventLoop, ClarityEvent function,
+	void *data)
 {
 	clarityEventLoopAdd(eventLoop, function, data, clarityArrayPush);
 }
@@ -110,17 +104,15 @@ void clarityEventLoopStart(ClarityEventLoop *eventLoop)
 		dequeue(eventLoop);
 }
 
-ClarityEventLoop *clarityEventLoopCreate(ClarityCore *clarity,
-										 ClarityEvent entry)
+ClarityEventLoop *clarityEventLoopCreate(ClarityCore *core,
+	ClarityEvent entry)
 {
 	ClarityEventLoop *eventLoop;
 
-	eventLoop = clarityAllocateWithDestructor(
-		clarity,
-		sizeof(ClarityEventLoop),
+	eventLoop = clarityAllocateWithDestructor(core, sizeof(ClarityEventLoop),
 		(ClarityDestructor)eventLoopDestroy);
 
-	eventLoop->events = clarityRetain(clarityArrayCreate(clarity));
-	clarityEventLoopEnqueue(eventLoop, entry, clarity);
+	eventLoop->events = clarityRetain(clarityArrayCreate(core));
+	clarityEventLoopEnqueue(eventLoop, entry, core);
 	return clarityAutoRelease(eventLoop);
 }

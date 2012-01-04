@@ -45,7 +45,7 @@ typedef struct {
 	Sint32 index;
 	Element *element;
 	ClarityArray *array;
-	void *data;
+	void *context ;
 	ClarityEvent handle;
 	ClarityEvent done;
 	void *handler;
@@ -78,7 +78,7 @@ typedef struct {
 static void iteratorDestroy(Iterator *iterator)
 {
 	clarityRelease(iterator->element);
-	clarityRelease(iterator->data);
+	clarityRelease(iterator->context);
 	clarityRelease(iterator->array);
 	clarityRelease(iterator->handler);
 }
@@ -98,58 +98,49 @@ static void iteratorEvent(Iterator *iterator)
 
 	if (iteratorHasItem(iterator)) {
 		clarityEnqueueEvent(clarityCore(iterator),
-							iterator->handle,
-							iterator);
+			iterator->handle, iterator);
 
 		clarityEnqueueEvent(clarityCore(iterator),
-							(ClarityEvent)iteratorEvent,
-							iterator);
+			(ClarityEvent)iteratorEvent, iterator);
 	} else
 		clarityEnqueueEvent(clarityCore(iterator),
-							iterator->done,
-							iterator);
+			iterator->done, iterator);
 }
 
 static void iteratorStart(Iterator *iterator)
 {
-	clarityEnqueueEvent(clarityCore(iterator),
-						(ClarityEvent)iteratorEvent,
-						iterator);
+	clarityEnqueueEvent(clarityCore(iterator), (ClarityEvent)iteratorEvent,
+		iterator);
 }
 
-static Iterator *iteratorCreate(ClarityCore *clarity,
+static Iterator *iteratorCreate(ClarityCore *core,
 								ClarityArray *array,
-								void *data,
+								void *context,
 								ClarityEvent handle,
 								ClarityEvent done,
 								void *handler)
 {
 	Iterator *iterator;
 
-	iterator = clarityAllocateWithDestructor(
-		clarity,
-		sizeof(Iterator),
+	iterator = clarityAllocateWithDestructor(core, sizeof(Iterator),
 		(ClarityDestructor)iteratorDestroy);
 
 	iterator->index = -1;
 	iterator->array = clarityRetain(array);
 	iterator->element = clarityRetain(array->first);
-	iterator->data = clarityRetain(data);
+	iterator->context = clarityRetain(context);
 	iterator->handle = handle;
 	iterator->done = done;
 	iterator->handler = clarityRetain(handler);
 	return clarityAutoRelease(iterator);
 }
 
-static Test *testCreate(ClarityCore *clarity,
-						ClarityArrayTestFunction function,
-						ClarityArrayTestCallback callback)
+static Test *testCreate(ClarityCore *core, ClarityArrayTestFunction function,
+	ClarityArrayTestCallback callback)
 {
 	Test *test;
 
-	test = clarityAllocate(clarity,
-						   sizeof(Test));
-
+	test = clarityAllocate(core, sizeof(Test));
 	test->function = function;
 	test->callback = callback;
 	return clarityAutoRelease(test);
@@ -163,8 +154,7 @@ static void everyHandler(Iterator *iterator)
 
 	if (test->retVal) {
 		test->retVal = test->function(iterator->element->data,
-									  iterator->index,
-									  iterator->array);
+			iterator->index, iterator->array, iterator->context);
 	}
 }
 
@@ -173,27 +163,18 @@ static void everyDone(Iterator *iterator)
 	Test *test;
 
 	test = (Test *)iterator->handler;
-	test->callback(test->retVal, iterator->data);
+	test->callback(test->retVal, iterator->context);
 }
 
-void clarityArrayEvery(ClarityArray *array,
-					   ClarityArrayTestFunction function,
-					   ClarityArrayTestCallback callback,
-					   void *data)
+void clarityArrayEvery(ClarityArray *array, ClarityArrayTestFunction function,
+	ClarityArrayTestCallback callback, void *context)
 {
 	Test *test;
 	Iterator *iterator;
 
-	test = testCreate(clarityCore(array),
-					  function,
-					  callback);
-
-	iterator = iteratorCreate(clarityCore(array),
-							  array,
-							  data,
-							  (ClarityEvent)everyHandler,
-							  (ClarityEvent)everyDone,
-							  test);
+	test = testCreate(clarityCore(array), function, callback);
+	iterator = iteratorCreate(clarityCore(array), array, context,
+		(ClarityEvent)everyHandler, (ClarityEvent)everyDone, test);
 
 	test->retVal = TRUE;
 	iteratorStart(iterator);
@@ -205,9 +186,8 @@ static void someHandler(Iterator *iterator)
 	Bool retVal;
 
 	test = (Test *)iterator->handler;
-	retVal = test->function(iterator->element->data,
-							iterator->index,
-							iterator->array);
+	retVal = test->function(iterator->element->data, iterator->index,
+		iterator->array, iterator->context);
 
 	test->retVal = test->retVal || retVal;
 }
@@ -217,40 +197,31 @@ static void someDone(Iterator *iterator)
 	Test *test;
 
 	test = (Test *)iterator->handler;
-	test->callback(test->retVal, iterator->data);
+	test->callback(test->retVal, iterator->context);
 }
 
-void clarityArraySome(ClarityArray *array,
-					  ClarityArrayTestFunction function,
-					  ClarityArrayTestCallback callback,
-					  void *data)
+void clarityArraySome(ClarityArray *array, ClarityArrayTestFunction function,
+	ClarityArrayTestCallback callback, void *context)
 {
 	Test *test;
 	Iterator *iterator;
 
-	test = testCreate(clarityCore(array),
-					  function,
-					  callback);
+	test = testCreate(clarityCore(array), function, callback);
 
-	iterator = iteratorCreate(clarityCore(array),
-							  array,
-							  data,
-							  (ClarityEvent)someHandler,
-							  (ClarityEvent)someDone,
-							  test);
+	iterator = iteratorCreate(clarityCore(array), array, context,
+		(ClarityEvent)someHandler, (ClarityEvent)someDone, test);
 
 	test->retVal = FALSE;
 	iteratorStart(iterator);
 }
 
-static ForEach *forEachCreate(ClarityCore *clarity,
-							  ClarityArrayForEachFunction function,
-							  ClarityArrayForEachCallback callback)
+static ForEach *forEachCreate(ClarityCore *core,
+	ClarityArrayForEachFunction function,
+	ClarityArrayForEachCallback callback)
 {
 	ForEach *forEach;
 
-	forEach = clarityAllocate(clarity,
-							  sizeof(ForEach));
+	forEach = clarityAllocate(core, sizeof(ForEach));
 
 	forEach->function = function;
 	forEach->callback = callback;
@@ -262,9 +233,8 @@ static void forEachHandler(Iterator *iterator)
 	ForEach *forEach;
 
 	forEach = (ForEach *)iterator->handler;
-	forEach->function(iterator->element->data,
-					  iterator->index,
-					  iterator->array);
+	forEach->function(iterator->element->data, iterator->index,
+		iterator->array, iterator->context);
 }
 
 static void forEachDone(Iterator *iterator)
@@ -272,7 +242,7 @@ static void forEachDone(Iterator *iterator)
 	ForEach *forEach;
 
 	forEach = (ForEach *)iterator->handler;
-	forEach->callback(iterator->data);
+	forEach->callback(iterator->context);
 }
 
 static void emptyForEachCallback(void *data)
@@ -289,21 +259,14 @@ void clarityArrayForEachWithoutCallback(
 void clarityArrayForEach(ClarityArray *array,
 						 ClarityArrayForEachFunction function,
 						 ClarityArrayForEachCallback callback,
-						 void *data)
+						 void *context)
 {
 	ForEach *forEach;
 	Iterator *iterator;
 
-	forEach = forEachCreate(clarityCore(array),
-							function,
-							callback);
-
-	iterator = iteratorCreate(clarityCore(array),
-							  array,
-							  data,
-							  (ClarityEvent)forEachHandler,
-							  (ClarityEvent)forEachDone,
-							  forEach);
+	forEach = forEachCreate(clarityCore(array), function, callback);
+	iterator = iteratorCreate(clarityCore(array), array, context,
+		(ClarityEvent)forEachHandler, (ClarityEvent)forEachDone, forEach);
 
 	iteratorStart(iterator);
 }
@@ -313,17 +276,16 @@ static void mapDestroy(Map *map)
 	clarityRelease(map->newArray);
 }
 
-static Map *mapCreate(ClarityCore *clarity,
+static Map *mapCreate(ClarityCore *core,
 					  ClarityArrayMapFunction function,
 					  ClarityArrayMapCallback callback)
 {
 	Map *map;
 
-	map = clarityAllocateWithDestructor(clarity,
-										sizeof(Map),
-										(ClarityDestructor)mapDestroy);
+	map = clarityAllocateWithDestructor(core, sizeof(Map),
+		(ClarityDestructor)mapDestroy);
 
-	map->newArray = clarityRetain(clarityArrayCreate(clarity));
+	map->newArray = clarityRetain(clarityArrayCreate(core));
 	map->function = function;
 	map->callback = callback;
 	return clarityAutoRelease(map);
@@ -335,9 +297,8 @@ static void mapHandler(Iterator *iterator)
 	void *newItem;
 
 	map = (Map *)iterator->handler;
-	newItem = map->function(iterator->element->data,
-							iterator->index,
-							iterator->array);
+	newItem = map->function(iterator->element->data, iterator->index,
+		iterator->array, iterator->context);
 
 	clarityArrayPush(map->newArray, newItem);
 }
@@ -347,27 +308,19 @@ static void mapDone(Iterator *iterator)
 	Map *map;
 
 	map = (Map *)iterator->handler;
-	map->callback(map->newArray, iterator->data);
+	map->callback(map->newArray, iterator->context);
 }
 
-void clarityArrayMap(ClarityArray *array,
-					 ClarityArrayMapFunction function,
-					 ClarityArrayMapCallback callback,
-					 void *data)
+void clarityArrayMap(ClarityArray *array, ClarityArrayMapFunction function,
+	ClarityArrayMapCallback callback, void *context)
 {
 	Map *map;
 	Iterator *iterator;
 
-	map = mapCreate(clarityCore(array),
-					function,
-					callback);
+	map = mapCreate(clarityCore(array), function, callback);
 
-	iterator = iteratorCreate(clarityCore(array),
-							  array,
-							  data,
-							  (ClarityEvent)mapHandler,
-							  (ClarityEvent)mapDone,
-							  map);
+	iterator = iteratorCreate(clarityCore(array), array, context,
+		(ClarityEvent)mapHandler, (ClarityEvent)mapDone, map);
 
 	iteratorStart(iterator);
 }
@@ -377,17 +330,15 @@ static void filterDestroy(Filter *filter)
 	clarityRelease(filter->newArray);
 }
 
-static Filter *filterCreate(ClarityCore *clarity,
-							ClarityArrayTestFunction function,
-							ClarityArrayMapCallback callback)
+static Filter *filterCreate(ClarityCore *core,
+	ClarityArrayTestFunction function, ClarityArrayMapCallback callback)
 {
 	Filter *filter;
 
-	filter = clarityAllocateWithDestructor(clarity,
-										   sizeof(Filter),
-										   (ClarityDestructor)filterDestroy);
+	filter = clarityAllocateWithDestructor(core, sizeof(Filter),
+		(ClarityDestructor)filterDestroy);
 
-	filter->newArray = clarityRetain(clarityArrayCreate(clarity));
+	filter->newArray = clarityRetain(clarityArrayCreate(core));
 	filter->function = function;
 	filter->callback = callback;
 	return clarityAutoRelease(filter);
@@ -401,8 +352,7 @@ static void filterHandler(Iterator *iterator)
 	filter = (Filter *)iterator->handler;
 
 	match = filter->function(iterator->element->data,
-							 iterator->index,
-							 iterator->array);
+		iterator->index, iterator->array, iterator->context);
 
 	if (match)
 		clarityArrayPush(filter->newArray, iterator->element->data);
@@ -413,27 +363,20 @@ static void filterDone(Iterator *iterator)
 	Filter *filter;
 
 	filter = (Filter *)iterator->handler;
-	filter->callback(filter->newArray, iterator->data);
+	filter->callback(filter->newArray, iterator->context);
 }
 
-void clarityArrayFilter(ClarityArray *array,
-						ClarityArrayTestFunction function,
-						ClarityArrayMapCallback callback,
-						void *data)
+void clarityArrayFilter(ClarityArray *array, ClarityArrayTestFunction function,
+	ClarityArrayMapCallback callback, void *context)
 {
 	Filter *filter;
 	Iterator *iterator;
 
-	filter = filterCreate(clarityCore(array),
-						  function,
-						  callback);
+	filter = filterCreate(clarityCore(array), function, callback);
 
 	iterator = iteratorCreate(clarityCore(array),
-							  array,
-							  data,
-							  (ClarityEvent)filterHandler,
-							  (ClarityEvent)filterDone,
-							  filter);
+		array, context, (ClarityEvent)filterHandler,
+		(ClarityEvent)filterDone, filter);
 
 	iteratorStart(iterator);
 }
@@ -443,13 +386,12 @@ static void elementDestroy(Element *element)
 	clarityRelease(element->data);
 }
 
-static Element *elementCreate(ClarityCore *clarity, void *data)
+static Element *elementCreate(ClarityCore *core, void *data)
 {
 	Element *element;
 
-	element = clarityAllocateWithDestructor(clarity,
-											sizeof(Element),
-											(ClarityDestructor)elementDestroy);
+	element = clarityAllocateWithDestructor(core,
+		sizeof(Element), (ClarityDestructor)elementDestroy);
 
 	element->data = clarityRetain(data);
 	element->next = NULL;
@@ -545,17 +487,16 @@ Uint32 clarityArrayLength(ClarityArray *array)
 	return array->length;
 }
 
-ClarityArray *clarityArrayCreate(ClarityCore *clarity)
+ClarityArray *clarityArrayCreate(ClarityCore *core)
 {
 	ClarityArray *array;
 
-	array = clarityAllocateWithDestructor(clarity,
-										  sizeof(ClarityArray),
-										  (ClarityDestructor)arrayDestroy);
+	array = clarityAllocateWithDestructor(core,
+		sizeof(ClarityArray), (ClarityDestructor)arrayDestroy);
 
 	array->length = 0;
-	array->first = clarityRetain(elementCreate(clarity, NULL));
-	array->last = clarityRetain(elementCreate(clarity, NULL));
+	array->first = clarityRetain(elementCreate(core, NULL));
+	array->last = clarityRetain(elementCreate(core, NULL));
 	array->first->next = array->last;
 	array->last->prev = array->first;
 	return clarityAutoRelease(array);

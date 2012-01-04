@@ -16,7 +16,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
@@ -27,10 +27,10 @@ static void entry(ClarityCore *clarity)
 	ClarityString *dataString3;
 	ClarityString *resultString;
 
-	dataString1 = clarityStringCreate(clarity, data1);
-	dataString2 = clarityStringCreate(clarity, data2);
-	dataString3 = clarityStringCreate(clarity, data3);
-	array = clarityArrayCreate(clarity);
+	dataString1 = clarityStringCreate(core, data1);
+	dataString2 = clarityStringCreate(core, data2);
+	dataString3 = clarityStringCreate(core, data3);
+	array = clarityArrayCreate(core);
 	clarityArrayPush(array, dataString1);
 	clarityArrayPush(array, dataString2);
 	clarityArrayPush(array, dataString3);
@@ -50,11 +50,11 @@ static void entry(ClarityCore *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

@@ -14,24 +14,24 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	static const int BUFFER_SIZE = 11;
 	const char *srcBuffer = "TestString";
 	char dstBuffer[BUFFER_SIZE];
 
-	clarityMemCpy(clarity, dstBuffer, srcBuffer, BUFFER_SIZE);
+	clarityMemCpy(core, dstBuffer, srcBuffer, BUFFER_SIZE);
 	assert(strcmp(srcBuffer, dstBuffer) == 0);
 }
 
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

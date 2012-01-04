@@ -16,7 +16,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	const char *baseData = "TestString1";
 	const char *baseData2 = "TestString1.2";
@@ -27,42 +27,48 @@ static void entry(ClarityCore *clarity)
 	const char *moreKey = "Ckey";
 	const char *missingKey = "Dkey";
 	ClarityObject *object;
-	ClarityString *baseDataString;
-	ClarityString *baseDataString2;
-	ClarityString *lessDataString;
-	ClarityString *moreDataString;
-	ClarityString *resultString;
+	ClarityObject *baseDataString;
+	ClarityObject *baseDataString2;
+	ClarityObject *lessDataString;
+	ClarityObject *moreDataString;
+	ClarityObject *resultString;
 
-	object = clarityObjectCreate(clarity);
+	object = clarityObjectCreate(core);
 	assert(object != NULL);
 
-	baseDataString = clarityStringCreate(clarity, baseData);
-	baseDataString2 = clarityStringCreate(clarity, baseData2);
-	lessDataString = clarityStringCreate(clarity, lessData);
-	moreDataString = clarityStringCreate(clarity, moreData);
+	baseDataString = clarityStringObjectCreate(core, baseData);
+	baseDataString2 = clarityStringObjectCreate(core, baseData2);
+	lessDataString = clarityStringObjectCreate(core, lessData);
+	moreDataString = clarityStringObjectCreate(core, moreData);
 
 	clarityObjectSetMember(object, baseKey, baseDataString);
 	clarityObjectSetMember(object, baseKey, baseDataString2);
 	clarityObjectSetMember(object, moreKey, moreDataString);
 	clarityObjectSetMember(object, lessKey, lessDataString);
 	resultString = clarityObjectGetMember(object, baseKey);
-	assert(clarityStringCompare(baseDataString2, resultString) == 0);
+	assert(clarityStringCompare(
+		(ClarityString *)clarityObjectGetInnerData(baseDataString2),
+		(ClarityString *)clarityObjectGetInnerData(resultString)) == 0);
 	resultString = clarityObjectGetMember(object, lessKey);
-	assert(clarityStringCompare(lessDataString, resultString) == 0);
+	assert(clarityStringCompare(
+		(ClarityString *)clarityObjectGetInnerData(lessDataString),
+		(ClarityString *)clarityObjectGetInnerData(resultString)) == 0);
 	resultString = clarityObjectGetMember(object, moreKey);
-	assert(clarityStringCompare(moreDataString, resultString) == 0);
+	assert(clarityStringCompare(
+		(ClarityString *)clarityObjectGetInnerData(moreDataString),
+		(ClarityString *)clarityObjectGetInnerData(resultString)) == 0);
 	resultString = clarityObjectGetMember(object, missingKey);
-	assert(resultString == NULL);
+	assert(resultString == clarityObjectUndefined(core));
 }
 
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

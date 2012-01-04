@@ -31,27 +31,25 @@
 #include "ClarityFunctionObject.h"
 
 static Sint8 clarityStringObjectCompare(ClarityObject *string,
-										ClarityObject *string2)
+	 ClarityObject *string2)
 {
 	return clarityStringCompare(
-		clarityObjectGetMember(string, "data"),
-		clarityObjectGetMember(string2, "data"));
+		clarityObjectGetInnerData(string),
+		clarityObjectGetInnerData(string2));
 }
 
 static Uint32 clarityStringObjectLength(ClarityObject *string)
 {
 	return clarityStringLength(
-		clarityObjectGetMember(string, "data"));
+		clarityObjectGetInnerData(string));
 }
 
 ClarityObject *clarityStringObjectCreate(ClarityCore *core,
-										 const char *cString)
+	const char *cString)
 {
 	ClarityObject *string;
 
-	string = clarityObjectCreateType(core, "string");
-
-	clarityObjectSetMember(string, "data",
+	string = clarityObjectCreateType(core, "string",
 		clarityStringCreate(core, cString));
 
 	clarityObjectSetMember(string, "compare",
@@ -62,5 +60,6 @@ ClarityObject *clarityStringObjectCreate(ClarityCore *core,
 		clarityFunctionObjectCreate(core,
 			(ClarityFunctionPointer)clarityStringObjectLength));
 
-	return clarityAutoRelease(string);
+	clarityObjectLock(string);
+	return string;
 }

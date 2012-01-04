@@ -2138,11 +2138,11 @@ sub process {
 				$herecurr);
 		}
 # check for static initialisers.
-		if ($line =~ /\bstatic\s.*=\s*(0|NULL|false)\s*;/) {
-			ERROR("INITIALISED_STATIC",
-			      "do not initialise statics to 0 or NULL\n" .
-				$herecurr);
-		}
+		# if ($line =~ /\bstatic\s.*=\s*(0|NULL|false)\s*;/) {
+		# 	ERROR("INITIALISED_STATIC",
+		# 	      "do not initialise statics to 0 or NULL\n" .
+		# 		$herecurr);
+		# }
 
 # check for static const char * arrays.
 		if ($line =~ /\bstatic\s+const\s+char\s*\*\s*(\w+)\s*\[\s*\]\s*=\s*/) {
@@ -2461,11 +2461,11 @@ sub process {
 					 $op eq '*' or $op eq '/' or
 					 $op eq '%')
 				{
-					if ($ctx =~ /Wx[^WCE]|[^WCE]xW/) {
-						ERROR("SPACING",
-						      "need consistent spacing around '$op' $at\n" .
-							$hereptr);
-					}
+					# if ($ctx =~ /Wx[^WCE]|[^WCE]xW/) {
+					# 	ERROR("SPACING",
+					# 	      "need consistent spacing around '$op' $at\n" .
+					# 		$hereptr);
+					# }
 
 				# A colon needs no spaces before when it is
 				# terminating a case value or a label.

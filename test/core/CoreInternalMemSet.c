@@ -14,7 +14,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	static const int BUFFER_SIZE = 3;
 	char buffer[BUFFER_SIZE];
@@ -22,18 +22,18 @@ static void entry(ClarityCore *clarity)
 	buffer[0] = 'a';
 	buffer[1] = 'b';
 	buffer[2] = 'c';
-	clarityMemSet(clarity, buffer, 'd', BUFFER_SIZE);
+	clarityMemSet(core, buffer, 'd', BUFFER_SIZE);
 	assert(strncmp(buffer, "ddd", BUFFER_SIZE) == 0);
 }
 
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

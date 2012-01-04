@@ -31,10 +31,12 @@
 #include "ClarityCore.h"
 #include "ClarityObject.h"
 
-typedef void *(*ClarityFunctionPointer)(void *, ...);
-ClarityObject *clarityFunctionObjectCreate(ClarityCore *,
-										   ClarityFunctionPointer);
+typedef ClarityObject * (*ClarityFunctionPointer)(ClarityObject *);
 
-ClarityFunctionPointer clarityFunctionPointer(ClarityObject *);
+ClarityObject *clarityFunctionObjectCreate(ClarityCore *,
+	ClarityFunctionPointer);
+
+ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
+	ClarityObject *);
 
 #endif

@@ -15,23 +15,23 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	const char *testString = "TestString";
 	ClarityString *string;
 
-	string = clarityStringCreate(clarity, testString);
+	string = clarityStringCreate(core, testString);
 	assert(strlen(testString) == clarityStringLength(string));
 }
 
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

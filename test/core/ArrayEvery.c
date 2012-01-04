@@ -19,17 +19,15 @@ static void mainFree(void *data)
 
 static ClarityString *dataString4;
 
-static Bool testEveryWithFalse(ClarityString *string,
-							   Uint32 index,
-							   ClarityArray *array)
+static Bool testEveryWithFalse(ClarityString *string, Uint32 index,
+	ClarityArray *array)
 {
 	assert(index < 3);
 	return (index == 2);
 }
 
-static Bool testEveryAllTrue(ClarityString *string,
-							 Uint32 index,
-							 ClarityArray *array)
+static Bool testEveryAllTrue(ClarityString *string, Uint32 index,
+	ClarityArray *array)
 {
 	assert(index < 3);
 	return TRUE;
@@ -42,14 +40,13 @@ static void testEveryWithFalseDone(Bool every,
 	assert(string == dataString4);
 }
 
-static void testEveryAllTrueDone(Bool every,
-								 ClarityString *string)
+static void testEveryAllTrueDone(Bool every, ClarityString *string)
 {
 	assert(every == TRUE);
 	assert(string == dataString4);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
@@ -60,11 +57,11 @@ static void entry(ClarityCore *clarity)
 	ClarityString *dataString2;
 	ClarityString *dataString3;
 
-	dataString1 = clarityStringCreate(clarity, data1);
-	dataString2 = clarityStringCreate(clarity, data2);
-	dataString3 = clarityStringCreate(clarity, data3);
-	dataString4 = clarityStringCreate(clarity, data4);
-	array = clarityArrayCreate(clarity);
+	dataString1 = clarityStringCreate(core, data1);
+	dataString2 = clarityStringCreate(core, data2);
+	dataString3 = clarityStringCreate(core, data3);
+	dataString4 = clarityStringCreate(core, data4);
+	array = clarityArrayCreate(core);
 	clarityArrayUnshift(array, dataString1);
 	clarityArrayUnshift(array, dataString2);
 	clarityArrayUnshift(array, dataString3);
@@ -83,11 +80,11 @@ static void entry(ClarityCore *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

@@ -26,14 +26,13 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYDICTIONARY_H__
-#define __CLARITYDICTIONARY_H__
+#ifndef __CLARITYBOOLEAN_H__
+#define __CLARITYBOOLEAN_H__
 #include "ClarityCore.h"
 
-typedef struct __ClarityDictionary ClarityDictionary;
+typedef struct __ClarityBoolean ClarityBoolean;
 
-ClarityDictionary *clarityDictionaryCreate(ClarityCore *, ClarityComparator);
-void clarityDictionarySetObject(ClarityDictionary *, void *, void *);
-void *clarityDictionaryGetObject(ClarityDictionary *, void *);
+ClarityBoolean *clarityBooleanCreate(ClarityCore *, Bool);
+Bool clarityBooleanGetValue(ClarityBoolean *);
 
 #endif

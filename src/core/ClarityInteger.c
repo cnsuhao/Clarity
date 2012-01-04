@@ -29,21 +29,19 @@
 #include "ClarityInteger.h"
 
 struct __ClarityInteger {
-	Uint32 uint32;
+	Uint32 value;
 };
 
-ClarityInteger *clarityIntegerCreate(ClarityCore *clarity, Uint32 uint32)
+ClarityInteger *clarityIntegerCreate(ClarityCore *core, Uint32 value)
 {
 	ClarityInteger *integer;
 
-	integer = clarityAllocate(clarity,
-							  sizeof(ClarityInteger));
-
-	integer->uint32 = uint32;
+	integer = clarityAllocate(core, sizeof(ClarityInteger));
+	integer->value = value;
 	return clarityAutoRelease(integer);
 }
 
-Uint32 clarityIntegerGetUint32(ClarityInteger *integer)
+Uint32 clarityIntegerGetValue(ClarityInteger *integer)
 {
-	return integer->uint32;
+	return integer->value;
 }

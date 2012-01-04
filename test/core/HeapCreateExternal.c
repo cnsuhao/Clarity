@@ -23,4 +23,3 @@ int main(void)
 	clarityHeapRelease(heap);
 	return 0;
 }
-

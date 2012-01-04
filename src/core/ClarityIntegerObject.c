@@ -26,14 +26,16 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYDICTIONARY_H__
-#define __CLARITYDICTIONARY_H__
-#include "ClarityCore.h"
+#include "ClarityIntegerObject.h"
+#include "ClarityInteger.h"
 
-typedef struct __ClarityDictionary ClarityDictionary;
+ClarityObject *clarityIntegerObjectCreate(ClarityCore *core, Uint32 uint32)
+{
+	ClarityObject *integer;
 
-ClarityDictionary *clarityDictionaryCreate(ClarityCore *, ClarityComparator);
-void clarityDictionarySetObject(ClarityDictionary *, void *, void *);
-void *clarityDictionaryGetObject(ClarityDictionary *, void *);
+	integer = clarityObjectCreateType(core, "integer",
+		clarityIntegerCreate(core, uint32));
 
-#endif
+	clarityObjectLock(integer);
+	return integer;
+}

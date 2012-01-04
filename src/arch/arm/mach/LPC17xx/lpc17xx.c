@@ -32,11 +32,11 @@ static void mainFree(void *data)
 
 void start(void)
 {
-	ClarityCore *clarity;
+	ClarityCore *core;
 	ClarityHeap *heap;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 }

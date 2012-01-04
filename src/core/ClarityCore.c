@@ -28,20 +28,20 @@
  */
 #include "Clarity.h"
 #include "ClarityEventLoop.h"
+#include "ClarityFileStore.h"
 
 struct __ClarityCore {
 	ClarityHeap *heap;
 	ClarityEventLoop *eventLoop;
+	ClarityFileStore *fileStore;
 	ClarityMemCpy memCpy;
 	ClarityMemSet memSet;
 	ClarityStrLen strLen;
 	ClarityStrCmp strCmp;
 };
 
-static void *defaultMemCpy(ClarityCore *core,
-						   void *dstData,
-						   const void *srcData,
-						   Uint32 size)
+static void *defaultMemCpy(ClarityCore *core, void *dstData,
+	const void *srcData, Uint32 size)
 {
 	char* dst8 = (char *)dstData;
 	char* src8 = (char *)srcData;
@@ -51,10 +51,8 @@ static void *defaultMemCpy(ClarityCore *core,
 	return dstData;
 }
 
-static void *defaultMemSet(ClarityCore *core,
-						   void *data,
-						   char value,
-						   Uint32 size)
+static void *defaultMemSet(ClarityCore *core, void *data, char value,
+	Uint32 size)
 {
 	char *p;
 
@@ -73,9 +71,8 @@ static Uint32 defaultStrLen(ClarityCore *core, const char *cString)
 	return (Uint32)(s - cString);
 }
 
-static Sint8 defaultStrCmp(ClarityCore *core,
-						   const char *cString,
-						   const char *cString2)
+static Sint8 defaultStrCmp(ClarityCore *core, const char *cString,
+	const char *cString2)
 {
 	unsigned char uc1;
 	unsigned char uc2;
@@ -110,10 +107,8 @@ void claritySetStrCmp(ClarityCore *core, ClarityStrCmp strCmp)
 	core->strCmp = strCmp;
 }
 
-void *clarityMemCpy(ClarityCore *core,
-					void *dstData,
-					const void *srcData,
-					Uint32 size)
+void *clarityMemCpy(ClarityCore *core, void *dstData, const void *srcData,
+	Uint32 size)
 {
 	return core->memCpy(core, dstData, srcData, size);
 }
@@ -128,20 +123,16 @@ Uint32 clarityStrLen(ClarityCore *core, const char *cString)
 	return core->strLen(core, cString);
 }
 
-Sint8 clarityStrCmp(ClarityCore *core,
-					const char *cString,
-					const char *cString2)
+Sint8 clarityStrCmp(ClarityCore *core, const char *cString,
+	const char *cString2)
 {
 	return core->strCmp(core, cString, cString2);
 }
 
-void *clarityAllocateWithDestructor(ClarityCore *core,
-									Uint32 size,
-									ClarityDestructor destructor)
+void *clarityAllocateWithDestructor(ClarityCore *core, Uint32 size,
+	ClarityDestructor destructor)
 {
-	return clarityHeapAllocateWithDestructor(
-		core->heap,
-		size,
+	return clarityHeapAllocateWithDestructor(core->heap, size,
 		(ClarityHeapDestructor)destructor);
 }
 
@@ -175,23 +166,25 @@ void clarityCollectGarbage(ClarityCore *core)
 	clarityHeapCollectGarbage(core->heap);
 }
 
-void clarityEnqueueEvent(ClarityCore *core,
-						 ClarityEvent function,
-						 void *data)
+void clarityEnqueueEvent(ClarityCore *core, ClarityEvent function, void *data)
 {
 	clarityEventLoopEnqueue(core->eventLoop, function, data);
 }
 
-void clarityPushEvent(ClarityCore *core,
-					  ClarityEvent function,
-					  void *data)
+void clarityPushEvent(ClarityCore *core, ClarityEvent function, void *data)
 {
 	clarityEventLoopPush(core->eventLoop, function, data);
+}
+
+void clarityPushFile(ClarityCore *core, void *file)
+{
+	clarityFileStorePush(core->fileStore, file);
 }
 
 static void clarityDestroy(ClarityCore *core)
 {
 	clarityRelease(core->eventLoop);
+	clarityRelease(core->fileStore);
 	clarityRelease(core->heap);
 }
 
@@ -199,9 +192,7 @@ ClarityCore *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 {
 	ClarityCore *core;
 
-	core = clarityHeapAllocateWithDestructor(
-		heap,
-		sizeof(ClarityCore),
+	core = clarityHeapAllocateWithDestructor(heap, sizeof(ClarityCore),
 		(ClarityHeapDestructor)clarityDestroy);
 
 	core->memSet = defaultMemSet;
@@ -211,6 +202,7 @@ ClarityCore *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 	clarityHeapSetContext(heap, core);
 	core->heap = clarityRetain(heap);
 	core->eventLoop = clarityRetain(clarityEventLoopCreate(core, entry));
+	core->fileStore = clarityRetain(clarityFileStoreCreate(core));
 	return clarityAutoRelease(core);
 }
 

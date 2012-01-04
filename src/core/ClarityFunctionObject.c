@@ -36,28 +36,42 @@ static ClarityFunction *clarityFunctionCreate(ClarityCore *core,
 	ClarityFunctionPointer functionPointer)
 {
 	ClarityFunction *function;
-	function = clarityAllocate(core,
-							   sizeof(ClarityFunction));
+
+	function = clarityAllocate(core, sizeof(ClarityFunction));
 
 	function->functionPointer = functionPointer;
 	return clarityAutoRelease(function);
 }
 
-ClarityObject *clarityFunctionObjectCreate(ClarityCore *core,
-	ClarityFunctionPointer functionPointer)
+ClarityObject *clarityFunctionObjectCreate(
+	ClarityCore *core, ClarityFunctionPointer functionPointer)
 {
 	ClarityObject *function;
 
-	function = clarityObjectCreateType(core, "function");
-
-	clarityObjectSetMember(function, "function",
+	function = clarityObjectCreateType(core, "function",
 		clarityFunctionCreate(core, functionPointer));
 
-	return clarityAutoRelease(function);
+	return function;
 }
 
-ClarityFunctionPointer clarityFunctionPointer(ClarityObject *function)
+ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
+	ClarityObject *context)
 {
-	return ((ClarityFunction *)clarityObjectGetMember(function,
-		"function"))->functionPointer;
+	ClarityObject *retVal = clarityObjectUndefined(clarityCore(function));
+
+	if (function && context) {
+		ClarityFunction *inner;
+
+		inner = (ClarityFunction *)clarityObjectGetInnerData(function);
+
+		if (inner) {
+			ClarityFunctionPointer functionPointer;
+
+			functionPointer = inner->functionPointer;
+
+			if (functionPointer)
+				retVal = functionPointer(context);
+		}
+	}
+	return retVal;
 }

@@ -33,6 +33,6 @@
 typedef struct __ClarityInteger ClarityInteger;
 
 ClarityInteger *clarityIntegerCreate(ClarityCore *, Uint32);
-Uint32 clarityIntegerGetUint32(ClarityInteger *);
+Uint32 clarityIntegerGetValue(ClarityInteger *);
 
 #endif

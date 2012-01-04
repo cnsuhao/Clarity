@@ -15,7 +15,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	const char *cStringLess = "ATestString";
 	const char *cStringBase = "BTestString";
@@ -25,10 +25,10 @@ static void entry(ClarityCore *clarity)
 	ClarityString *stringLess;
 	ClarityString *stringMore;
 
-	stringBase = clarityStringCreate(clarity, cStringBase);
-	stringSame = clarityStringCreate(clarity, cStringBase);
-	stringLess = clarityStringCreate(clarity, cStringLess);
-	stringMore = clarityStringCreate(clarity, cStringMore);
+	stringBase = clarityStringCreate(core, cStringBase);
+	stringSame = clarityStringCreate(core, cStringBase);
+	stringLess = clarityStringCreate(core, cStringLess);
+	stringMore = clarityStringCreate(core, cStringMore);
 	assert(clarityStringCompare(stringBase, stringSame) == 0);
 	assert(clarityStringCompare(stringBase, stringLess) > 0);
 	assert(clarityStringCompare(stringBase, stringMore) < 0);
@@ -37,11 +37,11 @@ static void entry(ClarityCore *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

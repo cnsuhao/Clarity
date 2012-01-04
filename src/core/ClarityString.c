@@ -41,8 +41,7 @@ ClarityString *clarityStringCreate(ClarityCore *core, const char *newCString)
 	Uint32 length;
 
 	length = clarityStrLen(core, newCString);
-	string = clarityAllocate(core,
-							 sizeof(ClarityString) + length + 1);
+	string = clarityAllocate(core, sizeof(ClarityString) + length + 1);
 
 	string->length = length;
 	cString = &string->cString;
@@ -54,9 +53,8 @@ ClarityString *clarityStringCreate(ClarityCore *core, const char *newCString)
 
 Sint8 clarityStringCompare(ClarityString *string, ClarityString *string2)
 {
-	return clarityStrCmp(clarityCore(string),
-						 &string->cString,
-						 &string2->cString);
+	return clarityStrCmp(clarityCore(string), &string->cString,
+		&string2->cString);
 }
 
 Uint32 clarityStringLength(ClarityString *string)

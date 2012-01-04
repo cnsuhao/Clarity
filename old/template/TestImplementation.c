@@ -1,35 +1,13 @@
 #include "TestImplementation.h"
 
-static void *_otherFunction(void *inData, void *outData);
-static const ClarityFunction __otherFunction = {.function = (ClarityFunctionPointer)_otherFunction};
-static const ClarityFunction *otherFunction = &__otherFunction;
-
-static void *_myInternalFunction(void *inData, void *outData);
-static const ClarityFunction __myInternalFunction = {.function = (ClarityFunctionPointer)_myInternalFunction};
-static const ClarityFunction *myInternalFunction = &__myInternalFunction;
-
-static void *_myOtherInternalFunction(void *inData, void *outData, void *callback);
-static const ClarityFunction __myOtherInternalFunction = {.function = (ClarityFunctionPointer)_myOtherInternalFunction};
-static const ClarityFunction *myOtherInternalFunction = &__myOtherInternalFunction;
-
-static void *_myThirdInternalFunction(void *outData);
-static const ClarityFunction __myThirdInternalFunction = {.function = (ClarityFunctionPointer)_myThirdInternalFunction};
-static const ClarityFunction *myThirdInternalFunction = &__myThirdInternalFunction;
-
-static void *_entry(ClarityCore *clarity);
-static const ClarityFunction __entry = {.function = (ClarityFunctionPointer)_entry};
-const ClarityFunction *entry = &__entry;
-
-static void *_mainFunction(void *data1, void *data2);
-static const ClarityFunction __mainFunction = {.function = (ClarityFunctionPointer)_mainFunction};
-const ClarityFunction *mainFunction = &__mainFunction;
+static ClarityObject *file = NULL;
 
 static void *_otherFunction(void *inData, void *outData)
 {
 	return clarityIntegerCreate(clarityCore(inData), 23);
 }
 
-static void *_mainFunction(void *inData, void *outData)
+static void *mainFunction(void *inData, void *outData)
 {
 	return myInternalFunction->function(inData, outData);
 }
@@ -57,11 +35,11 @@ static void myOtherInternalFunctionEvent(ClarityObject *eventData)
 static void *_myOtherInternalFunction(void *inData, void *outData, void *callback)
 {
 	ClarityCore *clarity = clarityCore(inData);
-	ClarityObject *eventData = clarityObjectCreate(clarity);
+	ClarityObject *eventData = clarityObjectCreate(core);
 	clarityObjectSetMember(eventData, "inData", inData);
 	clarityObjectSetMember(eventData, "outData", outData);
 	clarityObjectSetMember(eventData, "callback", callback);
-	clarityEnqueueEvent(clarity, (ClarityEvent)myOtherInternalFunctionEvent, eventData);
+	clarityEnqueueEvent(core, (ClarityEvent)myOtherInternalFunctionEvent, eventData);
 	return 0;
 }
 
@@ -70,20 +48,44 @@ static void *_myThirdInternalFunction(void *outData)
 	return otherFunction->function(outData);
 }
 
-static void *_entry(ClarityCore *clarity)
+static void *entry(ClarityObject *scope)
 {
-	ClarityObject *data1 = clarityObjectCreate(clarity);
-	ClarityObject *data2 = clarityObjectCreate(clarity);
-	ClarityArray *anArray = clarityArrayCreate(clarity);
+	ClarityObject *data1 = clarityObjectCreate(core);
+	ClarityObject *data2 = clarityObjectCreate(core);
+	ClarityArray *anArray = clarityArrayCreate(core);
 
-	clarityObjectSetMember(data1, "astring", clarityStringCreate(clarity, "hej"));
-	clarityObjectSetMember(data1, "aNumber", clarityIntegerCreate(clarity, 23));
-	clarityObjectSetMember(data2, "anObject", clarityObjectCreate(clarity));
-	clarityObjectSetMember(clarityObjectGetMember(data2, "anObject"), "anotherString", clarityStringCreate(clarity, "hepp"));
+	clarityObjectSetMember(data1, "astring", clarityStringCreate(core, "hej"));
+	clarityObjectSetMember(data1, "aNumber", clarityIntegerCreate(core, 23));
+	clarityObjectSetMember(data2, "anObject", clarityObjectCreate(core));
+	clarityObjectSetMember(clarityObjectGetMember(data2, "anObject"), "anotherString", clarityStringCreate(core, "hepp"));
 	clarityObjectSetMember(clarityObjectGetMember(data2, "anObject"), "anObject", inData);
-	clarityArrayUnshift(anArray, clarityStringCreate(clarity, "hepp"));
+	clarityArrayUnshift(anArray, clarityStringCreate(core, "hepp"));
 	clarityArrayUnshift(anArray, clarityObjectGetMember(data1, "aNumber"));
-	clarityArrayUnshift(anArray, clarityIntegerCreate(clarity, 33));
+	clarityArrayUnshift(anArray, clarityIntegerCreate(core, 34));
 	mainFunction->function(data1, data2);
 	return myInternalFunction->function(clarityObjectGetMember(data2, "anObject"), anArray);
+}
+
+static void *testImplementation(ClarityObject *scope)
+{
+	ClarityCore *core = clarityCore(scope);
+	clarityObjectSetMember(clarityObjectGetMember(scope, "exports"), "mainFunction", clarityFunctionObjectCreate(core, mainFunction));
+	clarityObjectSetMember(scope, "myInternalFunction", clarityFunctionObjectCreate(core, myInternalFunction));
+	clarityObjectSetMember(scope, "myOtherInternalFunction", clarityFunctionObjectCreate(core, myOtherInternalFunction));
+	clarityObjectSetMember(scope, "myThirdInternalFunction", clarityFunctionObjectCreate(core, myThirdInternalFunction));
+	clarityObjectSetMember(clarityObjectGetMember(scope, "exports"), "mainFunction", clarityFunctionObjectCreate(core, mainFunction));
+}
+
+ClarityObject *testImplementationCreate(ClarityCore *core)
+{
+	ClarityObject *exports = NULL;
+	if (file != NULL) {
+		file = clarityObjectCreate(core);
+		exports = clarityObjectCreate(core);
+		clarityObjectSetMember(file, "exports", exports);
+		testImplementation(file);
+		clarityAddFileObject(core, file);
+		clarityObjectLock(array);
+	}
+	return exports;
 }

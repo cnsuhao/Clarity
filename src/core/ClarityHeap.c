@@ -62,8 +62,7 @@ static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
 {
 	AutoReleaseItem *newItem;
 
-	newItem = clarityHeapAllocate(heap,
-								  sizeof(AutoReleaseItem));
+	newItem = clarityHeapAllocate(heap, sizeof(AutoReleaseItem));
 	if (newItem) {
 		AutoReleaseItem *pool;
 
@@ -112,10 +111,8 @@ static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
 	}
 }
 
-static void initializeHeader(ClarityHeap *heap,
-							 Header *header,
-							 Uint32 size,
-							 ClarityHeapDestructor destructor)
+static void initializeHeader(ClarityHeap *heap, Header *header, Uint32 size,
+	ClarityHeapDestructor destructor)
 {
 	header->magic = HEAP_MAGIC;
 	header->destructor = destructor;
@@ -124,10 +121,8 @@ static void initializeHeader(ClarityHeap *heap,
 	header->heap = heap;
 }
 
-static void *clarityHeapInnerAllocate(ClarityHeap *heap,
-									  ClarityAlloc alloc,
-									  Uint32 size,
-									  ClarityHeapDestructor destructor)
+static void *clarityHeapInnerAllocate(ClarityHeap *heap, ClarityAlloc alloc,
+	Uint32 size, ClarityHeapDestructor destructor)
 {
 	Header *header;
 	void *retVal;
@@ -142,26 +137,19 @@ static void *clarityHeapInnerAllocate(ClarityHeap *heap,
 	return retVal;
 }
 
-void *clarityHeapAllocateWithDestructor(ClarityHeap *heap,
-										Uint32 size,
-										ClarityHeapDestructor destructor)
+void *clarityHeapAllocateWithDestructor(ClarityHeap *heap, Uint32 size,
+	ClarityHeapDestructor destructor)
 {
-	return clarityHeapInnerAllocate(heap,
-									heap->alloc,
-									size,
-									destructor);
+	return clarityHeapInnerAllocate(heap, heap->alloc, size, destructor);
 }
 
 static void emptyDestroy(void *data)
 {
 }
 
-void *clarityHeapAllocate(ClarityHeap *heap,
-						  Uint32 size)
+void *clarityHeapAllocate(ClarityHeap *heap, Uint32 size)
 {
-	return clarityHeapAllocateWithDestructor(heap,
-											 size,
-											 emptyDestroy);
+	return clarityHeapAllocateWithDestructor(heap, size, emptyDestroy);
 }
 
 static Header *heapItemHeader(void *data)
@@ -279,17 +267,13 @@ static void defaultFree(void *data)
 }
 
 static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
-											 ClarityFree free,
-											 void *address,
-											 Uint32 size,
-											 Uint32 blockSize)
+	ClarityFree free, void *address, Uint32 size, Uint32 blockSize)
 {
 	ClarityHeap *heap;
 
-	heap = clarityHeapInnerAllocate(NULL,
-									alloc,
-									sizeof(ClarityHeap),
-									(ClarityHeapDestructor)heapDestroy);
+	heap = clarityHeapInnerAllocate(NULL, alloc, sizeof(ClarityHeap),
+		(ClarityHeapDestructor)heapDestroy);
+
 	if (heap) {
 		Header *header;
 
@@ -308,11 +292,8 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 
 ClarityHeap *clarityHeapCreate(void *address, Uint32 size, Uint32 blockSize)
 {
-	return clarityHeapCreatePrivate(defaultAlloc,
-									defaultFree,
-									address,
-									size,
-									blockSize);
+	return clarityHeapCreatePrivate(defaultAlloc, defaultFree, address, size,
+		blockSize);
 }
 
 ClarityHeap *clarityHeapCreateExternal(ClarityAlloc alloc, ClarityFree free)

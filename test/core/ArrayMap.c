@@ -22,9 +22,7 @@ static ClarityString *dataString2;
 static ClarityString *dataString3;
 static ClarityString *dataString4;
 
-static void *testMap(ClarityString *string,
-					Uint32 index,
-					ClarityArray *array)
+static void *testMap(ClarityString *string, Uint32 index, ClarityArray *array)
 {
 	void *retVal;
 
@@ -43,23 +41,22 @@ static void *testMap(ClarityString *string,
 	return retVal;
 }
 
-static void testMapDone(ClarityArray *array,
-						ClarityString *string)
+static void testMapDone(ClarityArray *array, ClarityString *string)
 {
 	ClarityInteger *integer;
 
 	integer = clarityArrayPop(array);
-	assert(clarityIntegerGetUint32(integer) == 1);
+	assert(clarityIntegerGetValue(integer) == 1);
 	integer = clarityArrayPop(array);
-	assert(clarityIntegerGetUint32(integer) == 8);
+	assert(clarityIntegerGetValue(integer) == 8);
 	integer = clarityArrayPop(array);
-	assert(clarityIntegerGetUint32(integer) == 6);
+	assert(clarityIntegerGetValue(integer) == 6);
 	integer = clarityArrayPop(array);
 	assert(integer == NULL);
 	assert(string == dataString4);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
@@ -67,28 +64,26 @@ static void entry(ClarityCore *clarity)
 	const char *data4 = "TestString4";
 	ClarityArray *array;
 
-	dataString1 = clarityStringCreate(clarity, data1);
-	dataString2 = clarityStringCreate(clarity, data2);
-	dataString3 = clarityStringCreate(clarity, data3);
-	dataString4 = clarityStringCreate(clarity, data4);
-	array = clarityArrayCreate(clarity);
+	dataString1 = clarityStringCreate(core, data1);
+	dataString2 = clarityStringCreate(core, data2);
+	dataString3 = clarityStringCreate(core, data3);
+	dataString4 = clarityStringCreate(core, data4);
+	array = clarityArrayCreate(core);
 	clarityArrayUnshift(array, dataString1);
 	clarityArrayUnshift(array, dataString2);
 	clarityArrayUnshift(array, dataString3);
-	clarityArrayMap(array,
-					(ClarityArrayMapFunction)testMap,
-					(ClarityArrayMapCallback)testMapDone,
-					dataString4);
+	clarityArrayMap(array, (ClarityArrayMapFunction)testMap,
+		(ClarityArrayMapCallback)testMapDone, dataString4);
 }
 
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

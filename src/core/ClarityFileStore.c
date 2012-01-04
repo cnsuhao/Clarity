@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Patchwork Solutions AB. All rights reserved.
+ * Copyright 2012 Patchwork Solutions AB. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,14 +26,30 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYDICTIONARY_H__
-#define __CLARITYDICTIONARY_H__
-#include "ClarityCore.h"
+#include "ClarityFileStore.h"
+#include "ClarityArray.h"
 
-typedef struct __ClarityDictionary ClarityDictionary;
+struct __ClarityFileStore {
+	ClarityArray *files;
+};
 
-ClarityDictionary *clarityDictionaryCreate(ClarityCore *, ClarityComparator);
-void clarityDictionarySetObject(ClarityDictionary *, void *, void *);
-void *clarityDictionaryGetObject(ClarityDictionary *, void *);
+static void fileStoreDestroy(ClarityFileStore *fileStore)
+{
+	clarityRelease(fileStore->files);
+}
 
-#endif
+void clarityFileStorePush(ClarityFileStore *fileStore, void *file)
+{
+	clarityArrayPush(fileStore->files, file);
+}
+
+ClarityFileStore *clarityFileStoreCreate(ClarityCore *core)
+{
+	ClarityFileStore *fileStore;
+
+	fileStore = clarityAllocateWithDestructor(core, sizeof(ClarityFileStore),
+		(ClarityDestructor)fileStoreDestroy);
+
+	fileStore->files = clarityRetain(clarityArrayCreate(core));
+	return clarityAutoRelease(fileStore);
+}

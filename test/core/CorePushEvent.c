@@ -41,28 +41,26 @@ static void event2(ClarityString *string)
 	gotEvent2 = TRUE;
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
-	clarityEnqueueEvent(clarity,
-						(ClarityEvent)event1,
-						clarityStringCreate(clarity, TEST_STRING));
+	clarityEnqueueEvent(core, (ClarityEvent)event1,
+		clarityStringCreate(core, TEST_STRING));
 
-	clarityPushEvent(clarity,
-					 (ClarityEvent)event2,
-					 clarityStringCreate(clarity, TEST_STRING));
+	clarityPushEvent(core, (ClarityEvent)event2,
+		clarityStringCreate(core, TEST_STRING));
 
 }
 
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
 	assert(gotEvent1 == TRUE);
 	assert(gotEvent2 == TRUE);
-	clarityStop(clarity);
+	clarityStop(core);
 	return 0;
 }

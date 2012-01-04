@@ -35,6 +35,7 @@
 #include "ClarityInteger.h"
 #include "ClarityObject.h"
 #include "ClarityStringObject.h"
+#include "ClarityIntegerObject.h"
+#include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
-
 #endif

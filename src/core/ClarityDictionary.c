@@ -49,14 +49,11 @@ static void itemDestroy(Node *node)
 	clarityRelease(node->right);
 }
 
-static Node *itemCreate(ClarityCore *core,
-						void *key,
-						void *object)
+static Node *itemCreate(ClarityCore *core, void *key, void *object)
 {
 	Node *node;
-	node = clarityAllocateWithDestructor(core,
-										 sizeof(Node),
-										 (ClarityDestructor)itemDestroy);
+	node = clarityAllocateWithDestructor(core, sizeof(Node),
+		(ClarityDestructor)itemDestroy);
 
 	node->key = clarityRetain(key);
 	node->object = clarityRetain(object);
@@ -72,11 +69,8 @@ static void dictionaryDestroy(ClarityDictionary *dictionary)
 
 typedef void*(*NodeApplier)(Node **, void *, void *);
 
-static void *applyNode(ClarityDictionary *dictionary,
-					   void *key,
-					   void *object,
-					   NodeApplier found,
-					   NodeApplier notFound)
+static void *applyNode(ClarityDictionary *dictionary, void *key, void *object,
+	NodeApplier found, NodeApplier notFound)
 {
 	Node *node;
 	Node **assignee;
@@ -127,21 +121,18 @@ static void *setObjectNotFound(Node **node, void *key, void *object)
 	return *node;
 }
 
-void clarityDictionarySetObject(ClarityDictionary *dictionary,
-								void *key,
-								void *object)
+void clarityDictionarySetObject(ClarityDictionary *dictionary, void *key,
+	void *object)
 {
 	applyNode(dictionary, key, object, setObjectFound, setObjectNotFound);
 }
 
 ClarityDictionary *clarityDictionaryCreate(ClarityCore *core,
-										   ClarityComparator comp)
+	ClarityComparator comp)
 {
 	ClarityDictionary *dictionary;
 
-	dictionary = clarityAllocateWithDestructor(
-		core,
-		sizeof(ClarityDictionary),
+	dictionary = clarityAllocateWithDestructor(core, sizeof(ClarityDictionary),
 		(ClarityDestructor)dictionaryDestroy);
 
 	dictionary->comparator = comp;

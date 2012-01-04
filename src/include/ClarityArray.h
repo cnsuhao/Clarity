@@ -32,22 +32,17 @@
 
 typedef struct __ClarityArray ClarityArray;
 
-typedef void(*ClarityArrayForEachFunction)(void *,
-										   Uint32,
-										   ClarityArray *);
+typedef void(*ClarityArrayForEachFunction)(void *, Uint32, ClarityArray *,
+	void *);
 
-typedef void *(*ClarityArrayMapFunction)(void *,
-										 Uint32,
-										 ClarityArray *);
+typedef void *(*ClarityArrayMapFunction)(void *, Uint32, ClarityArray *,
+	void *);
 
-typedef Bool(*ClarityArrayTestFunction)(void *,
-										Uint32,
-										ClarityArray *);
+typedef Bool(*ClarityArrayTestFunction)(void *, Uint32, ClarityArray *,
+	void *);
 
 typedef void(*ClarityArrayForEachCallback)(void *);
-
 typedef void *(*ClarityArrayMapCallback)(void *, void *);
-
 typedef void(*ClarityArrayTestCallback)(Bool, void *);
 
 ClarityArray *clarityArrayCreate(ClarityCore *);
@@ -57,36 +52,22 @@ void clarityArrayUnshift(ClarityArray *, void *);
 void *clarityArrayShift(ClarityArray *);
 Uint32 clarityArrayLength(ClarityArray *);
 
-void clarityArrayForEach(ClarityArray *array,
-						 ClarityArrayForEachFunction arrayFunction,
-						 ClarityEvent callback,
-						 void *data);
+void clarityArrayForEachWithoutCallback(ClarityArray *,
+	ClarityArrayForEachFunction);
 
-void clarityArrayForEachWithoutCallback(
-	ClarityArray *array,
-	ClarityArrayForEachFunction function);
+void clarityArrayForEach(ClarityArray *, ClarityArrayForEachFunction,
+	ClarityEvent, void *);
 
-void clarityArrayMap(ClarityArray *array,
-					 ClarityArrayMapFunction function,
-					 ClarityArrayMapCallback callback,
-					 void *data);
+void clarityArrayMap(ClarityArray *, ClarityArrayMapFunction,
+	ClarityArrayMapCallback, void *);
 
-void clarityArrayEvery(ClarityArray *array,
-					   ClarityArrayTestFunction function,
-					   ClarityArrayTestCallback callback,
-					   void *data);
+void clarityArrayEvery(ClarityArray *, ClarityArrayTestFunction,
+	ClarityArrayTestCallback, void *);
 
-void clarityArraySome(ClarityArray *array,
-					  ClarityArrayTestFunction function,
-					  ClarityArrayTestCallback callback,
-					  void *data);
+void clarityArraySome(ClarityArray *, ClarityArrayTestFunction,
+	ClarityArrayTestCallback, void *);
 
-void clarityArrayFilter(ClarityArray *array,
-						ClarityArrayTestFunction function,
-						ClarityArrayMapCallback callback,
-						void *data);
-
-ClarityArray *clarityArrayConcat(ClarityArray *, ClarityArray *);
-ClarityArray *clarityArraySort(ClarityArray *);
+void clarityArrayFilter(ClarityArray *, ClarityArrayTestFunction,
+	ClarityArrayMapCallback, void *);
 
 #endif

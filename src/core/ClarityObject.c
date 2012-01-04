@@ -34,51 +34,84 @@ struct __ClarityObject {
 	ClarityCore *clarity;
 	ClarityDictionary *members;
 	ClarityString *type;
+	Bool locked;
+	void *innerData;
 };
+
+static ClarityObject *undefinedObject = NULL;
 
 static void objectDestroy(ClarityObject *object)
 {
 	clarityRelease(object->members);
 	clarityRelease(object->type);
+	clarityRelease(object->innerData);
 }
 
-void *clarityObjectGetMember(ClarityObject *object, const char *cName)
+ClarityObject *clarityObjectGetMember(ClarityObject *object, const char *cName)
 {
-	ClarityString *name;
+	ClarityObject *retVal = clarityObjectUndefined(clarityCore(object));
+	if (object && cName) {
+		ClarityString *name;
+		void *dictData;
 
-	name = clarityStringCreate(clarityCore(object), cName);
-	return clarityDictionaryGetObject(object->members, name);
+		name = clarityStringCreate(clarityCore(object), cName);
+		dictData = clarityDictionaryGetObject(object->members, name);
+		if (dictData)
+			/*TODO implement prototype support*/
+			retVal = (ClarityObject *)dictData;
+	}
+	return retVal;
 }
 
-void clarityObjectSetMember(ClarityObject *object,
-							const char *cName,
-							void *member)
+void clarityObjectSetMember(ClarityObject *object, const char *cName,
+	ClarityObject *member)
 {
-	ClarityString *name;
+	if (object && !object->locked) {
+		ClarityString *name;
 
-	name = clarityStringCreate(clarityCore(object), cName);
-	clarityDictionarySetObject(object->members, name, member);
+		name = clarityStringCreate(clarityCore(object), cName);
+		clarityDictionarySetObject(object->members, name, member);
+	}
+}
+
+void *clarityObjectGetInnerData(ClarityObject *object)
+{
+	return object->innerData;
+}
+
+void clarityObjectLock(ClarityObject *object)
+{
+	if (object)
+		object->locked = TRUE;
+}
+
+ClarityObject *clarityObjectCreateType(ClarityCore *core,
+	const char *type, void *innerData)
+{
+	ClarityObject *object;
+
+	object = clarityAllocateWithDestructor(core, sizeof(ClarityObject),
+		(ClarityDestructor)objectDestroy);
+
+	object->locked = FALSE;
+	object->type = clarityRetain(clarityStringCreate(core, type));
+	object->innerData = clarityRetain(innerData);
+	object->members = clarityRetain(clarityDictionaryCreate(core,
+		(ClarityComparator)clarityStringCompare));
+
+	return clarityAutoRelease(object);
 }
 
 ClarityObject *clarityObjectCreate(ClarityCore *core)
 {
-	return clarityObjectCreateType(core, "object");
-
+	return clarityObjectCreateType(core, "object", NULL);
 }
 
-ClarityObject *clarityObjectCreateType(ClarityCore *core, const char *type)
+ClarityObject *clarityObjectUndefined(ClarityCore *core)
 {
-	ClarityObject *object;
-
-	object = clarityAllocateWithDestructor(
-		core,
-		sizeof(ClarityObject),
-		(ClarityDestructor)objectDestroy);
-
-	object->type = clarityRetain(clarityStringCreate(core, type));
-	object->members = clarityRetain(clarityDictionaryCreate(
-		core,
-		(ClarityComparator)clarityStringCompare));
-
-	return clarityAutoRelease(object);
+	if (!undefinedObject && core) {
+		undefinedObject = clarityObjectCreateType(core, "undefined", NULL);
+		clarityObjectLock(undefinedObject);
+	}
+	return undefinedObject;
 }

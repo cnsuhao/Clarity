@@ -48,9 +48,8 @@ void claritySetStrLen(ClarityCore *, ClarityStrLen);
 void claritySetStrCmp(ClarityCore *, ClarityStrCmp);
 
 void *clarityAllocate(ClarityCore *, Uint32);
-void *clarityAllocateWithDestructor(ClarityCore *core,
-									Uint32 size,
-									ClarityDestructor destructor);
+void *clarityAllocateWithDestructor(ClarityCore *core, Uint32 size,
+	ClarityDestructor destructor);
 
 void *clarityAutoRelease(void *);
 void clarityRelease(void *);
@@ -67,6 +66,7 @@ Sint8 clarityStrCmp(ClarityCore *, const char *, const char *);
 ClarityCore *clarityCreate(ClarityEvent, ClarityHeap *);
 void clarityEnqueueEvent(ClarityCore *, ClarityEvent, void *);
 void clarityPushEvent(ClarityCore *, ClarityEvent, void *);
+void clarityPushFile(ClarityCore *, void *);
 void clarityStart(ClarityCore *);
 void clarityStop(ClarityCore *);
 

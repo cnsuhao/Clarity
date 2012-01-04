@@ -16,7 +16,7 @@ static void mainFree(void *data)
 	free(data);
 }
 
-static void entry(ClarityCore *clarity)
+static void entry(ClarityCore *core)
 {
 	const char *baseData = "TestString1";
 	const char *baseData2 = "TestString1.2";
@@ -38,19 +38,18 @@ static void entry(ClarityCore *clarity)
 	ClarityString *missingKeyString;
 
 	dictionary = clarityDictionaryCreate(
-		clarity,
+		core,
 		(ClarityComparator)clarityStringCompare);
 
 	assert(dictionary != NULL);
-	baseDataString = clarityStringCreate(clarity, baseData);
-	baseDataString2 = clarityStringCreate(clarity, baseData2);
-	lessDataString = clarityStringCreate(clarity, lessData);
-	moreDataString = clarityStringCreate(clarity, moreData);
-	baseKeyString = clarityStringCreate(clarity, baseKey);
-	lessKeyString = clarityStringCreate(clarity, lessKey);
-	moreKeyString = clarityStringCreate(clarity, moreKey);
-	missingKeyString = clarityStringCreate(clarity, missingKey);
-
+	baseDataString = clarityStringCreate(core, baseData);
+	baseDataString2 = clarityStringCreate(core, baseData2);
+	lessDataString = clarityStringCreate(core, lessData);
+	moreDataString = clarityStringCreate(core, moreData);
+	baseKeyString = clarityStringCreate(core, baseKey);
+	lessKeyString = clarityStringCreate(core, lessKey);
+	moreKeyString = clarityStringCreate(core, moreKey);
+	missingKeyString = clarityStringCreate(core, missingKey);
 	clarityDictionarySetObject(dictionary, baseKeyString, baseDataString);
 	clarityDictionarySetObject(dictionary, baseKeyString, baseDataString2);
 	clarityDictionarySetObject(dictionary, moreKeyString, moreDataString);
@@ -68,11 +67,11 @@ static void entry(ClarityCore *clarity)
 int main(void)
 {
 	ClarityHeap *heap;
-	ClarityCore *clarity;
+	ClarityCore *core;
 
 	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	clarity = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(clarity);
-	clarityStop(clarity);
+	core = clarityCreate((ClarityEvent)entry, heap);
+	clarityStart(core);
+	clarityStop(core);
 	return 0;
 }

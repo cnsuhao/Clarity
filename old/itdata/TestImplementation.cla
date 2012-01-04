@@ -1,4 +1,4 @@
-@mainFunction = (data1, data2) ->
+exports.mainFunction = (data1, data2) ->
 	myInternalFunction data1, data2
 
 myInternalFunction = (data1, data2) ->
@@ -12,7 +12,7 @@ myOtherInternalFunction = (data, callback) =>
 myThirdInternalFunction = (data) ->
 	otherFunction data, 34
 
-@entry = ->
+exports.entry = ->
 	data1 = 
 		aString: "hej"
 		aNumber: 23
@@ -24,5 +24,5 @@ myThirdInternalFunction = (data) ->
 		"hej"
 		data1.aNumber
 		data.aString.length()
-	mainFunction data1, data2
+	exports.mainFunction data1, data2
 	myInternalFunction data2.anObject, anArray

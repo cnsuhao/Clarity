@@ -33,9 +33,13 @@
 typedef struct __ClarityObject ClarityObject;
 
 ClarityObject *clarityObjectCreate(ClarityCore *);
-ClarityObject *clarityObjectCreateType(ClarityCore *, const char *);
+ClarityObject *clarityObjectCreateType(ClarityCore *, const char *, void *);
 
-void clarityObjectSetMember(ClarityObject *, const char *, void *);
-void *clarityObjectGetMember(ClarityObject *, const char *);
+void clarityObjectSetMember(ClarityObject *, const char *, ClarityObject *);
+ClarityObject *clarityObjectGetMember(ClarityObject *, const char *);
+
+void *clarityObjectGetInnerData(ClarityObject *);
+void clarityObjectLock(ClarityObject *);
+ClarityObject *clarityObjectUndefined(ClarityCore *);
 
 #endif
