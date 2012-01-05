@@ -55,11 +55,11 @@ ClarityObject *clarityFunctionObjectCreate(
 }
 
 ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
-	ClarityObject *context)
+	ClarityObject *scope)
 {
 	ClarityObject *retVal = clarityObjectUndefined(clarityCore(function));
 
-	if (function && context) {
+	if (function && scope) {
 		ClarityFunction *inner;
 
 		inner = (ClarityFunction *)clarityObjectGetInnerData(function);
@@ -70,7 +70,7 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 			functionPointer = inner->functionPointer;
 
 			if (functionPointer)
-				retVal = functionPointer(context);
+				retVal = functionPointer(scope);
 		}
 	}
 	return retVal;

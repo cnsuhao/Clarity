@@ -45,7 +45,7 @@ typedef struct {
 	Sint32 index;
 	Element *element;
 	ClarityArray *array;
-	void *context ;
+	void *scope ;
 	ClarityEvent handle;
 	ClarityEvent done;
 	void *handler;
@@ -78,7 +78,7 @@ typedef struct {
 static void iteratorDestroy(Iterator *iterator)
 {
 	clarityRelease(iterator->element);
-	clarityRelease(iterator->context);
+	clarityRelease(iterator->scope);
 	clarityRelease(iterator->array);
 	clarityRelease(iterator->handler);
 }
@@ -115,7 +115,7 @@ static void iteratorStart(Iterator *iterator)
 
 static Iterator *iteratorCreate(ClarityCore *core,
 								ClarityArray *array,
-								void *context,
+								void *scope,
 								ClarityEvent handle,
 								ClarityEvent done,
 								void *handler)
@@ -128,7 +128,7 @@ static Iterator *iteratorCreate(ClarityCore *core,
 	iterator->index = -1;
 	iterator->array = clarityRetain(array);
 	iterator->element = clarityRetain(array->first);
-	iterator->context = clarityRetain(context);
+	iterator->scope = clarityRetain(scope);
 	iterator->handle = handle;
 	iterator->done = done;
 	iterator->handler = clarityRetain(handler);
@@ -154,7 +154,7 @@ static void everyHandler(Iterator *iterator)
 
 	if (test->retVal) {
 		test->retVal = test->function(iterator->element->data,
-			iterator->index, iterator->array, iterator->context);
+			iterator->index, iterator->array, iterator->scope);
 	}
 }
 
@@ -163,17 +163,17 @@ static void everyDone(Iterator *iterator)
 	Test *test;
 
 	test = (Test *)iterator->handler;
-	test->callback(test->retVal, iterator->context);
+	test->callback(test->retVal, iterator->scope);
 }
 
 void clarityArrayEvery(ClarityArray *array, ClarityArrayTestFunction function,
-	ClarityArrayTestCallback callback, void *context)
+	ClarityArrayTestCallback callback, void *scope)
 {
 	Test *test;
 	Iterator *iterator;
 
 	test = testCreate(clarityCore(array), function, callback);
-	iterator = iteratorCreate(clarityCore(array), array, context,
+	iterator = iteratorCreate(clarityCore(array), array, scope,
 		(ClarityEvent)everyHandler, (ClarityEvent)everyDone, test);
 
 	test->retVal = TRUE;
@@ -187,7 +187,7 @@ static void someHandler(Iterator *iterator)
 
 	test = (Test *)iterator->handler;
 	retVal = test->function(iterator->element->data, iterator->index,
-		iterator->array, iterator->context);
+		iterator->array, iterator->scope);
 
 	test->retVal = test->retVal || retVal;
 }
@@ -197,18 +197,18 @@ static void someDone(Iterator *iterator)
 	Test *test;
 
 	test = (Test *)iterator->handler;
-	test->callback(test->retVal, iterator->context);
+	test->callback(test->retVal, iterator->scope);
 }
 
 void clarityArraySome(ClarityArray *array, ClarityArrayTestFunction function,
-	ClarityArrayTestCallback callback, void *context)
+	ClarityArrayTestCallback callback, void *scope)
 {
 	Test *test;
 	Iterator *iterator;
 
 	test = testCreate(clarityCore(array), function, callback);
 
-	iterator = iteratorCreate(clarityCore(array), array, context,
+	iterator = iteratorCreate(clarityCore(array), array, scope,
 		(ClarityEvent)someHandler, (ClarityEvent)someDone, test);
 
 	test->retVal = FALSE;
@@ -234,7 +234,7 @@ static void forEachHandler(Iterator *iterator)
 
 	forEach = (ForEach *)iterator->handler;
 	forEach->function(iterator->element->data, iterator->index,
-		iterator->array, iterator->context);
+		iterator->array, iterator->scope);
 }
 
 static void forEachDone(Iterator *iterator)
@@ -242,7 +242,7 @@ static void forEachDone(Iterator *iterator)
 	ForEach *forEach;
 
 	forEach = (ForEach *)iterator->handler;
-	forEach->callback(iterator->context);
+	forEach->callback(iterator->scope);
 }
 
 static void emptyForEachCallback(void *data)
@@ -259,13 +259,13 @@ void clarityArrayForEachWithoutCallback(
 void clarityArrayForEach(ClarityArray *array,
 						 ClarityArrayForEachFunction function,
 						 ClarityArrayForEachCallback callback,
-						 void *context)
+						 void *scope)
 {
 	ForEach *forEach;
 	Iterator *iterator;
 
 	forEach = forEachCreate(clarityCore(array), function, callback);
-	iterator = iteratorCreate(clarityCore(array), array, context,
+	iterator = iteratorCreate(clarityCore(array), array, scope,
 		(ClarityEvent)forEachHandler, (ClarityEvent)forEachDone, forEach);
 
 	iteratorStart(iterator);
@@ -298,7 +298,7 @@ static void mapHandler(Iterator *iterator)
 
 	map = (Map *)iterator->handler;
 	newItem = map->function(iterator->element->data, iterator->index,
-		iterator->array, iterator->context);
+		iterator->array, iterator->scope);
 
 	clarityArrayPush(map->newArray, newItem);
 }
@@ -308,18 +308,18 @@ static void mapDone(Iterator *iterator)
 	Map *map;
 
 	map = (Map *)iterator->handler;
-	map->callback(map->newArray, iterator->context);
+	map->callback(map->newArray, iterator->scope);
 }
 
 void clarityArrayMap(ClarityArray *array, ClarityArrayMapFunction function,
-	ClarityArrayMapCallback callback, void *context)
+	ClarityArrayMapCallback callback, void *scope)
 {
 	Map *map;
 	Iterator *iterator;
 
 	map = mapCreate(clarityCore(array), function, callback);
 
-	iterator = iteratorCreate(clarityCore(array), array, context,
+	iterator = iteratorCreate(clarityCore(array), array, scope,
 		(ClarityEvent)mapHandler, (ClarityEvent)mapDone, map);
 
 	iteratorStart(iterator);
@@ -352,7 +352,7 @@ static void filterHandler(Iterator *iterator)
 	filter = (Filter *)iterator->handler;
 
 	match = filter->function(iterator->element->data,
-		iterator->index, iterator->array, iterator->context);
+		iterator->index, iterator->array, iterator->scope);
 
 	if (match)
 		clarityArrayPush(filter->newArray, iterator->element->data);
@@ -363,11 +363,11 @@ static void filterDone(Iterator *iterator)
 	Filter *filter;
 
 	filter = (Filter *)iterator->handler;
-	filter->callback(filter->newArray, iterator->context);
+	filter->callback(filter->newArray, iterator->scope);
 }
 
 void clarityArrayFilter(ClarityArray *array, ClarityArrayTestFunction function,
-	ClarityArrayMapCallback callback, void *context)
+	ClarityArrayMapCallback callback, void *scope)
 {
 	Filter *filter;
 	Iterator *iterator;
@@ -375,7 +375,7 @@ void clarityArrayFilter(ClarityArray *array, ClarityArrayTestFunction function,
 	filter = filterCreate(clarityCore(array), function, callback);
 
 	iterator = iteratorCreate(clarityCore(array),
-		array, context, (ClarityEvent)filterHandler,
+		array, scope, (ClarityEvent)filterHandler,
 		(ClarityEvent)filterDone, filter);
 
 	iteratorStart(iterator);
