@@ -19,7 +19,7 @@ exports.entry = ->
 	data2 = 
 		anObject:
 			anotherString: "hepp"
-			anObject: inData
+			anObject: data1
 	anArray =
 		"hej"
 		data1.aNumber

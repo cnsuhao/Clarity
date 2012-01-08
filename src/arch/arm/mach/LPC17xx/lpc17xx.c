@@ -6,17 +6,10 @@
 #include "ClarityFunctionObject.h"
 #include <stdlib.h>
 
-static void *testFunction(void)
-{
-	return NULL;
-}
-
 static void entry(ClarityCore *core)
 {
 	clarityObjectCreate(core);
 	clarityStringObjectCreate(core, "string");
-	clarityFunctionObjectCreate(core,
-		(ClarityFunctionPointer)testFunction);
 	clarityIntegerCreate(core, 32);
 }
 

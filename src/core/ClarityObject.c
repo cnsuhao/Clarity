@@ -27,62 +27,161 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityObject.h"
-#include "ClarityDictionary.h"
 #include "ClarityString.h"
 
+typedef struct __Node Node;
+struct __Node {
+	ClarityObject *object;
+	const char *name;
+	Node *left;
+	Node *right;
+};
+
 struct __ClarityObject {
-	ClarityCore *clarity;
-	ClarityDictionary *members;
-	ClarityString *type;
+	Node *root;
+	const char *type;
 	Bool locked;
 	void *innerData;
 };
 
-static ClarityObject *undefinedObject = NULL;
+static void nodeDestroy(Node *node)
+{
+	clarityRelease(node->object);
+	clarityRelease(node->left);
+	clarityRelease(node->right);
+}
+
+static Node *nodeCreate(ClarityCore *core, const char *name,
+	ClarityObject *object)
+{
+	Node *node;
+	node = clarityAllocateWithDestructor(core, sizeof(Node),
+		(ClarityDestructor)nodeDestroy);
+
+	node->name = name;
+	node->object = clarityRetain(object);
+	node->left = NULL;
+	node->right = NULL;
+	return clarityAutoRelease(node);
+}
 
 static void objectDestroy(ClarityObject *object)
 {
-	clarityRelease(object->members);
-	clarityRelease(object->type);
+	clarityRelease(object->root);
 	clarityRelease(object->innerData);
-}
-
-ClarityObject *clarityObjectGetMember(ClarityObject *object, const char *cName)
-{
-	ClarityObject *retVal = clarityObjectUndefined(clarityCore(object));
-	if (object && cName) {
-		ClarityString *name;
-		void *dictData;
-
-		name = clarityStringCreate(clarityCore(object), cName);
-		dictData = clarityDictionaryGetObject(object->members, name);
-		if (dictData)
-			/*TODO implement prototype support*/
-			retVal = (ClarityObject *)dictData;
-	}
-	return retVal;
-}
-
-void clarityObjectSetMember(ClarityObject *object, const char *cName,
-	ClarityObject *member)
-{
-	if (object && !object->locked) {
-		ClarityString *name;
-
-		name = clarityStringCreate(clarityCore(object), cName);
-		clarityDictionarySetObject(object->members, name, member);
-	}
 }
 
 void *clarityObjectGetInnerData(ClarityObject *object)
 {
-	return object->innerData;
+	void *retVal = NULL;
+
+	if (object)
+		retVal = object->innerData;
+	return retVal;
 }
 
 void clarityObjectLock(ClarityObject *object)
 {
 	if (object)
 		object->locked = TRUE;
+}
+
+typedef ClarityObject *(*NodeApplier)(Node **, const char *,
+	ClarityObject *);
+
+static void *applyNode(ClarityObject *object, const char *name,
+	ClarityObject *subObject, NodeApplier found, NodeApplier notFound)
+{
+	Node *node;
+	Node **assignee;
+	node = object->root;
+	assignee = &object->root;
+
+	while (node != NULL) {
+		Sint8 compare;
+
+		compare = clarityStrCmp(clarityCore(object), name, node->name);
+		if (compare == 0)
+			return found(&node, name, subObject);
+		else if (compare > 0)
+			assignee = &node->left;
+		else
+			assignee = &node->right;
+		node = *assignee;
+	}
+	return notFound(assignee, name, subObject);
+}
+
+static ClarityObject *getObjectFound(Node **node, const char *name,
+	ClarityObject *object)
+{
+	return (*node)->object;
+}
+
+static ClarityObject *getObjectNotFound(Node **node, const char *name,
+	ClarityObject *object)
+{
+	return clarityUndefined();
+}
+
+ClarityObject *clarityObjectGetOwnMember(ClarityObject *object,
+	const char *name)
+{
+	return applyNode(object, name, NULL,
+		getObjectFound, getObjectNotFound);
+}
+
+ClarityObject *clarityObjectGetMember(ClarityObject *object, const char *name)
+{
+	ClarityObject *undefined = clarityUndefined();
+	ClarityObject *retVal = undefined;
+
+	if (object && name) {
+		ClarityObject *prototype = object;
+
+		while (prototype != undefined && retVal == undefined) {
+			retVal = clarityObjectGetOwnMember(prototype, name);
+
+			if (retVal == undefined)
+				prototype = clarityObjectGetOwnMember(prototype, "prototype");
+		}
+	}
+	return retVal;
+}
+
+static ClarityObject *setObjectFound(Node **node, const char *name,
+	ClarityObject *object)
+{
+	clarityRelease((*node)->object);
+	(*node)->object = clarityRetain(object);
+	return (*node)->object;
+}
+
+static ClarityObject *setObjectNotFound(Node **node, const char *name,
+	ClarityObject *object)
+{
+	*node = clarityRetain(nodeCreate(clarityCore(object), name, object));
+	return (*node)->object;
+}
+
+ClarityObject *clarityObjectSetMember(ClarityObject *object, const char *name,
+	ClarityObject *subObject)
+{
+	ClarityObject *retVal = clarityUndefined();
+
+	if (object && name && subObject && !object->locked)
+		retVal = applyNode(object, name, subObject,
+			setObjectFound, setObjectNotFound);
+	return retVal;
+}
+
+const char *clarityObjectTypeOf(ClarityObject *object)
+{
+	const char *retVal = "undefined";
+
+	if (object)
+		retVal = object->type;
+	return retVal;
 }
 
 ClarityObject *clarityObjectCreateType(ClarityCore *core,
@@ -94,10 +193,9 @@ ClarityObject *clarityObjectCreateType(ClarityCore *core,
 		(ClarityDestructor)objectDestroy);
 
 	object->locked = FALSE;
-	object->type = clarityRetain(clarityStringCreate(core, type));
+	object->type = type;
 	object->innerData = clarityRetain(innerData);
-	object->members = clarityRetain(clarityDictionaryCreate(core,
-		(ClarityComparator)clarityStringCompare));
+	object->root = NULL;
 
 	return clarityAutoRelease(object);
 }
@@ -105,13 +203,4 @@ ClarityObject *clarityObjectCreateType(ClarityCore *core,
 ClarityObject *clarityObjectCreate(ClarityCore *core)
 {
 	return clarityObjectCreateType(core, "object", NULL);
-}
-
-ClarityObject *clarityObjectUndefined(ClarityCore *core)
-{
-	if (!undefinedObject && core) {
-		undefinedObject = clarityObjectCreateType(core, "undefined", NULL);
-		clarityObjectLock(undefinedObject);
-	}
-	return undefinedObject;
 }

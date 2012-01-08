@@ -44,5 +44,9 @@ ClarityBoolean *clarityBooleanCreate(ClarityCore *core, Bool value)
 
 Bool clarityBooleanGetValue(ClarityBoolean *boolean)
 {
-	return boolean->value;
+	Bool retVal = FALSE;
+
+	if (boolean)
+		retVal = boolean->value;
+	return retVal;
 }

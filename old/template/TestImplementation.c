@@ -48,44 +48,48 @@ static void *_myThirdInternalFunction(void *outData)
 	return otherFunction->function(outData);
 }
 
-static void *entry(ClarityObject *scope)
+static ClarityObject *entry(ClarityObject *this, ClarityObject *upperScope)
 {
-	ClarityObject *data1 = clarityObjectCreate(core);
-	ClarityObject *data2 = clarityObjectCreate(core);
-	ClarityArray *anArray = clarityArrayCreate(core);
-
-	clarityObjectSetMember(data1, "astring", clarityStringCreate(core, "hej"));
-	clarityObjectSetMember(data1, "aNumber", clarityIntegerCreate(core, 23));
-	clarityObjectSetMember(data2, "anObject", clarityObjectCreate(core));
-	clarityObjectSetMember(clarityObjectGetMember(data2, "anObject"), "anotherString", clarityStringCreate(core, "hepp"));
-	clarityObjectSetMember(clarityObjectGetMember(data2, "anObject"), "anObject", inData);
-	clarityArrayUnshift(anArray, clarityStringCreate(core, "hepp"));
-	clarityArrayUnshift(anArray, clarityObjectGetMember(data1, "aNumber"));
-	clarityArrayUnshift(anArray, clarityIntegerCreate(core, 34));
-	mainFunction->function(data1, data2);
-	return myInternalFunction->function(clarityObjectGetMember(data2, "anObject"), anArray);
-}
-
-static void *testImplementation(ClarityObject *scope)
-{
-	ClarityCore *core = clarityCore(scope);
-	clarityObjectSetMember(clarityObjectGetMember(scope, "exports"), "mainFunction", clarityFunctionObjectCreate(core, mainFunction));
-	clarityObjectSetMember(scope, "myInternalFunction", clarityFunctionObjectCreate(core, myInternalFunction));
-	clarityObjectSetMember(scope, "myOtherInternalFunction", clarityFunctionObjectCreate(core, myOtherInternalFunction));
-	clarityObjectSetMember(scope, "myThirdInternalFunction", clarityFunctionObjectCreate(core, myThirdInternalFunction));
-	clarityObjectSetMember(clarityObjectGetMember(scope, "exports"), "mainFunction", clarityFunctionObjectCreate(core, mainFunction));
+	ClarityCore *core = clarityCore(this);
+	ClarityObject *scope = clarityObjectCreateWithPrototype(core, upperScope);
+	ClarityObject *functionCall = clarityObjectCreateWithPrototype(core, scope);
+	clarityObjectSetMember(scope, "data1", clarityObjectCreate(core));
+	clarityObjectSetMember(clarityObjectGetMember(scope, "data1"), "astring", clarityStringCreate(core, "hej"));
+	clarityObjectSetMember(clarityObjectGetMember(scope, "data1"), "aNumber", clarityIntegerCreate(core, 23));
+	clarityObjectSetMember(scope, "data2", clarityObjectCreate(core));
+	clarityObjectSetMember(clarityObjectGetMember(scope, "data2"), "anObject", clarityObjectCreate(core));
+	clarityObjectSetMember(clarityObjectGetMember(clarityObjectGetMember(scope, "data2"), "anObject"), "anotherString", clarityStringCreate(core, "hepp"));
+	clarityObjectSetMember(clarityObjectGetMember(clarityObjectGetMember(scope, "data2"), "anObject"), "anObject", clarityObjectGetMember(scope, "data1"));
+	clarityObjectSetMember(scope, "anArray", clarityArrayObjectCreate(core));
+	clarityArrayUnshift(clarityObjectGetMember(scope, "anArray"), clarityStringCreate(core, "hepp"));
+	clarityArrayUnshift(clarityObjectGetMember(scope, "anArray"), clarityObjectGetMember(clarityObjectGetMember(scope, "data1"), "aNumber"));
+	clarityArrayUnshift(clarityObjectGetMember(scope, "anArray"), clarityIntegerCreate(core, 34));
+	functionCall = clarityObjectCreate(core);
+	clarityObjectSetMember(functionCall, "$0", clarityObjectGetMember(scope, "exports"));
+	clarityObjectSetMember(functionCall, "$1", clarityObjectGetMember(scope, "data1"));
+	clarityObjectSetMember(functionCall, "$2", clarityObjectGetMember(scope, "data2"));
+	clarityFunctionObjectCall(clarityObjectGetMember(clarityObjectGetMember(scope, "exports"), "mainFunction"), functionCall);
+	functionCall = clarityObjectCreate(core);
+	clarityObjectSetMember(functionCall, "$0", scope);
+	clarityObjectSetMember(functionCall, "$1", clarityObjectGetMember(clarityObjectGetMember(scope, "data2"), "anObject"));
+	clarityObjectSetMember(functionCall, "$2", clarityObjectGetMember(scope, "anArray"));
+	return clarityFunctionObjectCall(clarityObjectGetMember(scope, "myInternalFunction"), functionCall);
 }
 
 ClarityObject *testImplementationCreate(ClarityCore *core)
 {
 	ClarityObject *exports = NULL;
 	if (file != NULL) {
-		file = clarityObjectCreate(core);
+		file = clarityObjectCreateWithPrototype(core, clarityGlobal(core));
 		exports = clarityObjectCreate(core);
 		clarityObjectSetMember(file, "exports", exports);
-		testImplementation(file);
+		clarityObjectSetMember(clarityObjectGetMember(file, "exports"), "mainFunction", clarityFunctionObjectCreate(core, mainFunction));
+		clarityObjectSetMember(file, "myInternalFunction", clarityFunctionObjectCreate(core, myInternalFunction, file));
+		clarityObjectSetMember(file, "myOtherInternalFunction", clarityFunctionObjectCreate(core, myOtherInternalFunction, file));
+		clarityObjectSetMember(file, "myThirdInternalFunction", clarityFunctionObjectCreate(core, myThirdInternalFunction, file));
+		clarityObjectSetMember(clarityObjectGetMember(file, "exports"), "mainFunction", clarityFunctionObjectCreate(core, mainFunction, file));
 		clarityAddFileObject(core, file);
 		clarityObjectLock(array);
 	}
-	return exports;
+	return clarityObjectGetMember(file, "exports");
 }

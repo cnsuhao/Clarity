@@ -33,7 +33,7 @@ ClarityObject *clarityIntegerObjectCreate(ClarityCore *core, Uint32 uint32)
 {
 	ClarityObject *integer;
 
-	integer = clarityObjectCreateType(core, "integer",
+	integer = clarityObjectCreateType(core, "number",
 		clarityIntegerCreate(core, uint32));
 
 	clarityObjectLock(integer);

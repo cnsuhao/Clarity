@@ -57,6 +57,8 @@ void *clarityRetain(void *);
 void clarityCollectGarbage(ClarityCore *);
 
 ClarityCore *clarityCore(void *);
+void *clarityUndefined(void);
+void *clarityGlobal(ClarityCore *);
 
 void *clarityMemCpy(ClarityCore *, void *, const void *, Uint32);
 void *clarityMemSet(ClarityCore *, void *, char, Uint32);

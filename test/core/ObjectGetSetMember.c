@@ -27,6 +27,7 @@ static void entry(ClarityCore *core)
 	const char *moreKey = "Ckey";
 	const char *missingKey = "Dkey";
 	ClarityObject *object;
+	ClarityObject *object2;
 	ClarityObject *baseDataString;
 	ClarityObject *baseDataString2;
 	ClarityObject *lessDataString;
@@ -34,7 +35,6 @@ static void entry(ClarityCore *core)
 	ClarityObject *resultString;
 
 	object = clarityObjectCreate(core);
-	assert(object != NULL);
 
 	baseDataString = clarityStringObjectCreate(core, baseData);
 	baseDataString2 = clarityStringObjectCreate(core, baseData2);
@@ -58,7 +58,14 @@ static void entry(ClarityCore *core)
 		(ClarityString *)clarityObjectGetInnerData(moreDataString),
 		(ClarityString *)clarityObjectGetInnerData(resultString)) == 0);
 	resultString = clarityObjectGetMember(object, missingKey);
-	assert(resultString == clarityObjectUndefined(core));
+	assert(resultString == clarityUndefined());
+	object2 = clarityObjectCreate(core);
+	clarityObjectSetMember(object2, missingKey, baseDataString2);
+	clarityObjectSetMember(object, "prototype", object2);
+	resultString = clarityObjectGetMember(object, missingKey);
+	assert(clarityStringCompare(
+		(ClarityString *)clarityObjectGetInnerData(baseDataString2),
+		(ClarityString *)clarityObjectGetInnerData(resultString)) == 0);
 }
 
 int main(void)

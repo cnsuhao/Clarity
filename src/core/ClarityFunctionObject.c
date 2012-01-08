@@ -30,47 +30,62 @@
 
 typedef struct {
 	ClarityFunctionPointer functionPointer;
+	ClarityObject *scope;
 } ClarityFunction;
 
+static void destroyClarityFunction(ClarityFunction *clarityFunction)
+{
+	clarityRelease(clarityFunction->scope);
+}
+
 static ClarityFunction *clarityFunctionCreate(ClarityCore *core,
-	ClarityFunctionPointer functionPointer)
+	ClarityFunctionPointer functionPointer, ClarityObject *scope)
 {
 	ClarityFunction *function;
 
-	function = clarityAllocate(core, sizeof(ClarityFunction));
+	function = clarityAllocateWithDestructor(core, sizeof(ClarityFunction),
+		(ClarityDestructor)destroyClarityFunction);
 
 	function->functionPointer = functionPointer;
+	function->scope = clarityRetain(scope);
 	return clarityAutoRelease(function);
 }
 
-ClarityObject *clarityFunctionObjectCreate(
-	ClarityCore *core, ClarityFunctionPointer functionPointer)
+ClarityObject *clarityFunctionObjectCreate(ClarityCore *core,
+	ClarityFunctionPointer functionPointer, ClarityObject *scope)
 {
 	ClarityObject *function;
 
 	function = clarityObjectCreateType(core, "function",
-		clarityFunctionCreate(core, functionPointer));
+		clarityFunctionCreate(core, functionPointer, scope));
 
 	return function;
 }
 
 ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
-	ClarityObject *scope)
+	ClarityObject *parameters)
 {
-	ClarityObject *retVal = clarityObjectUndefined(clarityCore(function));
+	ClarityObject *retVal = clarityUndefined();
 
-	if (function && scope) {
-		ClarityFunction *inner;
+	if (function && parameters) {
+		ClarityCore *core = clarityCore(function);
 
-		inner = (ClarityFunction *)clarityObjectGetInnerData(function);
+		if (clarityStrCmp(core, clarityObjectTypeOf(function), "function")) {
+			ClarityFunction *inner;
 
-		if (inner) {
-			ClarityFunctionPointer functionPointer;
+			inner = (ClarityFunction *)clarityObjectGetInnerData(function);
 
-			functionPointer = inner->functionPointer;
+			if (inner) {
+				ClarityFunctionPointer functionPointer;
 
-			if (functionPointer)
-				retVal = functionPointer(scope);
+				functionPointer = inner->functionPointer;
+				clarityObjectSetMember(parameters, "prototype",
+					inner->scope);
+				clarityObjectLock(parameters);
+
+				if (functionPointer)
+					retVal = functionPointer(parameters);
+			}
 		}
 	}
 	return retVal;

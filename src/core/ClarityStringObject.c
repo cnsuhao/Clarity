@@ -28,20 +28,43 @@
  */
 #include "ClarityString.h"
 #include "ClarityObject.h"
+#include "ClarityIntegerObject.h"
 #include "ClarityFunctionObject.h"
 
-static Sint8 clarityStringObjectCompare(ClarityObject *string,
+static ClarityObject *clarityStringObjectCompare(ClarityObject *string,
 	 ClarityObject *string2)
 {
-	return clarityStringCompare(
-		clarityObjectGetInnerData(string),
-		clarityObjectGetInnerData(string2));
+	ClarityObject *retVal = clarityUndefined();
+
+	if (string) {
+		ClarityCore *core = clarityCore(string);
+
+		if (clarityStrCmp(core, clarityObjectTypeOf(string), "string")) {
+			Sint8 compare = clarityStringCompare(
+				clarityObjectGetInnerData(string),
+				clarityObjectGetInnerData(string2));
+
+			retVal = clarityIntegerObjectCreate(core, compare);
+		}
+	}
+	return retVal;
 }
 
-static Uint32 clarityStringObjectLength(ClarityObject *string)
+static ClarityObject *clarityStringObjectLength(ClarityObject *string)
 {
-	return clarityStringLength(
-		clarityObjectGetInnerData(string));
+	ClarityObject *retVal = clarityUndefined();
+
+	if (string) {
+		ClarityCore *core = clarityCore(string);
+
+		if (clarityStrCmp(core, clarityObjectTypeOf(string), "string")) {
+			Uint32 length = clarityStringLength(
+				clarityObjectGetInnerData(string));
+
+			retVal = clarityIntegerObjectCreate(core, length);
+		}
+	}
+	return retVal;
 }
 
 ClarityObject *clarityStringObjectCreate(ClarityCore *core,
@@ -54,11 +77,13 @@ ClarityObject *clarityStringObjectCreate(ClarityCore *core,
 
 	clarityObjectSetMember(string, "compare",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)clarityStringObjectCompare));
+			(ClarityFunctionPointer)clarityStringObjectCompare,
+			clarityUndefined()));
 
 	clarityObjectSetMember(string, "length",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)clarityStringObjectLength));
+			(ClarityFunctionPointer)clarityStringObjectLength,
+			clarityUndefined()));
 
 	clarityObjectLock(string);
 	return string;

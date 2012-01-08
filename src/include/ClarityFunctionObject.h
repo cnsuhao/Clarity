@@ -34,7 +34,7 @@
 typedef ClarityObject * (*ClarityFunctionPointer)(ClarityObject *);
 
 ClarityObject *clarityFunctionObjectCreate(ClarityCore *,
-	ClarityFunctionPointer);
+	ClarityFunctionPointer, ClarityObject *);
 
 ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 	ClarityObject *);

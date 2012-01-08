@@ -27,6 +27,7 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "Clarity.h"
+#include "ClarityObject.h"
 #include "ClarityEventLoop.h"
 #include "ClarityFileStore.h"
 
@@ -38,7 +39,37 @@ struct __ClarityCore {
 	ClarityMemSet memSet;
 	ClarityStrLen strLen;
 	ClarityStrCmp strCmp;
+	ClarityObject *global;
 };
+
+static ClarityObject *undefined = NULL;
+
+static ClarityObject *clarityUndefinedObjectCreate(ClarityCore *core)
+{
+	if (!undefined) {
+		undefined = clarityObjectCreateType(core, "undefined", NULL);
+		clarityObjectLock(undefined);
+	}
+	return undefined;
+}
+
+static ClarityObject *typeOf(ClarityObject *object)
+{
+	return clarityStringObjectCreate(clarityCore(object),
+		clarityObjectTypeOf(object));
+}
+
+static ClarityObject *clarityGlobalObjectCreate(ClarityCore *core)
+{
+	ClarityObject *global = clarityObjectCreate(core);
+
+	clarityObjectSetMember(global, "typeof",
+		clarityFunctionObjectCreate(core,
+			(ClarityFunctionPointer)typeOf, clarityUndefined()));
+
+	clarityObjectLock(global);
+	return global;
+}
 
 static void *defaultMemCpy(ClarityCore *core, void *dstData,
 	const void *srcData, Uint32 size)
@@ -161,6 +192,16 @@ ClarityCore *clarityCore(void *data)
 	return (ClarityCore *)clarityHeapGetContext(clarityHeapGetHeap(data));
 }
 
+void *clarityUndefined(void)
+{
+	return undefined;
+}
+
+void *clarityGlobal(ClarityCore *core)
+{
+	return core->global;
+}
+
 void clarityCollectGarbage(ClarityCore *core)
 {
 	clarityHeapCollectGarbage(core->heap);
@@ -184,6 +225,7 @@ void clarityPushFile(ClarityCore *core, void *file)
 static void clarityDestroy(ClarityCore *core)
 {
 	clarityRelease(core->eventLoop);
+	clarityRelease(core->global);
 	clarityRelease(core->fileStore);
 	clarityRelease(core->heap);
 }
@@ -201,6 +243,8 @@ ClarityCore *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 	core->strCmp = defaultStrCmp;
 	clarityHeapSetContext(heap, core);
 	core->heap = clarityRetain(heap);
+	undefined = clarityRetain(clarityUndefinedObjectCreate(core));
+	core->global = clarityRetain(clarityGlobalObjectCreate(core));
 	core->eventLoop = clarityRetain(clarityEventLoopCreate(core, entry));
 	core->fileStore = clarityRetain(clarityFileStoreCreate(core));
 	return clarityAutoRelease(core);
@@ -214,5 +258,6 @@ void clarityStart(ClarityCore *core)
 
 void clarityStop(ClarityCore *core)
 {
+	clarityRelease(undefined);
 	clarityRelease(core);
 }
