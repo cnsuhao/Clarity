@@ -16,6 +16,7 @@ TESTERRESULTS := \
 TESTERCOVERAGE := out/int/tester/coverage
 
 .PHONY : test
+.PRECIOUS : $(TESTEROUT)/%.test
 
 test : out/rel/testreport.txt $(TESTERCOVERAGE)
 
