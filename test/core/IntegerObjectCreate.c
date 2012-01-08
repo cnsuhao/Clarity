@@ -1,6 +1,7 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityString.h"
+#include "ClarityIntegerObject.h"
+#include "ClarityInteger.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -15,16 +16,16 @@ static void mainFree(void *data)
 	free(data);
 }
 
+#define TEST_VALUE 23
+
 static void entry(ClarityCore *core)
 {
-	const char *testString = "TestString";
-	const char *cString;
-	ClarityString *string;
+	ClarityObject *object;
+	ClarityInteger *integer;
 
-	string = clarityStringCreate(core, testString);
-	cString = clarityStringGetValue(string);
-
-	assert(strcmp(testString, cString) == 0);
+	object = clarityIntegerObjectCreate(core, TEST_VALUE);
+	integer = clarityObjectGetInnerData(object);
+	assert(clarityIntegerGetValue(integer) == TEST_VALUE);
 }
 
 int main(void)

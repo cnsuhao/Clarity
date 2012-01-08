@@ -23,7 +23,7 @@ static void event1(ClarityString *string)
 {
 	const char *cString;
 
-	cString = clarityStringGetCString(string);
+	cString = clarityStringGetValue(string);
 	assert(strcmp(cString, TEST_STRING) == 0);
 	assert(gotEvent1 == FALSE);
 	assert(gotEvent2 == TRUE);
@@ -34,7 +34,7 @@ static void event2(ClarityString *string)
 {
 	const char *cString;
 
-	cString = clarityStringGetCString(string);
+	cString = clarityStringGetValue(string);
 	assert(strcmp(cString, TEST_STRING) == 0);
 	assert(gotEvent1 == FALSE);
 	assert(gotEvent2 == FALSE);

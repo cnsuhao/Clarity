@@ -1,6 +1,6 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityString.h"
+#include "ClarityArrayObject.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -15,16 +15,19 @@ static void mainFree(void *data)
 	free(data);
 }
 
+static ClarityObject *testFunction(ClarityObject *context)
+{
+	return clarityUndefined();
+}
+
 static void entry(ClarityCore *core)
 {
-	const char *testString = "TestString";
-	const char *cString;
-	ClarityString *string;
+	ClarityObject *object;
+	ClarityObject *context;
 
-	string = clarityStringCreate(core, testString);
-	cString = clarityStringGetValue(string);
-
-	assert(strcmp(testString, cString) == 0);
+	context = clarityObjectCreate(core);
+	object = clarityFunctionObjectCreate(core, testFunction, context);
+	assert(object != NULL);
 }
 
 int main(void)

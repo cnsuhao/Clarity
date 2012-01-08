@@ -34,16 +34,17 @@
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
-static ClarityObject *length(ClarityObject *array, ClarityObject *context)
+static ClarityObject *length(ClarityObject *scope)
 {
 	ClarityObject *retVal = clarityUndefined();
 
-	if (array) {
-		ClarityCore *core = clarityCore(array);
+	if (scope) {
+		ClarityCore *core = clarityCore(scope);
 
-		if (clarityStrCmp(core, clarityObjectTypeOf(array), "array")) {
+		if (clarityStrCmp(core, clarityObjectTypeOf(
+		clarityObjectGetMember(scope, "$0")), "array")) {
 			Uint32 length = clarityArrayLength(
-				clarityObjectGetInnerData(array));
+				clarityObjectGetInnerData(clarityObjectGetMember(scope, "$0")));
 
 			retVal = clarityIntegerObjectCreate(core, length);
 		}
@@ -139,53 +140,53 @@ static void testCallback(Bool test,
 		clarityObjectGetMember(upperContext, "$2"), upperContext);
 }
 
-static ClarityObject *forEach(ClarityObject *array,
-	ClarityObject *context)
+static ClarityObject *forEach(ClarityObject *scope)
 {
-	clarityArrayForEach(clarityObjectGetInnerData(array),
+	clarityArrayForEach(clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "$0")),
 		(ClarityArrayForEachFunction)forEachFunction,
 		(ClarityArrayForEachCallback)forEachCallback,
-		context);
+		scope);
 	return clarityUndefined();
 }
 
-static ClarityObject *map(ClarityObject *array,
-	ClarityObject *context)
+static ClarityObject *map(ClarityObject *scope)
 {
-	clarityArrayMap(clarityObjectGetInnerData(array),
+	clarityArrayMap(clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "$0")),
 		(ClarityArrayMapFunction)mapFunction,
 		(ClarityArrayMapCallback)mapCallback,
-		context);
+		scope);
 	return clarityUndefined();
 }
 
-static  ClarityObject *every(ClarityObject *array,
-	ClarityObject *context)
+static  ClarityObject *every(ClarityObject *scope)
 {
-	clarityArrayEvery(clarityObjectGetInnerData(array),
+	clarityArrayEvery(clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "$0")),
 		(ClarityArrayTestFunction)testFunction,
 		(ClarityArrayTestCallback)testCallback,
-		context);
+		scope);
 	return clarityUndefined();
 }
 
-static ClarityObject *some(ClarityObject *array,
-	ClarityObject *context)
+static ClarityObject *some(ClarityObject *scope)
 {
-	clarityArraySome(clarityObjectGetInnerData(array),
+	clarityArraySome(clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "$0")),
 		(ClarityArrayTestFunction)testFunction,
 		(ClarityArrayTestCallback)testCallback,
-		context);
+		scope);
 	return clarityUndefined();
 }
 
-static  ClarityObject *filter(ClarityObject *array,
-	ClarityObject *context)
+static  ClarityObject *filter(ClarityObject *scope)
 {
-	clarityArrayFilter(clarityObjectGetInnerData(array),
+	clarityArrayFilter(clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "$0")),
 		(ClarityArrayTestFunction)testFunction,
 		(ClarityArrayMapCallback)mapCallback,
-		context);
+		scope);
 	return clarityUndefined();
 }
 
@@ -194,31 +195,29 @@ ClarityObject *clarityArrayObjectCreate(ClarityCore *core,
 {
 	ClarityObject *array = clarityObjectCreateType(core, "array", innerArray);
 
-	array = clarityObjectCreate(core);
-
 	clarityObjectSetMember(array, "length",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)length, clarityUndefined()));
+			length, clarityUndefined()));
 
 	clarityObjectSetMember(array, "forEach",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)forEach, clarityUndefined()));
+			forEach, clarityUndefined()));
 
 	clarityObjectSetMember(array, "map",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)map, clarityUndefined()));
+			map, clarityUndefined()));
 
 	clarityObjectSetMember(array, "every",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)every, clarityUndefined()));
+			every, clarityUndefined()));
 
 	clarityObjectSetMember(array, "some",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)some, clarityUndefined()));
+			some, clarityUndefined()));
 
 	clarityObjectSetMember(array, "filter",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)filter, clarityUndefined()));
+			filter, clarityUndefined()));
 
 	clarityObjectLock(array);
 	return array;

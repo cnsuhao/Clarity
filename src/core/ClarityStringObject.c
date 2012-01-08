@@ -29,37 +29,41 @@
 #include "ClarityString.h"
 #include "ClarityObject.h"
 #include "ClarityIntegerObject.h"
+#include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
-static ClarityObject *clarityStringObjectCompare(ClarityObject *string,
-	 ClarityObject *string2)
+static ClarityObject *equals(ClarityObject *scope)
 {
 	ClarityObject *retVal = clarityUndefined();
 
-	if (string) {
-		ClarityCore *core = clarityCore(string);
+	if (scope) {
+		ClarityCore *core = clarityCore(scope);
 
-		if (clarityStrCmp(core, clarityObjectTypeOf(string), "string")) {
-			Sint8 compare = clarityStringCompare(
-				clarityObjectGetInnerData(string),
-				clarityObjectGetInnerData(string2));
+		if (clarityStrCmp(core, clarityObjectTypeOf(
+			clarityObjectGetMember(scope, "$0")), "string") == 0 &&
+			clarityStrCmp(core, clarityObjectTypeOf(
+			clarityObjectGetMember(scope, "$1")), "string") == 0) {
+			Uint32 compare = clarityStringCompare(
+				clarityObjectGetInnerData(clarityObjectGetMember(scope, "$0")),
+				clarityObjectGetInnerData(clarityObjectGetMember(scope, "$1")));
 
-			retVal = clarityIntegerObjectCreate(core, compare);
+			retVal = clarityBooleanObjectCreate(core, compare == 0);
 		}
 	}
 	return retVal;
 }
 
-static ClarityObject *clarityStringObjectLength(ClarityObject *string)
+static ClarityObject *length(ClarityObject *scope)
 {
 	ClarityObject *retVal = clarityUndefined();
 
-	if (string) {
-		ClarityCore *core = clarityCore(string);
+	if (scope) {
+		ClarityCore *core = clarityCore(scope);
 
-		if (clarityStrCmp(core, clarityObjectTypeOf(string), "string")) {
+		if (clarityStrCmp(core, clarityObjectTypeOf(
+		clarityObjectGetMember(scope, "$0")), "string") == 0) {
 			Uint32 length = clarityStringLength(
-				clarityObjectGetInnerData(string));
+				clarityObjectGetInnerData(clarityObjectGetMember(scope, "$0")));
 
 			retVal = clarityIntegerObjectCreate(core, length);
 		}
@@ -75,14 +79,14 @@ ClarityObject *clarityStringObjectCreate(ClarityCore *core,
 	string = clarityObjectCreateType(core, "string",
 		clarityStringCreate(core, cString));
 
-	clarityObjectSetMember(string, "compare",
+	clarityObjectSetMember(string, "equals",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)clarityStringObjectCompare,
+			equals,
 			clarityUndefined()));
 
 	clarityObjectSetMember(string, "length",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)clarityStringObjectLength,
+			length,
 			clarityUndefined()));
 
 	clarityObjectLock(string);

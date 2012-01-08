@@ -35,6 +35,6 @@ typedef struct __ClarityString ClarityString;
 ClarityString *clarityStringCreate(ClarityCore *, const char*);
 Uint32 clarityStringLength(ClarityString *);
 Sint8 clarityStringCompare(ClarityString *, ClarityString *);
-const char *clarityStringGetCString(ClarityString *);
+const char *clarityStringGetValue(ClarityString *);
 
 #endif

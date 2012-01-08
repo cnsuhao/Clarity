@@ -70,7 +70,8 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 	if (function && parameters) {
 		ClarityCore *core = clarityCore(function);
 
-		if (clarityStrCmp(core, clarityObjectTypeOf(function), "function")) {
+		if (clarityStrCmp(core, clarityObjectTypeOf(function),
+			"function") == 0) {
 			ClarityFunction *inner;
 
 			inner = (ClarityFunction *)clarityObjectGetInnerData(function);

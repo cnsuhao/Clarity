@@ -62,7 +62,7 @@ Uint32 clarityStringLength(ClarityString *string)
 	return string->length;
 }
 
-const char *clarityStringGetCString(ClarityString *string)
+const char *clarityStringGetValue(ClarityString *string)
 {
 	return (const char *)&string->cString;
 }

@@ -56,16 +56,16 @@ static ClarityObject *clarityUndefinedObjectCreate(ClarityCore *core)
 static ClarityObject *typeOf(ClarityObject *object)
 {
 	return clarityStringObjectCreate(clarityCore(object),
-		clarityObjectTypeOf(object));
+		clarityObjectTypeOf(clarityObjectGetMember(object, "$1")));
 }
 
 static ClarityObject *clarityGlobalObjectCreate(ClarityCore *core)
 {
 	ClarityObject *global = clarityObjectCreate(core);
 
-	clarityObjectSetMember(global, "typeof",
+	clarityObjectSetMember(global, "typeOf",
 		clarityFunctionObjectCreate(core,
-			(ClarityFunctionPointer)typeOf, clarityUndefined()));
+			typeOf, clarityUndefined()));
 
 	clarityObjectLock(global);
 	return global;

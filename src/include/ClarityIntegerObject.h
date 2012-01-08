@@ -27,8 +27,8 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 
-#ifndef __CLARITYSTRINGOBJECT_H__
-#define __CLARITYSTRINGOBJECT_H__
+#ifndef __CLARITYINTEGEROBJECT_H__
+#define __CLARITYINTEGEROBJECT_H__
 #include "ClarityCore.h"
 #include "ClarityObject.h"
 
