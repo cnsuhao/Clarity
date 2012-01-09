@@ -272,7 +272,7 @@ static ClarityObject *testEntry(ClarityObject *parameters)
 ClarityObject *testImplementationCreate(ClarityCore *core)
 {
 	ClarityObject *exports = NULL;
-	if (file != NULL) {
+	if (!file) {
 		file = clarityObjectCreate(core);
 
 		clarityObjectSetMember(file, "prototype", clarityGlobal(core));
