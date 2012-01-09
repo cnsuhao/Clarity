@@ -34,7 +34,7 @@
 #include <string.h>
 #include <assert.h>
 
-static ClarityObject *file = NULL;
+static ClarityObject *scope = NULL;
 
 static ClarityObject *mainFunction(ClarityObject *parameters)
 {
@@ -273,30 +273,28 @@ static ClarityObject *testEntry(ClarityObject *parameters)
 
 ClarityObject *testImplementationCreate(ClarityCore *core)
 {
-	ClarityObject *exports = NULL;
-	if (!file) {
-		file = clarityObjectCreate(core);
+	if (!scope) {
+		scope = clarityObjectCreate(core);
 
-		clarityObjectSetMember(file, "prototype", clarityGlobal(core));
-		clarityObjectSetMember(file, "$0", file);
-		exports = clarityObjectCreate(core);
-		clarityObjectSetMember(file, "exports", exports);
-		clarityObjectSetMember(clarityObjectGetMember(file, "exports"),
+		clarityObjectSetMember(scope, "prototype", clarityGlobal(core));
+		clarityObjectSetMember(scope, "$0", scope);
+		clarityObjectSetMember(scope, "exports", clarityObjectCreate(core));
+		clarityObjectSetMember(clarityObjectGetMember(scope, "exports"),
 			"mainFunction", clarityFunctionObjectCreate(core,
-			mainFunction, file));
-		clarityObjectSetMember(file, "myInternalFunction",
-			clarityFunctionObjectCreate(core, myInternalFunction, file));
-		clarityObjectSetMember(file, "myOtherInternalFunction",
-			clarityFunctionObjectCreate(core, myOtherInternalFunction, file));
-		clarityObjectSetMember(file, "myThirdInternalFunction",
-			clarityFunctionObjectCreate(core, myThirdInternalFunction, file));
-		clarityObjectSetMember(clarityObjectGetMember(file, "exports"),
+			mainFunction, scope));
+		clarityObjectSetMember(scope, "myInternalFunction",
+			clarityFunctionObjectCreate(core, myInternalFunction, scope));
+		clarityObjectSetMember(scope, "myOtherInternalFunction",
+			clarityFunctionObjectCreate(core, myOtherInternalFunction, scope));
+		clarityObjectSetMember(scope, "myThirdInternalFunction",
+			clarityFunctionObjectCreate(core, myThirdInternalFunction, scope));
+		clarityObjectSetMember(clarityObjectGetMember(scope, "exports"),
 			"testEntry", clarityFunctionObjectCreate(core,
-			testEntry, file));
-		clarityPushFile(core, file);
-		clarityObjectLock(file);
+			testEntry, scope));
+		clarityPushFile(core, scope);
+		clarityObjectLock(scope);
 	}
-	return clarityObjectGetMember(file, "exports");
+	return clarityObjectGetMember(scope, "exports");
 }
 
 static void *mainAlloc(Uint32 size)
