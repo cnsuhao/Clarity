@@ -26,15 +26,44 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityIntegerObject.h"
+#include "ClarityBooleanObject.h"
+#include "ClarityFunctionObject.h"
 #include "ClarityBoolean.h"
 
 static ClarityObject *prototype = NULL;
+
+static ClarityObject *equals(ClarityObject *scope)
+{
+	ClarityObject *retVal = clarityUndefined();
+
+	if (scope) {
+		ClarityCore *core = clarityCore(scope);
+
+		if (clarityStrCmp(core, clarityObjectTypeOf(
+			clarityObjectGetMember(scope, "$0")), "boolean") == 0 &&
+			clarityStrCmp(core, clarityObjectTypeOf(
+			clarityObjectGetMember(scope, "$1")), "boolean") == 0) {
+			Bool equal = (clarityBooleanGetValue(clarityObjectGetInnerData(
+				clarityObjectGetMember(scope, "$0"))) ==
+				clarityBooleanGetValue(clarityObjectGetInnerData(
+				clarityObjectGetMember(scope, "$1"))));
+
+			retVal = clarityBooleanObjectCreate(core, equal);
+		}
+	}
+	return retVal;
+}
 
 ClarityObject *clarityBooleanPrototypeCreate(ClarityCore *core)
 {
 	if (!prototype) {
 		prototype = clarityObjectCreate(core);
+
+		clarityObjectSetMember(prototype, "equals",
+			clarityFunctionObjectCreate(core,
+				equals,
+				clarityUndefined()));
+
 		clarityObjectLock(prototype);
 	}
 	return prototype;
