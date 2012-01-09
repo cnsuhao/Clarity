@@ -39,6 +39,7 @@ struct __ClarityArray {
 	Element *last;
 	Element *first;
 	Uint32 length;
+	Bool locked;
 };
 
 typedef struct {
@@ -417,15 +418,17 @@ static void arrayDestroy(ClarityArray *array)
 
 void clarityArrayUnshift(ClarityArray *array, void *data)
 {
-	Element *newElement;
+	if (array && !array->locked) {
+		Element *newElement;
 
-	newElement = elementCreate(clarityCore(array), data);
-	newElement = clarityRetain(newElement);
-	newElement->next = array->first->next;
-	newElement->prev = array->first;
-	newElement->next->prev = newElement;
-	array->first->next = newElement;
-	array->length++;
+		newElement = elementCreate(clarityCore(array), data);
+		newElement = clarityRetain(newElement);
+		newElement->next = array->first->next;
+		newElement->prev = array->first;
+		newElement->next->prev = newElement;
+		array->first->next = newElement;
+		array->length++;
+	}
 }
 
 void *clarityArrayShift(ClarityArray *array)
@@ -434,7 +437,7 @@ void *clarityArrayShift(ClarityArray *array)
 
 	retVal = NULL;
 
-	if (clarityArrayLength(array)) {
+	if (clarityArrayLength(array) && !array->locked) {
 		Element *element;
 
 		element = array->first->next;
@@ -451,15 +454,17 @@ void *clarityArrayShift(ClarityArray *array)
 
 void clarityArrayPush(ClarityArray *array, void *data)
 {
-	Element *newElement;
+	if (array && !array->locked) {
+		Element *newElement;
 
-	newElement = elementCreate(clarityCore(array), data);
-	newElement = clarityRetain(newElement);
-	newElement->prev = array->last->prev;
-	newElement->next = array->last;
-	array->last->prev->next = newElement;
-	array->last->prev = newElement;
-	array->length++;
+		newElement = elementCreate(clarityCore(array), data);
+		newElement = clarityRetain(newElement);
+		newElement->prev = array->last->prev;
+		newElement->next = array->last;
+		array->last->prev->next = newElement;
+		array->last->prev = newElement;
+		array->length++;
+	}
 }
 
 void *clarityArrayPop(ClarityArray *array)
@@ -468,7 +473,7 @@ void *clarityArrayPop(ClarityArray *array)
 
 	retVal = NULL;
 
-	if (clarityArrayLength(array)) {
+	if (clarityArrayLength(array) && !array->locked) {
 		Element *element;
 
 		element = array->last->prev;
@@ -480,6 +485,11 @@ void *clarityArrayPop(ClarityArray *array)
 		clarityAutoRelease(retVal);
 	}
 	return retVal;
+}
+
+void clarityArrayLock(ClarityArray *array)
+{
+	array->locked = TRUE;
 }
 
 Uint32 clarityArrayLength(ClarityArray *array)
@@ -495,6 +505,7 @@ ClarityArray *clarityArrayCreate(ClarityCore *core)
 		sizeof(ClarityArray), (ClarityDestructor)arrayDestroy);
 
 	array->length = 0;
+	array->locked = FALSE;
 	array->first = clarityRetain(elementCreate(core, NULL));
 	array->last = clarityRetain(elementCreate(core, NULL));
 	array->first->next = array->last;

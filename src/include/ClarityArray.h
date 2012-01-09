@@ -51,6 +51,7 @@ void *clarityArrayPop(ClarityArray *);
 void clarityArrayUnshift(ClarityArray *, void *);
 void *clarityArrayShift(ClarityArray *);
 Uint32 clarityArrayLength(ClarityArray *);
+void clarityArrayLock(ClarityArray *);
 
 void clarityArrayForEachWithoutCallback(ClarityArray *,
 	ClarityArrayForEachFunction);

@@ -233,6 +233,8 @@ static ClarityObject *testEntry(ClarityObject *parameters)
 		clarityObjectGetInnerData(clarityObjectGetMember(scope, "anArray")),
 		clarityObjectGetMember(
 		clarityObjectGetMember(scope, "data1"), "aNumber"));
+	clarityArrayLock((ClarityArray *)
+		clarityObjectGetInnerData(clarityObjectGetMember(scope, "anArray")));
 	functionCall = clarityObjectCreate(core);
 	clarityObjectSetMember(functionCall, "$0",
 		clarityObjectGetMember(
