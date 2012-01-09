@@ -53,7 +53,7 @@ $(TESTEROUT)/%.info : $(TESTEROUT)/%.test
 $(TESTEROUT)/%.test : %.c $(TESTEROUT)/%.c.cp $(TESTEROUT)/init.info $(TESTERLIB)
 	@ mkdir -p $(dir $@)
 	$(info Building $(notdir $(basename $@)))
-	@ gcc -Wall -Werror -pedantic -std=c99 $< $(TESTERLIB) -I$(TESTERINCLUDE) -lgcov -o $@
+	@ gcc -Wall -Werror -pedantic -g -std=c99 $< $(TESTERLIB) -I$(TESTERINCLUDE) -lgcov -o $@
 
 $(TESTEROUT)/init.info : $(TESTERLIB)
 	@ mkdir -p $(dir $@)
