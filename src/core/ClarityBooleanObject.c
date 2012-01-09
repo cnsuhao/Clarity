@@ -29,12 +29,26 @@
 #include "ClarityIntegerObject.h"
 #include "ClarityBoolean.h"
 
+static ClarityObject *prototype = NULL;
+
+ClarityObject *clarityBooleanPrototypeCreate(ClarityCore *core)
+{
+	if (!prototype) {
+		prototype = clarityObjectCreate(core);
+		clarityObjectLock(prototype);
+	}
+	return prototype;
+}
+
 ClarityObject *clarityBooleanObjectCreate(ClarityCore *core, Bool value)
 {
 	ClarityObject *boolean;
 
 	boolean = clarityObjectCreateType(core, "boolean",
 		clarityBooleanCreate(core, value));
+
+	clarityObjectSetMember(boolean, "prototype",
+		clarityBooleanPrototypeCreate(core));
 
 	clarityObjectLock(boolean);
 	return boolean;

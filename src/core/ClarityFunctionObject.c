@@ -33,6 +33,17 @@ typedef struct {
 	ClarityObject *scope;
 } ClarityFunction;
 
+static ClarityObject *prototype = NULL;
+
+ClarityObject *clarityFunctionPrototypeCreate(ClarityCore *core)
+{
+	if (!prototype) {
+		prototype = clarityObjectCreate(core);
+		clarityObjectLock(prototype);
+	}
+	return prototype;
+}
+
 static void destroyClarityFunction(ClarityFunction *clarityFunction)
 {
 	clarityRelease(clarityFunction->scope);
@@ -58,6 +69,9 @@ ClarityObject *clarityFunctionObjectCreate(ClarityCore *core,
 
 	function = clarityObjectCreateType(core, "function",
 		clarityFunctionCreate(core, functionPointer, scope));
+
+	clarityObjectSetMember(function, "prototype",
+		clarityFunctionPrototypeCreate(core));
 
 	return function;
 }

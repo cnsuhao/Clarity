@@ -32,6 +32,7 @@
 #include "ClarityCore.h"
 #include "ClarityObject.h"
 
+ClarityObject *clarityIntegerPrototypeCreate(ClarityCore *);
 ClarityObject *clarityIntegerObjectCreate(ClarityCore *, Uint32);
 
 #endif

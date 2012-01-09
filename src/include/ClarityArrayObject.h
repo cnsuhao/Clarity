@@ -32,6 +32,7 @@
 #include "ClarityCore.h"
 #include "ClarityObject.h"
 
+ClarityObject *clarityArrayPrototypeCreate(ClarityCore *);
 ClarityObject *clarityArrayObjectCreate(ClarityCore *core,
 	 ClarityArray *array);
 

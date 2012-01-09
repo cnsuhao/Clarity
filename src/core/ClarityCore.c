@@ -28,6 +28,11 @@
  */
 #include "Clarity.h"
 #include "ClarityObject.h"
+#include "ClarityArrayObject.h"
+#include "ClarityBooleanObject.h"
+#include "ClarityIntegerObject.h"
+#include "ClarityStringObject.h"
+#include "ClarityFunctionObject.h"
 #include "ClarityEventLoop.h"
 #include "ClarityFileStore.h"
 
@@ -40,6 +45,12 @@ struct __ClarityCore {
 	ClarityStrLen strLen;
 	ClarityStrCmp strCmp;
 	ClarityObject *global;
+	ClarityObject *arrayPrototype;
+	ClarityObject *booleanPrototype;
+	ClarityObject *integerPrototype;
+	ClarityObject *stringPrototype;
+	ClarityObject *functionPrototype;
+	ClarityObject *objectPrototype;
 };
 
 static ClarityObject *undefined = NULL;
@@ -227,6 +238,18 @@ static void clarityDestroy(ClarityCore *core)
 	clarityRelease(core->eventLoop);
 	clarityRelease(core->global);
 	clarityRelease(core->fileStore);
+	clarityRelease(core->arrayPrototype);
+	clarityRelease(core->booleanPrototype);
+	clarityRelease(core->integerPrototype);
+	clarityRelease(core->stringPrototype);
+	clarityRelease(core->functionPrototype);
+	clarityRelease(core->objectPrototype);
+	/*
+	 * NOTE: this extra release of objectPrototype is needed to break
+	 * the circular dependency between the prototype and it's function
+	 * objects, function objects that in turn retains the prototype.
+	 */
+	clarityRelease(core->objectPrototype);
 	clarityRelease(core->heap);
 }
 
@@ -243,10 +266,22 @@ ClarityCore *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 	core->strCmp = defaultStrCmp;
 	clarityHeapSetContext(heap, core);
 	core->heap = clarityRetain(heap);
+	core->objectPrototype = clarityRetain(
+		clarityObjectPrototypeCreate(core));
 	undefined = clarityRetain(clarityUndefinedObjectCreate(core));
 	core->global = clarityRetain(clarityGlobalObjectCreate(core));
 	core->eventLoop = clarityRetain(clarityEventLoopCreate(core, entry));
 	core->fileStore = clarityRetain(clarityFileStoreCreate(core));
+	core->arrayPrototype = clarityRetain(
+		clarityArrayPrototypeCreate(core));
+	core->booleanPrototype = clarityRetain(
+		clarityBooleanPrototypeCreate(core));
+	core->integerPrototype = clarityRetain(
+		clarityIntegerPrototypeCreate(core));
+	core->stringPrototype = clarityRetain(
+		clarityStringPrototypeCreate(core));
+	core->functionPrototype = clarityRetain(
+		clarityFunctionPrototypeCreate(core));
 	return clarityAutoRelease(core);
 }
 

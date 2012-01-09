@@ -32,6 +32,7 @@
 #include "ClarityCore.h"
 #include "ClarityObject.h"
 
+ClarityObject *clarityStringPrototypeCreate(ClarityCore *);
 ClarityObject *clarityStringObjectCreate(ClarityCore *, const char *);
 
 #endif

@@ -33,6 +33,8 @@
 
 typedef ClarityObject * (*ClarityFunctionPointer)(ClarityObject *);
 
+ClarityObject *clarityFunctionPrototypeCreate(ClarityCore *);
+
 ClarityObject *clarityFunctionObjectCreate(ClarityCore *,
 	ClarityFunctionPointer, ClarityObject *);
 

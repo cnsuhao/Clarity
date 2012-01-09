@@ -32,6 +32,8 @@
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
+static ClarityObject *prototype = NULL;
+
 static ClarityObject *equals(ClarityObject *scope)
 {
 	ClarityObject *retVal = clarityUndefined();
@@ -71,6 +73,26 @@ static ClarityObject *length(ClarityObject *scope)
 	return retVal;
 }
 
+ClarityObject *clarityStringPrototypeCreate(ClarityCore *core)
+{
+	if (!prototype) {
+		prototype = clarityObjectCreate(core);
+
+		clarityObjectSetMember(prototype, "equals",
+			clarityFunctionObjectCreate(core,
+				equals,
+				clarityUndefined()));
+
+		clarityObjectSetMember(prototype, "length",
+			clarityFunctionObjectCreate(core,
+				length,
+				clarityUndefined()));
+
+		clarityObjectLock(prototype);
+	}
+	return prototype;
+}
+
 ClarityObject *clarityStringObjectCreate(ClarityCore *core,
 	const char *cString)
 {
@@ -79,15 +101,8 @@ ClarityObject *clarityStringObjectCreate(ClarityCore *core,
 	string = clarityObjectCreateType(core, "string",
 		clarityStringCreate(core, cString));
 
-	clarityObjectSetMember(string, "equals",
-		clarityFunctionObjectCreate(core,
-			equals,
-			clarityUndefined()));
-
-	clarityObjectSetMember(string, "length",
-		clarityFunctionObjectCreate(core,
-			length,
-			clarityUndefined()));
+	clarityObjectSetMember(string, "prototype",
+		clarityStringPrototypeCreate(core));
 
 	clarityObjectLock(string);
 	return string;

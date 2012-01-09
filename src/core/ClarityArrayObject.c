@@ -34,6 +34,8 @@
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
+static ClarityObject *prototype = NULL;
+
 static ClarityObject *length(ClarityObject *scope)
 {
 	ClarityObject *retVal = clarityUndefined();
@@ -185,34 +187,47 @@ static  ClarityObject *filter(ClarityObject *scope)
 	return clarityUndefined();
 }
 
+ClarityObject *clarityArrayPrototypeCreate(ClarityCore *core)
+{
+	if (!prototype) {
+		prototype = clarityObjectCreate(core);
+
+		clarityObjectSetMember(prototype, "length",
+			clarityFunctionObjectCreate(core,
+				length, clarityUndefined()));
+
+		clarityObjectSetMember(prototype, "forEach",
+			clarityFunctionObjectCreate(core,
+				forEach, clarityUndefined()));
+
+		clarityObjectSetMember(prototype, "map",
+			clarityFunctionObjectCreate(core,
+				map, clarityUndefined()));
+
+		clarityObjectSetMember(prototype, "every",
+			clarityFunctionObjectCreate(core,
+				every, clarityUndefined()));
+
+		clarityObjectSetMember(prototype, "some",
+			clarityFunctionObjectCreate(core,
+				some, clarityUndefined()));
+
+		clarityObjectSetMember(prototype, "filter",
+			clarityFunctionObjectCreate(core,
+				filter, clarityUndefined()));
+
+		clarityObjectLock(prototype);
+	}
+	return prototype;
+}
+
 ClarityObject *clarityArrayObjectCreate(ClarityCore *core,
 	ClarityArray *innerArray)
 {
 	ClarityObject *array = clarityObjectCreateType(core, "array", innerArray);
 
-	clarityObjectSetMember(array, "length",
-		clarityFunctionObjectCreate(core,
-			length, clarityUndefined()));
-
-	clarityObjectSetMember(array, "forEach",
-		clarityFunctionObjectCreate(core,
-			forEach, clarityUndefined()));
-
-	clarityObjectSetMember(array, "map",
-		clarityFunctionObjectCreate(core,
-			map, clarityUndefined()));
-
-	clarityObjectSetMember(array, "every",
-		clarityFunctionObjectCreate(core,
-			every, clarityUndefined()));
-
-	clarityObjectSetMember(array, "some",
-		clarityFunctionObjectCreate(core,
-			some, clarityUndefined()));
-
-	clarityObjectSetMember(array, "filter",
-		clarityFunctionObjectCreate(core,
-			filter, clarityUndefined()));
+	clarityObjectSetMember(array, "prototype",
+		clarityArrayPrototypeCreate(core));
 
 	clarityObjectLock(array);
 	return array;

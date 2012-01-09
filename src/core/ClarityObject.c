@@ -27,6 +27,8 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityObject.h"
+#include "ClarityBooleanObject.h"
+#include "ClarityFunctionObject.h"
 #include "ClarityString.h"
 
 typedef struct __Node Node;
@@ -43,6 +45,8 @@ struct __ClarityObject {
 	Bool locked;
 	void *innerData;
 };
+
+static ClarityObject *prototype = NULL;
 
 static void nodeDestroy(Node *node)
 {
@@ -184,6 +188,34 @@ const char *clarityObjectTypeOf(ClarityObject *object)
 	return retVal;
 }
 
+static ClarityObject *equals(ClarityObject *scope)
+{
+	ClarityObject *retVal = clarityUndefined();
+
+	if (scope) {
+		ClarityCore *core = clarityCore(scope);
+		Bool equals = (clarityObjectGetMember(scope, "$0") ==
+			clarityObjectGetMember(scope, "$1"));
+		retVal = clarityBooleanObjectCreate(core, equals);
+	}
+	return retVal;
+}
+
+ClarityObject *clarityObjectPrototypeCreate(ClarityCore *core)
+{
+	if (!prototype) {
+		prototype = clarityObjectCreateType(core, "object", NULL);
+
+		clarityObjectSetMember(prototype, "equals",
+			clarityFunctionObjectCreate(core,
+				equals,
+				clarityUndefined()));
+
+		clarityObjectLock(prototype);
+	}
+	return prototype;
+}
+
 ClarityObject *clarityObjectCreateType(ClarityCore *core,
 	const char *type, void *innerData)
 {
@@ -202,5 +234,10 @@ ClarityObject *clarityObjectCreateType(ClarityCore *core,
 
 ClarityObject *clarityObjectCreate(ClarityCore *core)
 {
-	return clarityObjectCreateType(core, "object", NULL);
+	ClarityObject *object = clarityObjectCreateType(core, "object", NULL);
+
+	clarityObjectSetMember(object, "prototype",
+		clarityObjectPrototypeCreate(core));
+
+	return object;
 }

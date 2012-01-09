@@ -29,12 +29,26 @@
 #include "ClarityIntegerObject.h"
 #include "ClarityInteger.h"
 
+static ClarityObject *prototype = NULL;
+
+ClarityObject *clarityIntegerPrototypeCreate(ClarityCore *core)
+{
+	if (!prototype) {
+		prototype = clarityObjectCreate(core);
+		clarityObjectLock(prototype);
+	}
+	return prototype;
+}
+
 ClarityObject *clarityIntegerObjectCreate(ClarityCore *core, Uint32 uint32)
 {
 	ClarityObject *integer;
 
 	integer = clarityObjectCreateType(core, "number",
 		clarityIntegerCreate(core, uint32));
+
+	clarityObjectSetMember(integer, "prototype",
+		clarityIntegerPrototypeCreate(core));
 
 	clarityObjectLock(integer);
 	return integer;
