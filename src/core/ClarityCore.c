@@ -193,6 +193,11 @@ void clarityRelease(void *data)
 	clarityHeapRelease(data);
 }
 
+void clarityForceRelease(void *data)
+{
+	clarityHeapForceRelease(data);
+}
+
 void *clarityRetain(void *data)
 {
 	return clarityHeapRetain(data);
@@ -243,13 +248,7 @@ static void clarityDestroy(ClarityCore *core)
 	clarityRelease(core->integerPrototype);
 	clarityRelease(core->stringPrototype);
 	clarityRelease(core->functionPrototype);
-	clarityRelease(core->objectPrototype);
-	/*
-	 * NOTE: this extra release of objectPrototype is needed to break
-	 * the circular dependency between the prototype and it's function
-	 * objects, function objects that in turn retains the prototype.
-	 */
-	clarityRelease(core->objectPrototype);
+	clarityForceRelease(core->objectPrototype);
 	clarityRelease(core->heap);
 }
 

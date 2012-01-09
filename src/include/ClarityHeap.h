@@ -41,6 +41,7 @@ void *clarityHeapAllocateWithDestructor(ClarityHeap *, Uint32,
 void *clarityHeapAllocate(ClarityHeap *, Uint32);
 void *clarityHeapAutoRelease(void *);
 void clarityHeapRelease(void *);
+void clarityHeapForceRelease(void *);
 void *clarityHeapRetain(void *);
 ClarityHeap *clarityHeapGetHeap(void *);
 void clarityHeapCollectGarbage(ClarityHeap *);

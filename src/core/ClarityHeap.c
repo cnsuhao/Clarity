@@ -204,6 +204,18 @@ void clarityHeapRelease(void *data)
 	innerRelease(data, clarityHeapFree);
 }
 
+void clarityHeapForceRelease(void *data)
+{
+	Header *header;
+
+	header = heapItemHeader(data);
+
+	if (header) {
+		header->refCount = 0;
+		clarityHeapFree(header->heap, header);
+	}
+}
+
 void *clarityHeapRetain(void *data)
 {
 	Header *header;

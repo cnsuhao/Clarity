@@ -53,6 +53,7 @@ void *clarityAllocateWithDestructor(ClarityCore *core, Uint32 size,
 
 void *clarityAutoRelease(void *);
 void clarityRelease(void *);
+void clarityForceRelease(void *);
 void *clarityRetain(void *);
 void clarityCollectGarbage(ClarityCore *);
 

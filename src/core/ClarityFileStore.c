@@ -35,6 +35,9 @@ struct __ClarityFileStore {
 
 static void fileStoreDestroy(ClarityFileStore *fileStore)
 {
+	void *item;
+	while ((item = clarityArrayPop(fileStore->files)))
+		clarityForceRelease(item);
 	clarityRelease(fileStore->files);
 }
 
