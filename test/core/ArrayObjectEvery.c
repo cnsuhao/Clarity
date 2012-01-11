@@ -91,7 +91,7 @@ static void entry(ClarityCore *core)
 	clarityArrayPush(array, clarityIntegerObjectCreate(core, 16));
 	arrayObject = clarityArrayObjectCreate(core, array);
 	parameters = clarityObjectCreate(core);
-	clarityObjectSetMember(parameters, "$0", arrayObject);
+	clarityObjectSetMember(parameters, "this", arrayObject);
 	clarityObjectSetMember(parameters, "$1",
 		clarityFunctionObjectCreate(core, everyFunction1,
 		clarityUndefined()));
@@ -104,7 +104,7 @@ static void entry(ClarityCore *core)
 		clarityObjectGetMember(arrayObject, "every"), parameters);
 
 	parameters = clarityObjectCreate(core);
-	clarityObjectSetMember(parameters, "$0", arrayObject);
+	clarityObjectSetMember(parameters, "this", arrayObject);
 	clarityObjectSetMember(parameters, "$1",
 		clarityFunctionObjectCreate(core, everyFunction2,
 		clarityUndefined()));

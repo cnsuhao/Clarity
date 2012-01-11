@@ -116,10 +116,18 @@ static ClarityObject *myInternalFunction(ClarityObject *parameters)
 		functionCall);
 }
 
-static ClarityObject *myOtherInternalFunction$Event(ClarityObject *scope)
+static ClarityObject *myOtherInternalFunction(ClarityObject *parameters)
 {
-	ClarityCore *core = clarityCore(scope);
+	ClarityCore *core = clarityCore(parameters);
+	ClarityObject *scope = clarityObjectCreate(core);
 	ClarityObject *functionCall;
+
+	clarityObjectSetMember(scope, "prototype", parameters);
+	clarityObjectSetMember(scope, "data",
+		clarityObjectGetMember(parameters, "$1"));
+	clarityObjectSetMember(scope, "callback",
+		clarityObjectGetMember(parameters, "$2"));
+
 	/*
 	 *		myThirdInternalFunction data, 3
 	 */
@@ -141,24 +149,6 @@ static ClarityObject *myOtherInternalFunction$Event(ClarityObject *scope)
 	return clarityFunctionObjectCall(
 		clarityObjectGetMember(scope, "callback"),
 		functionCall);
-}
-
-static ClarityObject *myOtherInternalFunction(ClarityObject *parameters)
-{
-	/*
-	 *	myOtherInternalFunction = (data, callback) =>
-	 */
-	ClarityCore *core = clarityCore(parameters);
-	ClarityObject *scope = clarityObjectCreate(core);
-
-	clarityObjectSetMember(scope, "prototype", parameters);
-	clarityObjectSetMember(scope, "data",
-		clarityObjectGetMember(parameters, "$1"));
-	clarityObjectSetMember(scope, "callback",
-		clarityObjectGetMember(parameters, "$2"));
-	clarityEnqueueEvent(core,
-		(ClarityEvent)myOtherInternalFunction$Event, scope);
-	return 0;
 }
 
 static ClarityObject *myThirdInternalFunction(ClarityObject *parameters)
@@ -236,7 +226,7 @@ static ClarityObject *testEntry(ClarityObject *parameters)
 	clarityArrayLock((ClarityArray *)
 		clarityObjectGetInnerData(clarityObjectGetMember(scope, "anArray")));
 	functionCall = clarityObjectCreate(core);
-	clarityObjectSetMember(functionCall, "$0",
+	clarityObjectSetMember(functionCall, "this",
 		clarityObjectGetMember(
 		clarityObjectGetMember(scope, "data1"), "aString"));
 	clarityArrayUnshift(clarityObjectGetInnerData(
@@ -277,7 +267,7 @@ ClarityObject *testImplementationCreate(ClarityCore *core)
 		scope = clarityObjectCreate(core);
 
 		clarityObjectSetMember(scope, "prototype", clarityGlobal(core));
-		clarityObjectSetMember(scope, "$0", scope);
+		clarityObjectSetMember(scope, "this", scope);
 		clarityObjectSetMember(scope, "exports", clarityObjectCreate(core));
 		clarityObjectSetMember(clarityObjectGetMember(scope, "exports"),
 			"mainFunction", clarityFunctionObjectCreate(core,
@@ -285,7 +275,8 @@ ClarityObject *testImplementationCreate(ClarityCore *core)
 		clarityObjectSetMember(scope, "myInternalFunction",
 			clarityFunctionObjectCreate(core, myInternalFunction, scope));
 		clarityObjectSetMember(scope, "myOtherInternalFunction",
-			clarityFunctionObjectCreate(core, myOtherInternalFunction, scope));
+			clarityFunctionObjectCreateAsync(core,
+			myOtherInternalFunction, scope));
 		clarityObjectSetMember(scope, "myThirdInternalFunction",
 			clarityFunctionObjectCreate(core, myThirdInternalFunction, scope));
 		clarityObjectSetMember(clarityObjectGetMember(scope, "exports"),

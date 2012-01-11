@@ -38,7 +38,7 @@ static void entry(ClarityCore *core)
 
 	parameters = clarityObjectCreate(core);
 	string = clarityStringObjectCreate(core, "test");
-	clarityObjectSetMember(parameters, "$0", global);
+	clarityObjectSetMember(parameters, "this", global);
 	clarityObjectSetMember(parameters, "$1", string);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(
@@ -47,7 +47,7 @@ static void entry(ClarityCore *core)
 
 	parameters = clarityObjectCreate(core);
 	integer = clarityIntegerObjectCreate(core, 23);
-	clarityObjectSetMember(parameters, "$0", global);
+	clarityObjectSetMember(parameters, "this", global);
 	clarityObjectSetMember(parameters, "$1", integer);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(
@@ -56,7 +56,7 @@ static void entry(ClarityCore *core)
 
 	parameters = clarityObjectCreate(core);
 	function = clarityFunctionObjectCreate(core, testFunction, global);
-	clarityObjectSetMember(parameters, "$0", global);
+	clarityObjectSetMember(parameters, "this", global);
 	clarityObjectSetMember(parameters, "$1", function);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(
@@ -65,7 +65,7 @@ static void entry(ClarityCore *core)
 
 	parameters = clarityObjectCreate(core);
 	boolean = clarityBooleanObjectCreate(core, TRUE);
-	clarityObjectSetMember(parameters, "$0", global);
+	clarityObjectSetMember(parameters, "this", global);
 	clarityObjectSetMember(parameters, "$1", boolean);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(clarityFunctionObjectCall(
@@ -74,7 +74,7 @@ static void entry(ClarityCore *core)
 
 	parameters = clarityObjectCreate(core);
 	array = clarityArrayObjectCreate(core, clarityArrayCreate(core));
-	clarityObjectSetMember(parameters, "$0", global);
+	clarityObjectSetMember(parameters, "this", global);
 	clarityObjectSetMember(parameters, "$1", array);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(

@@ -194,7 +194,7 @@ static ClarityObject *equals(ClarityObject *scope)
 
 	if (scope) {
 		ClarityCore *core = clarityCore(scope);
-		Bool equals = (clarityObjectGetMember(scope, "$0") ==
+		Bool equals = (clarityObjectGetMember(scope, "this") ==
 			clarityObjectGetMember(scope, "$1"));
 		retVal = clarityBooleanObjectCreate(core, equals);
 	}

@@ -28,7 +28,7 @@ static void entry(ClarityCore *core)
 	clarityArrayPush(array, clarityIntegerObjectCreate(core, 8));
 	object = clarityArrayObjectCreate(core, array);
 	parameters = clarityObjectCreate(core);
-	clarityObjectSetMember(parameters, "$0", object);
+	clarityObjectSetMember(parameters, "this", object);
 	length = clarityIntegerGetValue(
 		(ClarityInteger *)clarityObjectGetInnerData(
 		clarityFunctionObjectCall(

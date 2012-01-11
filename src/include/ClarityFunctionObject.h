@@ -38,6 +38,9 @@ ClarityObject *clarityFunctionPrototypeCreate(ClarityCore *);
 ClarityObject *clarityFunctionObjectCreate(ClarityCore *,
 	ClarityFunctionPointer, ClarityObject *);
 
+ClarityObject *clarityFunctionObjectCreateAsync(ClarityCore *,
+	ClarityFunctionPointer, ClarityObject *);
+
 ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 	ClarityObject *);
 

@@ -25,14 +25,14 @@ static void entry(ClarityCore *core)
 	object1 = clarityObjectCreate(core);
 	object2 = clarityObjectCreate(core);
 	parameters = clarityObjectCreate(core);
-	clarityObjectSetMember(parameters, "$0", object1);
+	clarityObjectSetMember(parameters, "this", object1);
 	clarityObjectSetMember(parameters, "$1", object1);
 	equals = clarityBooleanGetValue((ClarityBoolean *)clarityObjectGetInnerData(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(object1, "equals"), parameters)));
 	assert(equals);
 	parameters = clarityObjectCreate(core);
-	clarityObjectSetMember(parameters, "$0", object1);
+	clarityObjectSetMember(parameters, "this", object1);
 	clarityObjectSetMember(parameters, "$1", object2);
 	equals = clarityBooleanGetValue((ClarityBoolean *)clarityObjectGetInnerData(
 		clarityFunctionObjectCall(

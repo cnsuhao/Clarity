@@ -42,12 +42,14 @@ static ClarityObject *equals(ClarityObject *scope)
 		ClarityCore *core = clarityCore(scope);
 
 		if (clarityStrCmp(core, clarityObjectTypeOf(
-			clarityObjectGetMember(scope, "$0")), "string") == 0 &&
+			clarityObjectGetMember(scope, "this")), "string") == 0 &&
 			clarityStrCmp(core, clarityObjectTypeOf(
 			clarityObjectGetMember(scope, "$1")), "string") == 0) {
 			Uint32 compare = clarityStringCompare(
-				clarityObjectGetInnerData(clarityObjectGetMember(scope, "$0")),
-				clarityObjectGetInnerData(clarityObjectGetMember(scope, "$1")));
+				clarityObjectGetInnerData(
+				clarityObjectGetMember(scope, "this")),
+				clarityObjectGetInnerData(
+				clarityObjectGetMember(scope, "$1")));
 
 			retVal = clarityBooleanObjectCreate(core, compare == 0);
 		}
@@ -63,9 +65,10 @@ static ClarityObject *length(ClarityObject *scope)
 		ClarityCore *core = clarityCore(scope);
 
 		if (clarityStrCmp(core, clarityObjectTypeOf(
-		clarityObjectGetMember(scope, "$0")), "string") == 0) {
+		clarityObjectGetMember(scope, "this")), "string") == 0) {
 			Uint32 length = clarityStringLength(
-				clarityObjectGetInnerData(clarityObjectGetMember(scope, "$0")));
+				clarityObjectGetInnerData(
+				clarityObjectGetMember(scope, "this")));
 
 			retVal = clarityIntegerObjectCreate(core, length);
 		}
