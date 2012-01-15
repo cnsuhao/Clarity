@@ -22,6 +22,7 @@ static void entry(ClarityCore *core)
 	const char *data2 = "TestString2";
 	const char *data3 = "TestString3";
 	ClarityArray *array;
+	Uint32 length;
 	ClarityString *dataString1;
 	ClarityString *dataString2;
 	ClarityString *dataString3;
@@ -45,6 +46,13 @@ static void entry(ClarityCore *core)
 	clarityArrayPush(array, dataString1);
 	clarityArrayPush(array, dataString2);
 	clarityArrayPush(array, dataString3);
+	clarityArrayLock(array);
+	length = clarityArrayLength(array);
+	assert(clarityArrayPop(array) == NULL);
+	assert(length == clarityArrayLength(array));
+	clarityArrayPush(array, dataString3);
+	assert(length == clarityArrayLength(array));
+	clarityArrayPush(NULL, dataString3);
 }
 
 int main(void)
