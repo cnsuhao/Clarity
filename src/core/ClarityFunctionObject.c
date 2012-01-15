@@ -67,24 +67,13 @@ static ClarityFunction *clarityFunctionCreate(ClarityCore *core,
 static void functionObjectCallAsyncEvent(ClarityObject *parameters)
 {
 	ClarityObject *function;
-
-	function = clarityObjectGetOwnMember(parameters, "$0");
-
 	ClarityFunction *inner;
 
+	function = clarityObjectGetOwnMember(parameters, "$0");
 	inner = (ClarityFunction *)clarityObjectGetInnerData(function);
-
-	if (inner) {
-		ClarityFunctionPointer functionPointer;
-
-		functionPointer = inner->functionPointer;
-		clarityObjectSetMember(parameters, "prototype",
-			inner->scope);
-		clarityObjectLock(parameters);
-
-		if (functionPointer)
-			functionPointer(parameters);
-	}
+	clarityObjectSetMember(parameters, "prototype", inner->scope);
+	clarityObjectLock(parameters);
+	inner->functionPointer(parameters);
 }
 
 ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
@@ -101,7 +90,7 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 
 			inner = (ClarityFunction *)clarityObjectGetInnerData(function);
 
-			if (inner) {
+			if (inner && inner->functionPointer) {
 				clarityObjectSetMember(parameters, "$0", function);
 				clarityObjectSetMember(parameters, "prototype",
 					inner->scope);
@@ -113,12 +102,7 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 						parameters);
 					retVal = clarityUndefined();
 				} else {
-					ClarityFunctionPointer functionPointer;
-
-					functionPointer = inner->functionPointer;
-
-					if (functionPointer)
-						retVal = functionPointer(parameters);
+						retVal = inner->functionPointer(parameters);
 				}
 			}
 		}
