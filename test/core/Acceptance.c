@@ -46,9 +46,9 @@ static ClarityObject *mainFunction(ClarityObject *parameters)
 	ClarityObject *functionCall;
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "data1",
-		clarityObjectGetMember(parameters, "$1"));
+		clarityObjectGetOwnMember(parameters, "$1"));
 	clarityObjectSetMember(scope, "data2",
-		clarityObjectGetMember(parameters, "$2"));
+		clarityObjectGetOwnMember(parameters, "$2"));
 
 	/*
 	 *		myInternalFunction data1, data2
@@ -72,7 +72,7 @@ static ClarityObject *myInternalFunction$Anonymous$1(ClarityObject *parameters)
 	ClarityObject *functionCall;
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "returnData",
-		clarityObjectGetMember(parameters, "$1"));
+		clarityObjectGetOwnMember(parameters, "$1"));
 
 	/*
 	 *			myThirdInternalFunction returnData, data2
@@ -97,9 +97,9 @@ static ClarityObject *myInternalFunction(ClarityObject *parameters)
 	ClarityObject *functionCall;
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "data1",
-		clarityObjectGetMember(parameters, "$1"));
+		clarityObjectGetOwnMember(parameters, "$1"));
 	clarityObjectSetMember(scope, "data2",
-		clarityObjectGetMember(parameters, "$2"));
+		clarityObjectGetOwnMember(parameters, "$2"));
 
 	/*
 	 *		myOtherInternalFunction data1, (returnData) ->
@@ -124,9 +124,9 @@ static ClarityObject *myOtherInternalFunction(ClarityObject *parameters)
 
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "data",
-		clarityObjectGetMember(parameters, "$1"));
+		clarityObjectGetOwnMember(parameters, "$1"));
 	clarityObjectSetMember(scope, "callback",
-		clarityObjectGetMember(parameters, "$2"));
+		clarityObjectGetOwnMember(parameters, "$2"));
 
 	/*
 	 *		myThirdInternalFunction data, 3
@@ -161,9 +161,9 @@ static ClarityObject *myThirdInternalFunction(ClarityObject *parameters)
 
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "data",
-		clarityObjectGetMember(parameters, "$1"));
+		clarityObjectGetOwnMember(parameters, "$1"));
 	clarityObjectSetMember(scope, "otherData",
-		clarityObjectGetMember(parameters, "$2"));
+		clarityObjectGetOwnMember(parameters, "$2"));
 
 	/*
 	 *		34

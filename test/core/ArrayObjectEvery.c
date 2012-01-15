@@ -26,17 +26,17 @@ static ClarityObject *everyFunction1(ClarityObject *scope)
 	ClarityObject *array;
 
 	data = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetMember(scope, "$1")));
+		clarityObjectGetOwnMember(scope, "$1")));
 
 	index = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetMember(scope, "$2")));
+		clarityObjectGetOwnMember(scope, "$2")));
 
 	assert((data == 2 && index == 0) ||
 		(data == 4 && index == 1) ||
 		(data == 8 && index == 2) ||
 		(data == 16 && index == 3));
 
-	array = clarityObjectGetMember(scope, "$3");
+	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
 	return clarityBooleanObjectCreate(clarityCore(scope), (data == 4));
 }
@@ -44,7 +44,7 @@ static ClarityObject *everyFunction1(ClarityObject *scope)
 static ClarityObject *everyCallback1(ClarityObject *scope)
 {
 	assert(clarityBooleanGetValue(clarityObjectGetInnerData(
-		clarityObjectGetMember(scope, "$1"))) == FALSE);
+		clarityObjectGetOwnMember(scope, "$1"))) == FALSE);
 	gotCallback = TRUE;
 	return clarityUndefined();
 }
@@ -56,17 +56,17 @@ static ClarityObject *everyFunction2(ClarityObject *scope)
 	ClarityObject *array;
 
 	data = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetMember(scope, "$1")));
+		clarityObjectGetOwnMember(scope, "$1")));
 
 	index = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetMember(scope, "$2")));
+		clarityObjectGetOwnMember(scope, "$2")));
 
 	assert((data == 2 && index == 0) ||
 		(data == 4 && index == 1) ||
 		(data == 8 && index == 2) ||
 		(data == 16 && index == 3));
 
-	array = clarityObjectGetMember(scope, "$3");
+	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
 	return clarityBooleanObjectCreate(clarityCore(scope), TRUE);
 }
@@ -74,7 +74,7 @@ static ClarityObject *everyFunction2(ClarityObject *scope)
 static ClarityObject *everyCallback2(ClarityObject *scope)
 {
 	assert(clarityBooleanGetValue(clarityObjectGetInnerData(
-		clarityObjectGetMember(scope, "$1"))) == TRUE);
+		clarityObjectGetOwnMember(scope, "$1"))) == TRUE);
 	gotCallback = TRUE;
 	return clarityUndefined();
 }

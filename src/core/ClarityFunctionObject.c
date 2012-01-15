@@ -68,7 +68,7 @@ static void functionObjectCallAsyncEvent(ClarityObject *parameters)
 {
 	ClarityObject *function;
 
-	function = clarityObjectGetMember(parameters, "$0");
+	function = clarityObjectGetOwnMember(parameters, "$0");
 
 	ClarityFunction *inner;
 

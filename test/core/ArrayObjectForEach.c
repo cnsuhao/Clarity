@@ -27,17 +27,17 @@ static ClarityObject *forEachFunction(ClarityObject *scope)
 	ClarityObject *array;
 
 	data = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetMember(scope, "$1")));
+		clarityObjectGetOwnMember(scope, "$1")));
 
 	index = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetMember(scope, "$2")));
+		clarityObjectGetOwnMember(scope, "$2")));
 
 	assert((data == 2 && index == 0) ||
 		(data == 4 && index == 1) ||
 		(data == 8 && index == 2) ||
 		(data == 16 && index == 3));
 
-	array = clarityObjectGetMember(scope, "$3");
+	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
 	return clarityUndefined();
 }

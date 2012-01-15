@@ -42,11 +42,11 @@ static ClarityObject *equals(ClarityObject *scope)
 		if (clarityStrCmp(core, clarityObjectTypeOf(
 			clarityObjectGetMember(scope, "this")), "boolean") == 0 &&
 			clarityStrCmp(core, clarityObjectTypeOf(
-			clarityObjectGetMember(scope, "$1")), "boolean") == 0) {
+			clarityObjectGetOwnMember(scope, "$1")), "boolean") == 0) {
 			Bool equal = (clarityBooleanGetValue(clarityObjectGetInnerData(
 				clarityObjectGetMember(scope, "this"))) ==
 				clarityBooleanGetValue(clarityObjectGetInnerData(
-				clarityObjectGetMember(scope, "$1"))));
+				clarityObjectGetOwnMember(scope, "$1"))));
 
 			retVal = clarityBooleanObjectCreate(core, equal);
 		}
