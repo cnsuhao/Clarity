@@ -64,10 +64,64 @@ static ClarityObject *clarityUndefinedObjectCreate(ClarityCore *core)
 	return undefined;
 }
 
-static ClarityObject *typeOf(ClarityObject *object)
+static ClarityObject *clarityTypeOf(ClarityObject *parameters)
 {
-	return clarityStringObjectCreate(clarityCore(object),
-		clarityObjectTypeOf(clarityObjectGetMember(object, "$1")));
+	return clarityStringObjectCreate(clarityCore(parameters),
+		clarityObjectTypeOf(clarityObjectGetOwnMember(parameters, "$1")));
+}
+
+static void clarityIfEventDone(ClarityObject *parameters)
+{
+	clarityFunctionObjectCall(
+		clarityObjectGetOwnMember(parameters, "$1"), parameters);
+}
+
+static void clarityIfEvent(ClarityObject *parameters)
+{
+	ClarityObject *scope;
+	ClarityCore *core = clarityCore(parameters);
+
+	clarityFunctionObjectCall(
+		clarityObjectGetOwnMember(parameters, "$1"), parameters);
+	scope = clarityObjectCreate(clarityCore(parameters));
+	clarityObjectSetMember(scope, "prototype", parameters);
+	clarityObjectSetMember(scope, "$1",
+		clarityObjectGetOwnMember(parameters, "$2"));
+	clarityEnqueueEvent(core, (ClarityEvent)clarityIfEventDone, scope);
+}
+
+static ClarityObject *clarityIf(ClarityObject *parameters)
+{
+	ClarityObject *scope;
+	ClarityCore *core = clarityCore(parameters);
+	ClarityObject *testObject = clarityObjectGetOwnMember(parameters, "$1");
+	Bool test = FALSE;
+
+	if (clarityStrCmp(core,
+		clarityObjectTypeOf(testObject), "function") == 0) {
+			testObject = clarityFunctionObjectCall(testObject, parameters);
+	}
+
+	if (clarityStrCmp(core,
+		clarityObjectTypeOf(testObject), "boolean") == 0) {
+			test = clarityBooleanGetValue(
+					clarityObjectGetInnerData(testObject));
+	}
+
+	scope = clarityObjectCreate(clarityCore(parameters));
+	clarityObjectSetMember(scope, "prototype", parameters);
+
+	if (test) {
+		clarityObjectSetMember(scope, "$1",
+			clarityObjectGetOwnMember(parameters, "$2"));
+	} else {
+		clarityObjectSetMember(scope, "$1",
+			clarityObjectGetOwnMember(parameters, "$3"));
+	}
+	clarityObjectSetMember(scope, "$2",
+		clarityObjectGetOwnMember(parameters, "$4"));
+	clarityEnqueueEvent(core, (ClarityEvent)clarityIfEvent, scope);
+	return clarityUndefined();
 }
 
 static ClarityObject *clarityGlobalObjectCreate(ClarityCore *core)
@@ -76,7 +130,11 @@ static ClarityObject *clarityGlobalObjectCreate(ClarityCore *core)
 
 	clarityObjectSetMember(global, "typeOf",
 		clarityFunctionObjectCreate(core,
-			typeOf, clarityUndefined()));
+			clarityTypeOf, clarityUndefined()));
+
+	clarityObjectSetMember(global, "if",
+		clarityFunctionObjectCreate(core,
+			clarityIf, clarityUndefined()));
 
 	clarityObjectLock(global);
 	return global;
