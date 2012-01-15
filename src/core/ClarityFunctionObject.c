@@ -102,21 +102,22 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 			inner = (ClarityFunction *)clarityObjectGetInnerData(function);
 
 			if (inner) {
-				ClarityFunctionPointer functionPointer;
-
-				functionPointer = inner->functionPointer;
 				clarityObjectSetMember(parameters, "$0", function);
 				clarityObjectSetMember(parameters, "prototype",
 					inner->scope);
 				clarityObjectLock(parameters);
 
-				if (functionPointer) {
-					if (inner->async) {
-						clarityEnqueueEvent(core,
-							(ClarityEvent)functionObjectCallAsyncEvent,
-							parameters);
-						retVal = clarityUndefined();
-					} else
+				if (inner->async) {
+					clarityEnqueueEvent(core,
+						(ClarityEvent)functionObjectCallAsyncEvent,
+						parameters);
+					retVal = clarityUndefined();
+				} else {
+					ClarityFunctionPointer functionPointer;
+
+					functionPointer = inner->functionPointer;
+
+					if (functionPointer)
 						retVal = functionPointer(parameters);
 				}
 			}
