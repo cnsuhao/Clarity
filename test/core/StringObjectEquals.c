@@ -1,6 +1,7 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
 #include "ClarityStringObject.h"
+#include "ClarityIntegerObject.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -25,10 +26,12 @@ static void entry(ClarityCore *core)
 	ClarityObject *object1;
 	ClarityObject *object2;
 	ClarityObject *object3;
+	ClarityObject *object4;
 
 	object1 = clarityStringObjectCreate(core, TEST_VALUE1);
 	object2 = clarityStringObjectCreate(core, TEST_VALUE1);
 	object3 = clarityStringObjectCreate(core, TEST_VALUE2);
+	object4 = clarityIntegerObjectCreate(core, 23);
 	parameters = clarityObjectCreate(core);
 	clarityObjectSetMember(parameters, "this", object1);
 	clarityObjectSetMember(parameters, "$1", object2);
@@ -39,6 +42,13 @@ static void entry(ClarityCore *core)
 	parameters = clarityObjectCreate(core);
 	clarityObjectSetMember(parameters, "this", object1);
 	clarityObjectSetMember(parameters, "$1", object3);
+	equals = clarityBooleanGetValue((ClarityBoolean *)clarityObjectGetInnerData(
+		clarityFunctionObjectCall(
+		clarityObjectGetMember(object1, "equals"), parameters)));
+	assert(!equals);
+	parameters = clarityObjectCreate(core);
+	clarityObjectSetMember(parameters, "this", object1);
+	clarityObjectSetMember(parameters, "$1", object4);
 	equals = clarityBooleanGetValue((ClarityBoolean *)clarityObjectGetInnerData(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(object1, "equals"), parameters)));
