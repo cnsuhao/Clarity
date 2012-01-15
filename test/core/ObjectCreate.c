@@ -18,9 +18,23 @@ static void mainFree(void *data)
 static void entry(ClarityCore *core)
 {
 	ClarityObject *object;
+	ClarityObject *subObject;
 
 	object = clarityObjectCreate(core);
 	assert(object != NULL);
+	assert(clarityObjectGetInnerData(NULL) == NULL);
+	clarityObjectLock(NULL);
+	assert(clarityStrCmp(core,
+		clarityObjectTypeOf(NULL), "undefined") == NULL);
+	subObject = clarityObjectGetMember(object, NULL);
+	assert(clarityUndefined() == subObject);
+	subObject = clarityObjectGetMember(NULL, "string");
+	assert(clarityUndefined() == subObject);
+	subObject = clarityObjectCreate(core);
+	assert(clarityObjectSetMember(
+		NULL, "string", subObject) == clarityUndefined());
+	assert(clarityObjectSetMember(
+		object, NULL, subObject) == clarityUndefined());
 }
 
 int main(void)
