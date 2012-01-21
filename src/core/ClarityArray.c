@@ -114,12 +114,8 @@ static void iteratorStart(Iterator *iterator)
 		iterator);
 }
 
-static Iterator *iteratorCreate(ClarityCore *core,
-								ClarityArray *array,
-								void *scope,
-								ClarityEvent handle,
-								ClarityEvent done,
-								void *handler)
+static Iterator *iteratorCreate(ClarityCore *core, ClarityArray *array,
+	void *scope, ClarityEvent handle, ClarityEvent done, void *handler)
 {
 	Iterator *iterator;
 
@@ -258,9 +254,8 @@ void clarityArrayForEachWithoutCallback(
 }
 
 void clarityArrayForEach(ClarityArray *array,
-						 ClarityArrayForEachFunction function,
-						 ClarityArrayForEachCallback callback,
-						 void *scope)
+	ClarityArrayForEachFunction function, ClarityArrayForEachCallback callback,
+	void *scope)
 {
 	ForEach *forEach;
 	Iterator *iterator;
@@ -277,9 +272,8 @@ static void mapDestroy(Map *map)
 	clarityRelease(map->newArray);
 }
 
-static Map *mapCreate(ClarityCore *core,
-					  ClarityArrayMapFunction function,
-					  ClarityArrayMapCallback callback)
+static Map *mapCreate(ClarityCore *core, ClarityArrayMapFunction function,
+	ClarityArrayMapCallback callback)
 {
 	Map *map;
 

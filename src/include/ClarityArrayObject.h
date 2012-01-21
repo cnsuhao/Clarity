@@ -34,6 +34,6 @@
 
 ClarityObject *clarityArrayPrototypeCreate(ClarityCore *);
 ClarityObject *clarityArrayObjectCreate(ClarityCore *core,
-	 ClarityArray *array);
+	ClarityArray *array);
 
 #endif

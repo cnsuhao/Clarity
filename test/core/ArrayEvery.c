@@ -33,8 +33,7 @@ static Bool testEveryAllTrue(ClarityString *string, Uint32 index,
 	return TRUE;
 }
 
-static void testEveryWithFalseDone(Bool every,
-								   ClarityString *string)
+static void testEveryWithFalseDone(Bool every, ClarityString *string)
 {
 	assert(every == FALSE);
 	assert(string == dataString4);
@@ -66,15 +65,14 @@ static void entry(ClarityCore *core)
 	clarityArrayUnshift(array, dataString2);
 	clarityArrayUnshift(array, dataString3);
 	clarityArrayEvery(array,
-					 (ClarityArrayTestFunction)testEveryAllTrue,
-					 (ClarityArrayTestCallback)testEveryAllTrueDone,
-					 dataString4);
+		(ClarityArrayTestFunction)testEveryAllTrue,
+		(ClarityArrayTestCallback)testEveryAllTrueDone,
+		dataString4);
 
 	clarityArrayEvery(array,
-					 (ClarityArrayTestFunction)testEveryWithFalse,
-					 (ClarityArrayTestCallback)testEveryWithFalseDone,
-					 dataString4);
-
+		(ClarityArrayTestFunction)testEveryWithFalse,
+		(ClarityArrayTestCallback)testEveryWithFalseDone,
+		dataString4);
 }
 
 int main(void)

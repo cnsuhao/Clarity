@@ -25,17 +25,17 @@ export CHECKPATCH := ./src/tools/checkpatch/checkpatch.pl \
 	--tab=$(TABSIZE) \
 	--no-tree -q -f
 
-main : test build
+main: test build
 	@ cat out/rel/testreport.txt
 
-build :
+build:
 	@ $(MAKE) -f target.mk
 
-test : buildtestlib
+test: buildtestlib
 	@ $(MAKE) -f tester.mk
 
-buildtestlib :
+buildtestlib:
 	@ $(MAKE) -f target.mk ARCH=x86 MACH=tester TARGET=coverage LINK=false
 
-clean :
+clean:
 	@ rm -rf out

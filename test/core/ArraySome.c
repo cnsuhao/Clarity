@@ -33,8 +33,7 @@ static Bool testSomeAllFalse(ClarityString *string, Uint32 index,
 	return FALSE;
 }
 
-static void testSomeWithTrueDone(Bool some,
-								 ClarityString *string)
+static void testSomeWithTrueDone(Bool some, ClarityString *string)
 {
 	assert(some == TRUE);
 	assert(string == dataString4);
