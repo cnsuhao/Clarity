@@ -5,16 +5,6 @@
 #include <string.h>
 #include <assert.h>
 
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
-
 static ClarityObject *testFunction(ClarityObject *scope)
 {
 	ClarityObject *this = clarityObjectGetMember(scope, "this");
@@ -24,32 +14,20 @@ static ClarityObject *testFunction(ClarityObject *scope)
 	return clarityUndefined();
 }
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	ClarityObject *function;
 	ClarityObject *scope;
-	ClarityObject *functionCall;
 	ClarityObject *newObject;
 
 	scope = clarityObjectCreate(core);
 	function = clarityFunctionObjectCreate(core, testFunction, scope);
-	functionCall = clarityObjectCreate(core);
-	clarityObjectSetMember(functionCall, "$1",
-		clarityIntegerObjectCreate(core, 34));
-	newObject = clarityFunctionObjectNew(function, functionCall);
+	newObject = clarityFunctionObjectNew(function,
+		clarityObjectSetMember(clarityObjectCreate(core), "$1",
+		clarityIntegerObjectCreate(core, 34)));
 	assert(clarityIntegerGetValue(
 		clarityObjectGetInnerData(
 		clarityObjectGetMember(newObject, "testMember"))) == 34);
 }
 
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	clarityStop(core);
-	return 0;
-}

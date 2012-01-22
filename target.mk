@@ -67,12 +67,6 @@ INCLUDE := \
 	src/arch/$(ARCH)/include/ \
 	src/arch/include/
 
-CLAINCLUDE := \
-	$(INCLUDE) \
-	$(addsuffix /include/, \
-		$(addprefix $(CLAGENDIR)/src/components/, \
-			$(COMPONENTS)))
-
 SSOURCE := $(wildcard \
 	src/arch/$(ARCH)/*.s \
 	src/arch/$(ARCH)/mach/$(MACH)/*.s)
@@ -133,20 +127,13 @@ ifeq ($(LINK), true)
 	@ cp $(OUTDIR)/claritycore.map $(OUT)/claritycore.map
 endif
 	@ cp $(CLA) $(OUT)/
-	@ for dir in $(call reverse,$(CLAINCLUDE)) ; do \
+	@ for dir in $(call reverse,$(INCLUDE)) ; do \
 	if [ -e $$dir ] ; then \
 		cp -R $$dir*.h $(OUT)/include ; \
 	fi ; \
 	done
 
-.PRECIOUS : $(CLAGENDIR)/%.h
-
-$(CLAGENDIR)/%.h: %.cla $(CLA)
-	@ mkdir -p $(dir $@)
-	$(info Generating $< interface)
-	@ $(CLA) -h -o $@ $<
-
-$(CLAGENDIR)/%.c: %.cla $(CLAGENDIR)/%.h $(CLA)
+$(CLAGENDIR)/%.c: %.cla $(CLA)
 	@ mkdir -p $(dir $@)
 	$(info Generating $< implementation)
 	@ $(CLA) -c -o $@ $<
@@ -154,14 +141,16 @@ $(CLAGENDIR)/%.c: %.cla $(CLAGENDIR)/%.h $(CLA)
 $(OUTDIR)/%.o: $(CLAGENDIR)/%.c
 	@ mkdir -p $(dir $@)
 	$(info Compiling $<)
-	@ $(CROSS_COMPILE)$(CC) \
-		$(addprefix -I, $(CLAINCLUDE)) $(CFLAGS) -o $@ $(abspath $<)
+	@ $(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) \
+		-DCLARITY_FILE=\"$(notdir $(basename $@))\" \
+		$(CFLAGS) -o $@ $(abspath $<)
 
 $(OUTDIR)/%.o: %.c
 	@ mkdir -p $(dir $@)
 	$(info Compiling $<)
-	@ $(CROSS_COMPILE)$(CC) \
-		$(addprefix -I, $(INCLUDE)) $(CFLAGS) -o $@ $(abspath $<)
+	@ $(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) \
+		-DCLARITY_FILE=\"$(notdir $(basename $@))\" \
+		$(CFLAGS) -o $@ $(abspath $<)
 
 $(OUTDIR)/%.o: %.s
 	@ mkdir -p $(dir $@)
@@ -178,7 +167,8 @@ $(OUTDIR)/libclaritycore.a: $(HANALYSIS) $(CANALYSIS)
 $(OUTDIR)/libclaritycore.a: $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
 	@ mkdir -p $(dir $@)
 	$(info Archiving $@)
-	@ $(CROSS_COMPILE)$(AR) $(ARFLAGS) $@ $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
+	@ $(CROSS_COMPILE)$(AR) $(ARFLAGS) $@ \
+		$(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
 
 $(ANALYSISDIR)/%.c.cp: %.c
 	@ mkdir -p $(dir $@)

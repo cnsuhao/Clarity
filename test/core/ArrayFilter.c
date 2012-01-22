@@ -7,16 +7,6 @@
 #include <string.h>
 #include <assert.h>
 
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
-
 static ClarityString *dataString1;
 static ClarityString *dataString2;
 static ClarityString *dataString3;
@@ -55,8 +45,9 @@ static void testFilterDone(ClarityArray *array, ClarityString *doneString)
 	assert(doneString == dataString4);
 }
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
 	const char *data3 = "TestString3";
@@ -73,16 +64,4 @@ static void entry(ClarityCore *core)
 	clarityArrayUnshift(array, dataString3);
 	clarityArrayFilter(array, (ClarityArrayTestFunction)testFilter,
 		(ClarityArrayMapCallback)testFilterDone, dataString4);
-}
-
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	clarityStop(core);
-	return 0;
 }

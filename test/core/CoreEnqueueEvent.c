@@ -9,16 +9,6 @@ static Bool gotEvent1 = FALSE;
 static Bool gotEvent2 = FALSE;
 static const char *TEST_STRING = "TestString";
 
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
-
 static void event1(ClarityString *string)
 {
 	const char *cString;
@@ -41,26 +31,13 @@ static void event2(ClarityString *string)
 	gotEvent2 = TRUE;
 }
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	clarityEnqueueEvent(core, (ClarityEvent)event1,
 		clarityStringCreate(core, TEST_STRING));
 
 	clarityEnqueueEvent(core, (ClarityEvent)event2,
 		clarityStringCreate(core, TEST_STRING));
 
-}
-
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	assert(gotEvent1 == TRUE);
-	assert(gotEvent2 == TRUE);
-	clarityStop(core);
-	return 0;
 }

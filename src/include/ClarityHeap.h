@@ -31,8 +31,8 @@
 #include "ClarityTypes.h"
 
 typedef struct __ClarityHeap ClarityHeap;
-typedef void *(*ClarityAlloc)(Uint32);
-typedef void(*ClarityFree)(void *);
+void *clarityAlloc(Uint32);
+void clarityFree(void *);
 typedef void(*ClarityHeapDestructor)(void *);
 
 void *clarityHeapAllocateWithDestructor(ClarityHeap *, Uint32,
@@ -43,13 +43,8 @@ void *clarityHeapAutoRelease(void *);
 void clarityHeapRelease(void *);
 void clarityHeapForceRelease(void *);
 void *clarityHeapRetain(void *);
-ClarityHeap *clarityHeapGetHeap(void *);
 void clarityHeapCollectGarbage(ClarityHeap *);
 
-ClarityHeap *clarityHeapCreate(void *, Uint32, Uint32);
-ClarityHeap *clarityHeapCreateExternal(ClarityAlloc, ClarityFree);
-
-void *clarityHeapGetContext(ClarityHeap *);
-void clarityHeapSetContext(ClarityHeap *, void*);
+ClarityHeap *clarityHeapCreate(void);
 
 #endif

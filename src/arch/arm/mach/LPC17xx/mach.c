@@ -1,5 +1,18 @@
 #include "Clarity.h"
+#include "ClarityHeap.h"
+#include "ClarityObject.h"
+#include "ClarityInteger.h"
+#include "ClarityStringObject.h"
+#include "ClarityFunctionObject.h"
 #include <stdlib.h>
+
+void clarityEntry(ClarityObject *globalScope)
+{
+	ClarityCore *core = clarityCore();
+	clarityObjectCreate(core);
+	clarityStringObjectCreate(core, "string");
+	clarityIntegerCreate(core, 32);
+}
 
 void *clarityAlloc(Uint32 size)
 {
@@ -20,6 +33,17 @@ void *clarityMemCpy(ClarityCore *core, void *dstData,
 	while (size--)
 		*dst8++ = *src8++;
 	return dstData;
+}
+
+void *clarityMemSet(ClarityCore *core, void *data, char value,
+	Uint32 size)
+{
+	char *p;
+
+	p = data;
+	while (size--)
+		*p++ = value;
+	return data;
 }
 
 Uint32 clarityStrLen(ClarityCore *core, const char *cString)

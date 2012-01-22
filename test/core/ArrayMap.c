@@ -7,16 +7,6 @@
 #include <string.h>
 #include <assert.h>
 
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
-
 static ClarityString *dataString1;
 static ClarityString *dataString2;
 static ClarityString *dataString3;
@@ -30,11 +20,11 @@ static void *testMap(ClarityString *string, Uint32 index, ClarityArray *array)
 	assert(index < 3);
 
 	if (string == dataString1)
-		retVal = clarityIntegerCreate(clarityCore(array), 1);
+		retVal = clarityIntegerCreate(clarityCore(), 1);
 	else if (string == dataString2)
-		retVal = clarityIntegerCreate(clarityCore(array), 8);
+		retVal = clarityIntegerCreate(clarityCore(), 8);
 	else if (string == dataString3)
-		retVal = clarityIntegerCreate(clarityCore(array), 6);
+		retVal = clarityIntegerCreate(clarityCore(), 6);
 	else
 		assert(FALSE);
 
@@ -56,8 +46,9 @@ static void testMapDone(ClarityArray *array, ClarityString *string)
 	assert(string == dataString4);
 }
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
 	const char *data3 = "TestString3";
@@ -74,16 +65,4 @@ static void entry(ClarityCore *core)
 	clarityArrayUnshift(array, dataString3);
 	clarityArrayMap(array, (ClarityArrayMapFunction)testMap,
 		(ClarityArrayMapCallback)testMapDone, dataString4);
-}
-
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	clarityStop(core);
-	return 0;
 }

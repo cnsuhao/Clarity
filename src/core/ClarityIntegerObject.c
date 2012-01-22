@@ -39,7 +39,7 @@ static ClarityObject *equals(ClarityObject *scope)
 
 	if (scope) {
 		Bool equal = FALSE;
-		ClarityCore *core = clarityCore(scope);
+		ClarityCore *core = clarityCore();
 
 		if (clarityStrCmp(core, clarityObjectTypeOf(
 			clarityObjectGetMember(scope, "this")), "number") == 0 &&

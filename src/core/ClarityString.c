@@ -53,7 +53,7 @@ ClarityString *clarityStringCreate(ClarityCore *core, const char *newCString)
 
 Sint8 clarityStringCompare(ClarityString *string, ClarityString *string2)
 {
-	return clarityStrCmp(clarityCore(string), &string->cString,
+	return clarityStrCmp(clarityCore(), &string->cString,
 		&string2->cString);
 }
 

@@ -28,6 +28,9 @@
  */
 #include "ClarityHeap.h"
 
+typedef void*(*ClarityAlloc)(Uint32);
+typedef void(*ClarityFree)(void *);
+
 typedef struct {
 	Uint32 magic;
 	ClarityHeapDestructor destructor;
@@ -45,10 +48,6 @@ struct __AutoReleaseItem {
 
 struct __ClarityHeap {
 	AutoReleaseItem *autoReleasePool;
-	Uint32 size;
-	Uint32 blockSize;
-	void *address;
-	void *context;
 	ClarityAlloc alloc;
 	ClarityFree free;
 };
@@ -227,29 +226,6 @@ void *clarityHeapRetain(void *data)
 	return data;
 }
 
-ClarityHeap *clarityHeapGetHeap(void *data)
-{
-	void *retVal;
-	Header *header;
-
-	retVal = NULL;
-	header = heapItemHeader(data);
-
-	if (header)
-		retVal = header->heap;
-	return retVal;
-}
-
-void *clarityHeapGetContext(ClarityHeap *heap)
-{
-	return heap->context;
-}
-
-void clarityHeapSetContext(ClarityHeap *heap, void *context)
-{
-	heap->context = context;
-}
-
 void clarityHeapCollectGarbage(ClarityHeap *heap)
 {
 	while (heap->autoReleasePool != &LAST_AUTO_RELEASE_ITEM) {
@@ -267,23 +243,11 @@ static void heapDestroy(ClarityHeap *heap)
 	clarityHeapCollectGarbage(heap);
 }
 
-static void *defaultAlloc(Uint32 size)
-{
-	/*TODO Implement default alloc, at address with size*/
-	return NULL;
-}
-
-static void defaultFree(void *data)
-{
-	/*TODO Implement default free*/
-}
-
-static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
-	ClarityFree free, void *address, Uint32 size, Uint32 blockSize)
+ClarityHeap *clarityHeapCreate(void)
 {
 	ClarityHeap *heap;
 
-	heap = clarityHeapInnerAllocate(NULL, alloc, sizeof(ClarityHeap),
+	heap = clarityHeapInnerAllocate(NULL, clarityAlloc, sizeof(ClarityHeap),
 		(ClarityHeapDestructor)heapDestroy);
 
 	if (heap) {
@@ -292,23 +256,8 @@ static ClarityHeap *clarityHeapCreatePrivate(ClarityAlloc alloc,
 		header = heapItemHeader(heap);
 		header->heap = heap;
 		heap->autoReleasePool = (AutoReleaseItem *)&LAST_AUTO_RELEASE_ITEM;
-		heap->alloc = alloc;
-		heap->free = free;
-		heap->address = address;
-		heap->size = size;
-		heap->blockSize = blockSize;
-		heap->context = NULL;
+		heap->alloc = clarityAlloc;
+		heap->free = clarityFree;
 	}
 	return clarityHeapAutoRelease(heap);
-}
-
-ClarityHeap *clarityHeapCreate(void *address, Uint32 size, Uint32 blockSize)
-{
-	return clarityHeapCreatePrivate(defaultAlloc, defaultFree, address, size,
-		blockSize);
-}
-
-ClarityHeap *clarityHeapCreateExternal(ClarityAlloc alloc, ClarityFree free)
-{
-	return clarityHeapCreatePrivate(alloc, free, NULL, 0, 0);
 }

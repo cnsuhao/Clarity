@@ -1,20 +1,7 @@
 #include "Clarity.h"
-#include "ClarityHeap.h"
-#include "ClarityArrayObject.h"
-#include "ClarityFunctionObject.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
 
 static ClarityObject *arrayObject;
 static Bool gotCallback = FALSE;
@@ -38,7 +25,7 @@ static ClarityObject *everyFunction1(ClarityObject *scope)
 
 	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
-	return clarityBooleanObjectCreate(clarityCore(scope), (data == 4));
+	return clarityBooleanObjectCreate(clarityCore(), (data == 4));
 }
 
 static ClarityObject *everyCallback1(ClarityObject *scope)
@@ -68,7 +55,7 @@ static ClarityObject *everyFunction2(ClarityObject *scope)
 
 	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
-	return clarityBooleanObjectCreate(clarityCore(scope), TRUE);
+	return clarityBooleanObjectCreate(clarityCore(), TRUE);
 }
 
 static ClarityObject *everyCallback2(ClarityObject *scope)
@@ -79,8 +66,9 @@ static ClarityObject *everyCallback2(ClarityObject *scope)
 	return clarityUndefined();
 }
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	ClarityObject *parameters;
 	ClarityArray *array;
 
@@ -115,17 +103,4 @@ static void entry(ClarityCore *core)
 
 	clarityFunctionObjectCall(
 		clarityObjectGetMember(arrayObject, "every"), parameters);
-}
-
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	clarityStop(core);
-	assert(gotCallback);
-	return 0;
 }

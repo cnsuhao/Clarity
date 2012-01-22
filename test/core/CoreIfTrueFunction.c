@@ -14,16 +14,6 @@ static Bool gotFalse = FALSE;
 static Bool gotDone = FALSE;
 static Bool gotCondition = FALSE;
 
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
-
 static ClarityObject *ifTrue(ClarityObject *scope)
 {
 	gotTrue = TRUE;
@@ -46,16 +36,16 @@ static ClarityObject *ifDone(ClarityObject *scope)
 static ClarityObject *condition(ClarityObject *scope)
 {
 	gotCondition = TRUE;
-	return clarityBooleanObjectCreate(clarityCore(scope), TRUE);
+	return clarityBooleanObjectCreate(clarityCore(), TRUE);
 }
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	ClarityObject *parameters;
-	ClarityObject *global = clarityGlobal(core);
 
 	parameters = clarityObjectCreate(core);
-	clarityObjectSetMember(parameters, "this", global);
+	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1",
 		clarityFunctionObjectCreate(core, condition,
 		clarityUndefined()));
@@ -69,21 +59,5 @@ static void entry(ClarityCore *core)
 		clarityFunctionObjectCreate(core, ifDone,
 		clarityUndefined()));
 	clarityFunctionObjectCall(
-		clarityObjectGetMember(global, "if"), parameters);
-}
-
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	clarityStop(core);
-	assert(gotDone);
-	assert(gotTrue);
-	assert(gotCondition);
-	assert(!gotFalse);
-	return 0;
+		clarityObjectGetMember(globalScope, "if"), parameters);
 }

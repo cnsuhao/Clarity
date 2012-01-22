@@ -9,16 +9,6 @@
 #include <string.h>
 #include <assert.h>
 
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
-
 #define TEST_VALUE "test string"
 
 static ClarityObject *testFunction(ClarityObject *scope)
@@ -26,70 +16,59 @@ static ClarityObject *testFunction(ClarityObject *scope)
 	return scope;
 }
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	ClarityObject *parameters;
 	ClarityObject *string;
 	ClarityObject *function;
 	ClarityObject *integer;
 	ClarityObject *array;
 	ClarityObject *boolean;
-	ClarityObject *global = clarityGlobal(core);
 
 	parameters = clarityObjectCreate(core);
 	string = clarityStringObjectCreate(core, "test");
-	clarityObjectSetMember(parameters, "this", global);
+	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", string);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(
-		clarityFunctionObjectCall(clarityObjectGetMember(global, "typeOf"),
+		clarityFunctionObjectCall(clarityObjectGetMember(globalScope, "typeOf"),
 		parameters))), "string") == 0);
 
 	parameters = clarityObjectCreate(core);
 	integer = clarityIntegerObjectCreate(core, 23);
-	clarityObjectSetMember(parameters, "this", global);
+	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", integer);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(
-		clarityFunctionObjectCall(clarityObjectGetMember(global, "typeOf"),
+		clarityFunctionObjectCall(clarityObjectGetMember(globalScope, "typeOf"),
 		parameters))), "number") == 0);
 
 	parameters = clarityObjectCreate(core);
-	function = clarityFunctionObjectCreate(core, testFunction, global);
-	clarityObjectSetMember(parameters, "this", global);
+	function = clarityFunctionObjectCreate(core, testFunction, globalScope);
+	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", function);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(
-		clarityFunctionObjectCall(clarityObjectGetMember(global, "typeOf"),
+		clarityFunctionObjectCall(clarityObjectGetMember(globalScope, "typeOf"),
 		parameters))), "function") == 0);
 
 	parameters = clarityObjectCreate(core);
 	boolean = clarityBooleanObjectCreate(core, TRUE);
-	clarityObjectSetMember(parameters, "this", global);
+	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", boolean);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(clarityFunctionObjectCall(
-		clarityObjectGetMember(global, "typeOf"),
+		clarityObjectGetMember(globalScope, "typeOf"),
 		parameters))), "boolean") == 0);
 
 	parameters = clarityObjectCreate(core);
 	array = clarityArrayObjectCreate(core, clarityArrayCreate(core));
-	clarityObjectSetMember(parameters, "this", global);
+	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", array);
 	assert(clarityStrCmp(core, clarityStringGetValue(
 		(ClarityString *)clarityObjectGetInnerData(
-		clarityFunctionObjectCall(clarityObjectGetMember(global, "typeOf"),
+		clarityFunctionObjectCall(clarityObjectGetMember(globalScope, "typeOf"),
 		parameters))), "array") == 0);
 }
 
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	clarityStop(core);
-	return 0;
-}

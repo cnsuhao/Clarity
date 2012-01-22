@@ -89,7 +89,7 @@ copy:
 
     ldr      r0, =result
     str      r4, [r0]
-    ldr      r0, =start
+    ldr      r0, =main
     bx       r0
     b        .
 

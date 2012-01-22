@@ -2132,11 +2132,11 @@ sub process {
 		}
 
 # check for global initialisers.
-		if ($line =~ /^.$Type\s*$Ident\s*(?:\s+$Modifier)*\s*=\s*(0|NULL|false)\s*;/) {
-			ERROR("GLOBAL_INITIALISERS",
-			      "do not initialise globals to 0 or NULL\n" .
-				$herecurr);
-		}
+		# if ($line =~ /^.$Type\s*$Ident\s*(?:\s+$Modifier)*\s*=\s*(0|NULL|false)\s*;/) {
+		# 	ERROR("GLOBAL_INITIALISERS",
+		# 	      "do not initialise globals to 0 or NULL\n" .
+		# 		$herecurr);
+		# }
 # check for static initialisers.
 		# if ($line =~ /\bstatic\s.*=\s*(0|NULL|false)\s*;/) {
 		# 	ERROR("INITIALISED_STATIC",
@@ -3143,24 +3143,25 @@ sub process {
 			if (defined $cond) {
 				substr($s, 0, length($cond), '');
 			}
-			if ($s =~ /^\s*;/ &&
-			    $function_name ne 'uninitialized_var')
-			{
-				WARN("AVOID_EXTERNS",
-				     "externs should be avoided in .c files\n" .  $herecurr);
-			}
+			# if ($s =~ /^\s*;/ &&
+			#     $function_name ne 'uninitialized_var')
+			# {
+			# 	WARN("AVOID_EXTERNS",
+			# 	     "externs should be avoided in .c files\n" .  $herecurr);
+			# }
 
 			if ($paren_space =~ /\n/) {
 				WARN("FUNCTION_ARGUMENTS",
 				     "arguments for function declarations should follow identifier\n" . $herecurr);
 			}
 
-		} elsif ($realfile =~ /\.c$/ && defined $stat &&
-		    $stat =~ /^.\s*extern\s+/)
-		{
-			WARN("AVOID_EXTERNS",
-			     "externs should be avoided in .c files\n" .  $herecurr);
 		}
+		# elsif ($realfile =~ /\.c$/ && defined $stat &&
+		#     $stat =~ /^.\s*extern\s+/)
+		# {
+		# 	WARN("AVOID_EXTERNS",
+		# 	     "externs should be avoided in .c files\n" .  $herecurr);
+		# }
 
 # checks for new __setup's
 		if ($rawline =~ /\b__setup\("([^"]*)"/) {

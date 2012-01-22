@@ -104,7 +104,7 @@ static void *applyNode(ClarityObject *object, const char *name,
 	while (node != NULL) {
 		Sint8 compare;
 
-		compare = clarityStrCmp(clarityCore(object), name, node->name);
+		compare = clarityStrCmp(clarityCore(), name, node->name);
 		if (compare == 0)
 			return found(&node, name, subObject);
 		else if (compare > 0)
@@ -164,7 +164,7 @@ static ClarityObject *setObjectFound(Node **node, const char *name,
 static ClarityObject *setObjectNotFound(Node **node, const char *name,
 	ClarityObject *object)
 {
-	*node = clarityRetain(nodeCreate(clarityCore(object), name, object));
+	*node = clarityRetain(nodeCreate(clarityCore(), name, object));
 	return (*node)->object;
 }
 
@@ -173,9 +173,12 @@ ClarityObject *clarityObjectSetMember(ClarityObject *object, const char *name,
 {
 	ClarityObject *retVal = clarityUndefined();
 
-	if (object && name && subObject && !object->locked)
-		retVal = applyNode(object, name, subObject,
-			setObjectFound, setObjectNotFound);
+	if (object) {
+		retVal = object;
+		if (name && subObject && !object->locked)
+			applyNode(object, name, subObject,
+				setObjectFound, setObjectNotFound);
+		}
 	return retVal;
 }
 
@@ -193,7 +196,7 @@ static ClarityObject *equals(ClarityObject *scope)
 	ClarityObject *retVal = clarityUndefined();
 
 	if (scope) {
-		ClarityCore *core = clarityCore(scope);
+		ClarityCore *core = clarityCore();
 		Bool equals = (clarityObjectGetMember(scope, "this") ==
 			clarityObjectGetOwnMember(scope, "$1"));
 		retVal = clarityBooleanObjectCreate(core, equals);

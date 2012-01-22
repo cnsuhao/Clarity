@@ -46,12 +46,12 @@ typedef void *(*ClarityArrayMapCallback)(void *, void *);
 typedef void(*ClarityArrayTestCallback)(Bool, void *);
 
 ClarityArray *clarityArrayCreate(ClarityCore *);
-void clarityArrayPush(ClarityArray *, void *);
+ClarityArray *clarityArrayPush(ClarityArray *, void *);
 void *clarityArrayPop(ClarityArray *);
-void clarityArrayUnshift(ClarityArray *, void *);
+ClarityArray *clarityArrayUnshift(ClarityArray *, void *);
 void *clarityArrayShift(ClarityArray *);
 Uint32 clarityArrayLength(ClarityArray *);
-void clarityArrayLock(ClarityArray *);
+ClarityArray *clarityArrayLock(ClarityArray *);
 
 void clarityArrayForEachWithoutCallback(ClarityArray *,
 	ClarityArrayForEachFunction);

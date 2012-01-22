@@ -30,6 +30,7 @@
 #ifndef __CLARITYARRAYOBJECT_H__
 #define __CLARITYARRAYOBJECT_H__
 #include "ClarityCore.h"
+#include "ClarityArray.h"
 #include "ClarityObject.h"
 
 ClarityObject *clarityArrayPrototypeCreate(ClarityCore *);

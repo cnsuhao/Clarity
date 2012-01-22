@@ -41,7 +41,7 @@ static ClarityObject *length(ClarityObject *scope)
 	ClarityObject *retVal = clarityUndefined();
 
 	if (scope) {
-		ClarityCore *core = clarityCore(scope);
+		ClarityCore *core = clarityCore();
 
 		if (clarityStrCmp(core, clarityObjectTypeOf(
 		clarityObjectGetMember(scope, "this")), "array") == 0) {
@@ -58,13 +58,13 @@ static ClarityObject *length(ClarityObject *scope)
 static void forEachFunction(ClarityObject *item,
 	Uint32 index, ClarityArray *array, ClarityObject *parameters)
 {
-	ClarityObject *scope = clarityObjectCreate(clarityCore(item));
+	ClarityObject *scope = clarityObjectCreate(clarityCore());
 
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "$1", item);
 
 	clarityObjectSetMember(scope, "$2",
-		clarityIntegerObjectCreate(clarityCore(item), index));
+		clarityIntegerObjectCreate(clarityCore(), index));
 
 	clarityObjectSetMember(scope, "$3",
 		clarityObjectGetMember(parameters, "this"));
@@ -76,13 +76,13 @@ static void forEachFunction(ClarityObject *item,
 static void *mapFunction(ClarityObject *item,
 	Uint32 index, ClarityArray *array, ClarityObject *parameters)
 {
-	ClarityObject *scope = clarityObjectCreate(clarityCore(item));
+	ClarityObject *scope = clarityObjectCreate(clarityCore());
 
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "$1", item);
 
 	clarityObjectSetMember(scope, "$2",
-		clarityIntegerObjectCreate(clarityCore(item), index));
+		clarityIntegerObjectCreate(clarityCore(), index));
 
 	clarityObjectSetMember(scope, "$3",
 		clarityObjectGetMember(parameters, "this"));
@@ -94,13 +94,13 @@ static void *mapFunction(ClarityObject *item,
 static Bool testFunction(ClarityObject *item,
 	Uint32 index, ClarityArray *array, ClarityObject *parameters)
 {
-	ClarityObject *scope = clarityObjectCreate(clarityCore(item));
+	ClarityObject *scope = clarityObjectCreate(clarityCore());
 
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "$1", item);
 
 	clarityObjectSetMember(scope, "$2",
-		clarityIntegerObjectCreate(clarityCore(item), index));
+		clarityIntegerObjectCreate(clarityCore(), index));
 
 	clarityObjectSetMember(scope, "$3",
 		clarityObjectGetMember(parameters, "this"));
@@ -119,10 +119,10 @@ static void forEachCallback(ClarityObject *upperContext)
 static void mapCallback(ClarityArray *newArray,
 	ClarityObject *upperContext)
 {
-	ClarityObject *scope = clarityObjectCreate(clarityCore(upperContext));
+	ClarityObject *scope = clarityObjectCreate(clarityCore());
 
 	clarityObjectSetMember(scope, "$1",
-		clarityArrayObjectCreate(clarityCore(upperContext), newArray));
+		clarityArrayObjectCreate(clarityCore(), newArray));
 
 	clarityFunctionObjectCall(
 		clarityObjectGetOwnMember(upperContext, "$2"), scope);
@@ -131,10 +131,10 @@ static void mapCallback(ClarityArray *newArray,
 static void testCallback(Bool test,
 	ClarityObject *upperContext)
 {
-	ClarityObject *scope = clarityObjectCreate(clarityCore(upperContext));
+	ClarityObject *scope = clarityObjectCreate(clarityCore());
 
 	clarityObjectSetMember(scope, "$1",
-		clarityBooleanObjectCreate(clarityCore(upperContext), test));
+		clarityBooleanObjectCreate(clarityCore(), test));
 
 	clarityFunctionObjectCall(
 		clarityObjectGetOwnMember(upperContext, "$2"), scope);

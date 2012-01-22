@@ -6,16 +6,6 @@
 #include <string.h>
 #include <assert.h>
 
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
-
 static ClarityObject *arrayObject;
 static Bool gotCallback = FALSE;
 
@@ -38,7 +28,7 @@ static ClarityObject *mapFunction(ClarityObject *scope)
 
 	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
-	return clarityIntegerObjectCreate(clarityCore(scope), data * 2);
+	return clarityIntegerObjectCreate(clarityCore(), data * 2);
 }
 
 static ClarityObject *mapCallback(ClarityObject *scope)
@@ -62,8 +52,9 @@ static ClarityObject *mapCallback(ClarityObject *scope)
 	return clarityUndefined();
 }
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	ClarityObject *parameters;
 	ClarityArray *array;
 
@@ -85,17 +76,4 @@ static void entry(ClarityCore *core)
 
 	clarityFunctionObjectCall(
 		clarityObjectGetMember(arrayObject, "map"), parameters);
-}
-
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	clarityStop(core);
-	assert(gotCallback);
-	return 0;
 }

@@ -82,7 +82,7 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 	ClarityObject *retVal = clarityUndefined();
 
 	if (function && parameters) {
-		ClarityCore *core = clarityCore(function);
+		ClarityCore *core = clarityCore();
 
 		if (clarityStrCmp(core, clarityObjectTypeOf(function),
 			"function") == 0) {
@@ -113,7 +113,7 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 ClarityObject *clarityFunctionObjectNew(ClarityObject *function,
 	ClarityObject *parameters)
 {
-	ClarityObject *object = clarityObjectCreate(clarityCore(function));
+	ClarityObject *object = clarityObjectCreate(clarityCore());
 
 	clarityObjectSetMember(parameters, "this", object);
 	clarityFunctionObjectCall(function, parameters);
@@ -134,7 +134,6 @@ static ClarityObject *innerFunctionObjectCreate(ClarityCore *core,
 
 	return function;
 }
-
 
 ClarityObject *clarityFunctionObjectCreateAsync(ClarityCore *core,
 	ClarityFunctionPointer functionPointer, ClarityObject *scope)

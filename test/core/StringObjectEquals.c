@@ -6,21 +6,12 @@
 #include <string.h>
 #include <assert.h>
 
-static void *mainAlloc(Uint32 size)
-{
-	return malloc(size);
-}
-
-static void mainFree(void *data)
-{
-	free(data);
-}
-
 #define TEST_VALUE1 "test string"
 #define TEST_VALUE2 "other test string"
 
-static void entry(ClarityCore *core)
+void clarityEntry(ClarityObject *globalScope)
 {
+	ClarityCore *core = clarityCore();
 	Bool equals;
 	ClarityObject *parameters;
 	ClarityObject *object1;
@@ -55,14 +46,3 @@ static void entry(ClarityCore *core)
 	assert(!equals);
 }
 
-int main(void)
-{
-	ClarityHeap *heap;
-	ClarityCore *core;
-
-	heap = clarityHeapCreateExternal(mainAlloc, mainFree);
-	core = clarityCreate((ClarityEvent)entry, heap);
-	clarityStart(core);
-	clarityStop(core);
-	return 0;
-}
