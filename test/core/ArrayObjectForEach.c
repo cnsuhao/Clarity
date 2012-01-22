@@ -2,8 +2,6 @@
 #include "ClarityHeap.h"
 #include "ClarityArrayObject.h"
 #include "ClarityFunctionObject.h"
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 
 static ClarityObject *parameters;

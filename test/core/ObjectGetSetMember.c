@@ -2,8 +2,6 @@
 #include "ClarityHeap.h"
 #include "ClarityObject.h"
 #include "ClarityString.h"
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 
 void clarityEntry(ClarityObject *globalScope)

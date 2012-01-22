@@ -2,8 +2,6 @@
 #include "ClarityHeap.h"
 #include "ClarityIntegerObject.h"
 #include "ClarityInteger.h"
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 
 #define TEST_VALUE 23

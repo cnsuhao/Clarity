@@ -3,8 +3,6 @@
 #include "ClarityArray.h"
 #include "ClarityString.h"
 #include "ClarityInteger.h"
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 
 static ClarityString *dataString1;

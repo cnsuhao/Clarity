@@ -5,8 +5,6 @@
 #include "ClarityIntegerObject.h"
 #include "ClarityFunctionObject.h"
 #include "ClarityBooleanObject.h"
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 
 #define TEST_VALUE "test string"

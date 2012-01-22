@@ -2,8 +2,6 @@
 #include "ClarityHeap.h"
 #include "ClarityStringObject.h"
 #include "ClarityString.h"
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 
 #define TEST_VALUE "test string"

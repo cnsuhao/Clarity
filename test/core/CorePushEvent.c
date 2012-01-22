@@ -1,9 +1,8 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
 #include "ClarityString.h"
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
 static Bool gotEvent1 = FALSE;
 static Bool gotEvent2 = FALSE;

@@ -35,8 +35,6 @@
  */
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 
 static ClarityObject *fileScope = NULL;
