@@ -1,9 +1,9 @@
 TESTEROUT := out/int/tester
-TESTERLIB := out/rel/x86-tester-coverage/libclaritycore.a
-TESTERINCLUDE := out/rel/x86-tester-coverage/include/
+TESTERLIB := out/rel/x86-default-coverage/libclaritycore.a
+TESTERINCLUDE := out/rel/x86-default-coverage/include/
 TESTERCLARITYTEST := $(TESTEROUT)/claritytest
 TESTERSOURCE := $(wildcard test/*/*.c)
-TESTERDADIR := out/int/arch/x86-tester-coverage/src
+TESTERDADIR := out/int/arch/x86-default-coverage/src
 TESTERTESTS := \
 	$(addprefix $(TESTEROUT)/, \
 	$(patsubst %.c,%.test, $(TESTERSOURCE)))
