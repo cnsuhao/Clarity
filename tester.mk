@@ -13,22 +13,23 @@ TESTERTRACES := \
 TESTERRESULTS := \
 	$(addprefix $(TESTEROUT)/, \
 	$(patsubst %.c,%.res, $(TESTERSOURCE)))
-TESTERCOVERAGE := out/int/tester/coverage
+TESTERCOVERAGE := out/rel/report/coverage
 
 .PHONY : test
 .PRECIOUS : $(TESTEROUT)/%.test
 
-test: out/rel/testreport.txt $(TESTERCOVERAGE)
+test: out/rel/report/test.txt
+test: $(TESTERCOVERAGE)
 
-out/rel/testreport.txt: $(TESTEROUT)/testreport.txt
+out/rel/report/test.txt: $(TESTEROUT)/testreport.txt
 	@ mkdir -p $(dir $@)
-	@ cp $(TESTEROUT)/testreport.txt out/rel/testreport.txt
+	@ cp $(TESTEROUT)/testreport.txt out/rel/report/test.txt
 
-$(TESTERCOVERAGE): $(TESTERCOVERAGE).info
+$(TESTERCOVERAGE): $(TESTEROUT)/coverage.info
 	@ genhtml --num-spaces 4 -q -c test/gcov.css \
-		-t "Clarity" -o $(TESTERCOVERAGE) $<
+		-t "Clarity" -o $@ $<
 
-$(TESTEROUT)/testreport.txt: $(TESTERCOVERAGE).info
+$(TESTEROUT)/testreport.txt: $(TESTEROUT)/coverage.info
 	@ rm -f $@
 	@ for res in $(TESTERRESULTS) ; do \
 		if [ -e $$res ] ; then \
@@ -37,7 +38,7 @@ $(TESTEROUT)/testreport.txt: $(TESTERCOVERAGE).info
 	done
 	@ lcov -l $<  >> $@
 
-$(TESTERCOVERAGE).info: $(TESTERTRACES)
+$(TESTEROUT)/coverage.info: $(TESTERTRACES)
 	@ lcov -q  -a $(TESTEROUT)/init.info $(addprefix -a , $(TESTERTRACES)) -o $@
 
 $(TESTEROUT)/%.info: $(TESTEROUT)/%.test

@@ -39,8 +39,11 @@ CC := gcc
 CPP := $(CC) -E
 ARFLAGS := rsc
 ASFLAGS :=
-BASECFLAGS := -c -Wall -Werror -pedantic -std=c99
-
+ifeq ($(CCCC), true)
+CCCCCFLAG := -fdump-rtl-expand
+endif
+BASECFLAGS := -c -Wall -Werror -pedantic -std=c99 $(CCCCCFLAG)
+BASELDFLAGS :=
 ifeq ($(TARGET), release)
 LDFLAGS := $(BASELDFLAGS)
 CFLAGS := $(BASECFLAGS) -O2
@@ -116,6 +119,12 @@ HANALYSIS := \
 ifeq ($(LINK), true)
 $(OUT)/libclaritycore.a: $(OUTDIR)/claritycore
 endif
+ifeq ($(CCCC), true)
+$(OUT)/libclaritycore.a: out/rel/report/cccc
+endif
+ifeq ($(EGYPT), true)
+$(OUT)/libclaritycore.a: out/rel/report/callgraph.png
+endif
 $(OUT)/libclaritycore.a: $(CLA)
 $(OUT)/libclaritycore.a: $(OUTDIR)/libclaritycore.a
 	$(info Copying $@)
@@ -132,6 +141,17 @@ endif
 		cp -R $$dir*.h $(OUT)/include ; \
 	fi ; \
 	done
+
+out/rel/report/cccc:
+	@ mkdir -p $@
+	@ cccc --outdir=$@ $(CSOURCE)
+
+out/rel/report/callgraph.png: out/rel/report/callgraph.dot
+	@ dot -Tpng -o $@ $<
+
+out/rel/report/callgraph.dot: $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
+	@ egypt *.expand > $@
+	@ rm -f *.expand
 
 $(CLAGENDIR)/%.c: %.cla $(CLA)
 	@ mkdir -p $(dir $@)
