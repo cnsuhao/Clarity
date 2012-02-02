@@ -28,47 +28,21 @@
  */
 #ifndef __CLARITYARRAY_H__
 #define __CLARITYARRAY_H__
-#include "ClarityCore.h"
+#include "ClarityHeap.h"
 
 typedef struct __ClarityArray ClarityArray;
+typedef struct __ClarityArrayIterator ClarityArrayIterator;
 
-typedef void(*ClarityArrayForEachFunction)(void *, Uint32, ClarityArray *,
-	void *);
 
-typedef void *(*ClarityArrayMapFunction)(void *, Uint32, ClarityArray *,
-	void *);
-
-typedef Bool(*ClarityArrayTestFunction)(void *, Uint32, ClarityArray *,
-	void *);
-
-typedef void(*ClarityArrayForEachCallback)(void *);
-typedef void *(*ClarityArrayMapCallback)(void *, void *);
-typedef void(*ClarityArrayTestCallback)(Bool, void *);
-
-ClarityArray *clarityArrayCreate(ClarityCore *);
+ClarityArray *clarityArrayCreate(ClarityHeap *);
 ClarityArray *clarityArrayPush(ClarityArray *, void *);
 void *clarityArrayPop(ClarityArray *);
 ClarityArray *clarityArrayUnshift(ClarityArray *, void *);
 void *clarityArrayShift(ClarityArray *);
 Uint32 clarityArrayLength(ClarityArray *);
 ClarityArray *clarityArrayLock(ClarityArray *);
-
-void clarityArrayForEachWithoutCallback(ClarityArray *,
-	ClarityArrayForEachFunction);
-
-void clarityArrayForEach(ClarityArray *, ClarityArrayForEachFunction,
-	ClarityEvent, void *);
-
-void clarityArrayMap(ClarityArray *, ClarityArrayMapFunction,
-	ClarityArrayMapCallback, void *);
-
-void clarityArrayEvery(ClarityArray *, ClarityArrayTestFunction,
-	ClarityArrayTestCallback, void *);
-
-void clarityArraySome(ClarityArray *, ClarityArrayTestFunction,
-	ClarityArrayTestCallback, void *);
-
-void clarityArrayFilter(ClarityArray *, ClarityArrayTestFunction,
-	ClarityArrayMapCallback, void *);
-
+Bool clarityArrayIteratorHasItem(ClarityArrayIterator *);
+void *clarityArrayIteratorNextItem(ClarityArrayIterator *);
+ClarityArrayIterator *clarityArrayIteratorCreate(ClarityHeap *, ClarityArray *);
 #endif
+

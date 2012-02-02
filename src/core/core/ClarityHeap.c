@@ -192,6 +192,18 @@ static void innerRelease(void *data, Release release)
 	}
 }
 
+ClarityHeap *clarityHeap(void *data)
+{
+	ClarityHeap *retVal = NULL;
+	Header *header;
+
+	header = heapItemHeader(data);
+
+	if (header)
+		retVal = header->heap;
+	return retVal;
+}
+
 void *clarityHeapAutoRelease(void *data)
 {
 	innerRelease(data, autoReleasePoolPush);

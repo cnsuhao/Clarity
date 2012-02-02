@@ -1,4 +1,4 @@
-#include "Clarity.h"
+#include "ClarityTypes.h"
 #include <stdlib.h>
 
 void *clarityAlloc(Uint32 size)
@@ -11,7 +11,7 @@ void clarityFree(void *data)
 	free(data);
 }
 
-void *clarityMemCpy(ClarityCore *core, void *dstData,
+void *clarityMemCpy(void *dstData,
 	const void *srcData, Uint32 size)
 {
 	char* dst8 = (char *)dstData;
@@ -22,7 +22,7 @@ void *clarityMemCpy(ClarityCore *core, void *dstData,
 	return dstData;
 }
 
-Uint32 clarityStrLen(ClarityCore *core, const char *cString)
+Uint32 clarityStrLen(const char *cString)
 {
 	const char *s;
 
@@ -31,7 +31,7 @@ Uint32 clarityStrLen(ClarityCore *core, const char *cString)
 	return (Uint32)(s - cString);
 }
 
-Sint8 clarityStrCmp(ClarityCore *core, const char *cString,
+Sint8 clarityStrCmp(const char *cString,
 	const char *cString2)
 {
 	unsigned char uc1;

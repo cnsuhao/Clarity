@@ -5,9 +5,9 @@
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityArray *array;
 
-	array = clarityArrayCreate(core);
+	array = clarityArrayCreate(heap);
 	assert(array != NULL);
 }

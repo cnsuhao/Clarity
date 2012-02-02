@@ -1,21 +1,18 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
-#include "ClarityArrayObject.h"
+#include "ClarityBooleanObject.h"
 #include <assert.h>
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *object;
-	ClarityBoolean *boolean;
 
-	object = clarityBooleanObjectCreate(core, TRUE);
+	object = clarityBooleanObjectCreate(heap, TRUE);
 	assert(object != NULL);
-	boolean = clarityObjectGetInnerData(object);
-	assert(clarityBooleanGetValue(boolean) == TRUE);
-	object = clarityBooleanObjectCreate(core, FALSE);
+	assert(clarityBooleanObjectGetValue(object) == TRUE);
+	object = clarityBooleanObjectCreate(heap, FALSE);
 	assert(object != NULL);
-	boolean = clarityObjectGetInnerData(object);
-	assert(clarityBooleanGetValue(boolean) == FALSE);
+	assert(clarityBooleanObjectGetValue(object) == FALSE);
 }
 

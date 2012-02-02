@@ -32,7 +32,9 @@
 #include "ClarityCore.h"
 #include "ClarityObject.h"
 
-ClarityObject *clarityBooleanPrototypeCreate(ClarityCore *);
-ClarityObject *clarityBooleanObjectCreate(ClarityCore *, Bool);
+void clarityBooleanStaticInitializer(ClarityObject *, ClarityObject *);
+void clarityBooleanStaticRelease(void);
+ClarityObject *clarityBooleanObjectCreate(ClarityHeap *, Bool);
+Bool clarityBooleanObjectGetValue(ClarityObject *);
 
 #endif

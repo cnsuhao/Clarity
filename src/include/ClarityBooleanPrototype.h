@@ -26,16 +26,14 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYEVENTLOOP_H__
-#define __CLARITYEVENTLOOP_H__
-#include "ClarityHeap.h"
 
-typedef struct __ClarityEventLoop ClarityEventLoop;
+#ifndef __CLARITYBOOLEANPROTOTYPE_H__
+#define __CLARITYBOOLEANPROTOTYPE_H__
+#include "ClarityCore.h"
+#include "ClarityObject.h"
 
-typedef void(*ClarityEvent)(void *);
-void clarityEventLoopEnqueue(ClarityEventLoop *, ClarityEvent, void *);
-void clarityEventLoopPush(ClarityEventLoop *, ClarityEvent, void *);
-void clarityEventLoopStart(ClarityEventLoop *);
-ClarityEventLoop *clarityEventLoopCreate(ClarityHeap *, ClarityEvent, void *);
+void clarityBooleanPrototypeStaticInitializer(ClarityObject *);
+void clarityBooleanPrototypeStaticRelease(void);
+ClarityObject *clarityBooleanPrototypeCreate(ClarityHeap *);
 
 #endif

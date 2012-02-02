@@ -5,24 +5,24 @@
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *object;
 	ClarityObject *subObject;
 
-	object = clarityObjectCreate(core);
+	object = clarityObjectCreate(heap);
 	assert(object != NULL);
 	assert(clarityObjectGetInnerData(NULL) == NULL);
 	clarityObjectLock(NULL);
-	assert(clarityStrCmp(core,
+	assert(clarityStrCmp(
 		clarityObjectTypeOf(NULL), "undefined") == NULL);
 	subObject = clarityObjectGetMember(object, NULL);
-	assert(clarityUndefined() == subObject);
+	assert(clarityStrCmp(clarityObjectTypeOf(subObject), "undefined") == 0);
 	subObject = clarityObjectGetMember(NULL, "string");
-	assert(clarityUndefined() == subObject);
-	subObject = clarityObjectCreate(core);
-	assert(clarityObjectSetMember(
-		NULL, "string", subObject) == clarityUndefined());
-	assert(clarityObjectSetMember(
-		object, NULL, subObject) == object);
+	assert(clarityStrCmp(clarityObjectTypeOf(subObject), "undefined") == 0);
+	subObject = clarityObjectCreate(heap);
+	assert(clarityStrCmp(clarityObjectTypeOf(clarityObjectSetMember(
+		NULL, "string", subObject)), "undefined") == 0);
+	assert(clarityStrCmp(clarityObjectTypeOf(clarityObjectSetMember(
+		object, NULL, subObject)), "object") == 0);
 }
 

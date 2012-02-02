@@ -9,7 +9,7 @@
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	Bool equals;
 	ClarityObject *parameters;
 	ClarityObject *object1;
@@ -17,30 +17,30 @@ void clarityEntry(ClarityObject *globalScope)
 	ClarityObject *object3;
 	ClarityObject *object4;
 
-	object1 = clarityStringObjectCreate(core, TEST_VALUE1);
-	object2 = clarityStringObjectCreate(core, TEST_VALUE1);
-	object3 = clarityStringObjectCreate(core, TEST_VALUE2);
-	object4 = clarityIntegerObjectCreate(core, 23);
-	parameters = clarityObjectCreate(core);
+	object1 = clarityStringObjectCreate(heap, TEST_VALUE1);
+	object2 = clarityStringObjectCreate(heap, TEST_VALUE1);
+	object3 = clarityStringObjectCreate(heap, TEST_VALUE2);
+	object4 = clarityIntegerObjectCreate(heap, 23);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", object1);
 	clarityObjectSetMember(parameters, "$1", object2);
-	equals = clarityBooleanGetValue((ClarityBoolean *)clarityObjectGetInnerData(
+	equals = clarityBooleanObjectGetValue(
 		clarityFunctionObjectCall(
-		clarityObjectGetMember(object1, "equals"), parameters)));
+		clarityObjectGetMember(object1, "equals"), parameters));
 	assert(equals);
-	parameters = clarityObjectCreate(core);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", object1);
 	clarityObjectSetMember(parameters, "$1", object3);
-	equals = clarityBooleanGetValue((ClarityBoolean *)clarityObjectGetInnerData(
+	equals = clarityBooleanObjectGetValue(
 		clarityFunctionObjectCall(
-		clarityObjectGetMember(object1, "equals"), parameters)));
+		clarityObjectGetMember(object1, "equals"), parameters));
 	assert(!equals);
-	parameters = clarityObjectCreate(core);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", object1);
 	clarityObjectSetMember(parameters, "$1", object4);
-	equals = clarityBooleanGetValue((ClarityBoolean *)clarityObjectGetInnerData(
+	equals = clarityBooleanObjectGetValue(
 		clarityFunctionObjectCall(
-		clarityObjectGetMember(object1, "equals"), parameters)));
+		clarityObjectGetMember(object1, "equals"), parameters));
 	assert(!equals);
 }
 

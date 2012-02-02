@@ -26,12 +26,64 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
+#include "ClarityIntegerObject.h"
+#include "ClarityBooleanObject.h"
+#include "ClarityFunctionObject.h"
 
-#ifndef __CLARITYGLOBALSCOPEOBJECT_H__
-#define __CLARITYGLOBALSCOPEOBJECT_H__
-#include "ClarityCore.h"
-#include "ClarityObject.h"
+static ClarityObject *gPrototype = NULL;
+static ClarityObject *gUndefined = NULL;
 
-ClarityObject *clarityGlobalScopeObjectCreate(ClarityCore *);
+void clarityIntegerStaticInitializer(ClarityObject *prototype,
+	ClarityObject *undefined)
+{
+	gUndefined = clarityHeapRetain(undefined);
+	gPrototype = clarityHeapRetain(prototype);
+}
 
-#endif
+void clarityIntegerStaticRelease(void)
+{
+	clarityHeapRelease(gUndefined);
+	clarityHeapForceRelease(gPrototype);
+}
+
+typedef struct {
+	Uint32 value;
+} ClarityInteger;
+
+static ClarityInteger *clarityIntegerCreate(ClarityHeap *heap, Uint32 value)
+{
+	ClarityInteger *integer;
+
+	integer = clarityHeapAllocate(heap, sizeof(ClarityInteger));
+	integer->value = value;
+	return clarityHeapAutoRelease(integer);
+}
+
+Uint32 clarityIntegerObjectGetValue(ClarityObject *integer)
+{
+	Uint32 retVal = 0;
+	if (integer) {
+		if (clarityStrCmp(clarityObjectTypeOf(integer),
+			"number") == 0) {
+			ClarityInteger *inner;
+
+			inner = (ClarityInteger *)clarityObjectGetInnerData(integer);
+			if (inner)
+				retVal = inner->value;
+		}
+	}
+	return retVal;
+}
+
+ClarityObject *clarityIntegerObjectCreate(ClarityHeap *heap, Uint32 uint32)
+{
+	ClarityObject *integer;
+
+	integer = clarityObjectCreateType(heap, "number",
+		clarityIntegerCreate(heap, uint32));
+
+	clarityObjectSetMember(integer, "prototype", gPrototype);
+
+	clarityObjectLock(integer);
+	return integer;
+}

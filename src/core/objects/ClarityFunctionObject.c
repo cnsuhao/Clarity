@@ -27,6 +27,7 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityFunctionObject.h"
+#include "ClarityCore.h"
 
 typedef struct {
 	ClarityFunctionPointer functionPointer;
@@ -34,34 +35,39 @@ typedef struct {
 	Bool async;
 } ClarityFunction;
 
-static ClarityObject *prototype = NULL;
+static ClarityEventLoop *gEventLoop = NULL;
+static ClarityObject *gUndefined = NULL;
 
-ClarityObject *clarityFunctionPrototypeCreate(ClarityCore *core)
+void clarityFunctionStaticInitializer(ClarityHeap *heap,
+	ClarityEventLoop *eventLoop, ClarityObject *undefined)
 {
-	if (!prototype) {
-		prototype = clarityObjectCreate(core);
-		clarityObjectLock(prototype);
-	}
-	return prototype;
+	gEventLoop = clarityHeapRetain(eventLoop);
+	gUndefined = clarityHeapRetain(undefined);
+}
+
+void clarityFunctionStaticRelease(void)
+{
+	clarityHeapRelease(gUndefined);
+	clarityHeapRelease(gEventLoop);
 }
 
 static void destroyClarityFunction(ClarityFunction *clarityFunction)
 {
-	clarityRelease(clarityFunction->scope);
+	clarityHeapRelease(clarityFunction->scope);
 }
 
-static ClarityFunction *clarityFunctionCreate(ClarityCore *core,
+static ClarityFunction *clarityFunctionCreate(ClarityHeap *heap,
 	ClarityFunctionPointer functionPointer, ClarityObject *scope, Bool async)
 {
 	ClarityFunction *function;
 
-	function = clarityAllocateWithDestructor(core, sizeof(ClarityFunction),
-		(ClarityDestructor)destroyClarityFunction);
+	function = clarityHeapAllocateWithDestructor(heap, sizeof(ClarityFunction),
+		(ClarityHeapDestructor)destroyClarityFunction);
 
 	function->functionPointer = functionPointer;
-	function->scope = clarityRetain(scope);
+	function->scope = clarityHeapRetain(scope);
 	function->async = async;
-	return clarityAutoRelease(function);
+	return clarityHeapAutoRelease(function);
 }
 
 static void functionObjectCallAsyncEvent(ClarityObject *parameters)
@@ -76,34 +82,40 @@ static void functionObjectCallAsyncEvent(ClarityObject *parameters)
 	inner->functionPointer(parameters);
 }
 
+static Bool clarityFunctionCheckFunctionObject(ClarityObject *function,
+	ClarityObject *parameters)
+{
+	Bool retVal = FALSE;
+
+	if (function && parameters)
+		if (clarityStrCmp(clarityObjectTypeOf(function), "function") == 0)
+			retVal = TRUE;
+	return retVal;
+}
+
 ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 	ClarityObject *parameters)
 {
-	ClarityObject *retVal = clarityUndefined();
+	ClarityObject *retVal = gUndefined;
 
-	if (function && parameters) {
-		ClarityCore *core = clarityCore();
+	if (clarityFunctionCheckFunctionObject(function, parameters)) {
+		ClarityFunction *inner;
 
-		if (clarityStrCmp(core, clarityObjectTypeOf(function),
-			"function") == 0) {
-			ClarityFunction *inner;
+		inner = (ClarityFunction *)clarityObjectGetInnerData(function);
 
-			inner = (ClarityFunction *)clarityObjectGetInnerData(function);
-
-			if (inner && inner->functionPointer) {
-				clarityObjectSetMember(parameters, "$0", function);
-				clarityObjectSetMember(parameters, "prototype",
+		if (inner && inner->functionPointer) {
+			clarityObjectSetMember(parameters, "$0", function);
+			clarityObjectSetMember(parameters, "prototype",
 					inner->scope);
-				clarityObjectLock(parameters);
+			clarityObjectLock(parameters);
 
-				if (inner->async) {
-					clarityEnqueueEvent(core,
+			if (inner->async) {
+				clarityEventLoopEnqueue(gEventLoop,
 						(ClarityEvent)functionObjectCallAsyncEvent,
 						parameters);
-					retVal = clarityUndefined();
-				} else {
-						retVal = inner->functionPointer(parameters);
-				}
+				retVal = gUndefined;
+			} else {
+				retVal = inner->functionPointer(parameters);
 			}
 		}
 	}
@@ -113,7 +125,7 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 ClarityObject *clarityFunctionObjectNew(ClarityObject *function,
 	ClarityObject *parameters)
 {
-	ClarityObject *object = clarityObjectCreate(clarityCore());
+	ClarityObject *object = clarityObjectCreate(clarityHeap(function));
 
 	clarityObjectSetMember(parameters, "this", object);
 	clarityFunctionObjectCall(function, parameters);
@@ -121,31 +133,28 @@ ClarityObject *clarityFunctionObjectNew(ClarityObject *function,
 	return object;
 }
 
-static ClarityObject *innerFunctionObjectCreate(ClarityCore *core,
+static ClarityObject *innerFunctionObjectCreate(ClarityHeap *heap,
 	ClarityFunctionPointer functionPointer, ClarityObject *scope, Bool async)
 {
 	ClarityObject *function;
 
-	function = clarityObjectCreateType(core, "function",
-		clarityFunctionCreate(core, functionPointer, scope, async));
-
-	clarityObjectSetMember(function, "prototype",
-		clarityFunctionPrototypeCreate(core));
+	function = clarityObjectCreateType(heap, "function",
+		clarityFunctionCreate(heap, functionPointer, scope, async));
 
 	return function;
 }
 
-ClarityObject *clarityFunctionObjectCreateAsync(ClarityCore *core,
+ClarityObject *clarityFunctionObjectCreateAsync(ClarityHeap *heap,
 	ClarityFunctionPointer functionPointer, ClarityObject *scope)
 {
-	return innerFunctionObjectCreate(core, functionPointer,
+	return innerFunctionObjectCreate(heap, functionPointer,
 		scope, TRUE);
 }
 
-ClarityObject *clarityFunctionObjectCreate(ClarityCore *core,
+ClarityObject *clarityFunctionObjectCreate(ClarityHeap *heap,
 	ClarityFunctionPointer functionPointer, ClarityObject *scope)
 {
-	return innerFunctionObjectCreate(core, functionPointer,
+	return innerFunctionObjectCreate(heap, functionPointer,
 		scope, FALSE);
 
 }

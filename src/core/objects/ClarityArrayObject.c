@@ -26,60 +26,36 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
+#include "ClarityArray.h"
+#include "ClarityArrayObject.h"
+#include "ClarityObject.h"
 #include "ClarityIntegerObject.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
-#include "ClarityInteger.h"
 
-static ClarityObject *prototype = NULL;
+static ClarityObject *gPrototype = NULL;
+static ClarityObject *gUndefined = NULL;
 
-static ClarityObject *equals(ClarityObject *scope)
+void clarityArrayStaticInitializer(
+	ClarityObject *prototype, ClarityObject *undefined)
 {
-	ClarityObject *retVal = clarityUndefined();
-
-	if (scope) {
-		Bool equal = FALSE;
-		ClarityCore *core = clarityCore();
-
-		if (clarityStrCmp(core, clarityObjectTypeOf(
-			clarityObjectGetMember(scope, "this")), "number") == 0 &&
-			clarityStrCmp(core, clarityObjectTypeOf(
-			clarityObjectGetOwnMember(scope, "$1")), "number") == 0) {
-			equal = (clarityIntegerGetValue(clarityObjectGetInnerData(
-				clarityObjectGetMember(scope, "this"))) ==
-				clarityIntegerGetValue(clarityObjectGetInnerData(
-				clarityObjectGetOwnMember(scope, "$1"))));
-		}
-		retVal = clarityBooleanObjectCreate(core, equal);
-	}
-	return retVal;
+	gPrototype = clarityHeapRetain(prototype);
+	gUndefined = clarityHeapRetain(undefined);
 }
 
-ClarityObject *clarityIntegerPrototypeCreate(ClarityCore *core)
+void clarityArrayStaticRelease(void)
 {
-	if (!prototype) {
-		prototype = clarityObjectCreate(core);
-
-		clarityObjectSetMember(prototype, "equals",
-			clarityFunctionObjectCreate(core,
-				equals,
-				clarityUndefined()));
-
-		clarityObjectLock(prototype);
-	}
-	return prototype;
+	clarityHeapRelease(gUndefined);
+	clarityHeapForceRelease(gPrototype);
 }
 
-ClarityObject *clarityIntegerObjectCreate(ClarityCore *core, Uint32 uint32)
+ClarityObject *clarityArrayObjectCreate(ClarityHeap *heap,
+	ClarityArray *innerArray)
 {
-	ClarityObject *integer;
+	ClarityObject *array = clarityObjectCreateType(heap, "array", innerArray);
 
-	integer = clarityObjectCreateType(core, "number",
-		clarityIntegerCreate(core, uint32));
-
-	clarityObjectSetMember(integer, "prototype",
-		clarityIntegerPrototypeCreate(core));
-
-	clarityObjectLock(integer);
-	return integer;
+	clarityObjectSetMember(array, "prototype", gPrototype);
+	clarityObjectLock(array);
+	return array;
 }
+

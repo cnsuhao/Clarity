@@ -39,10 +39,10 @@ CC := gcc
 CPP := $(CC) -E
 ARFLAGS := rsc
 ASFLAGS :=
-ifeq ($(CCCC), true)
-CCCCCFLAG := -fdump-rtl-expand
+ifeq ($(ARQUA), true)
+ARQUACFLAG := -fdump-rtl-expand
 endif
-BASECFLAGS := -c -Wall -Werror -pedantic -std=c99 $(CCCCCFLAG)
+BASECFLAGS := -c -Wall -Werror -pedantic -std=c99 $(ARQUACFLAG)
 BASELDFLAGS :=
 ifeq ($(TARGET), release)
 LDFLAGS := $(BASELDFLAGS)
@@ -74,14 +74,24 @@ SSOURCE := $(wildcard \
 	src/arch/$(ARCH)/*.s \
 	src/arch/$(ARCH)/mach/$(MACH)/*.s)
 
-CSOURCE := $(wildcard \
-	src/core/*.c \
+CSOURCE := $(shell find src/core -type f -name '*.c')
+
+CSOURCE := $(CSOURCE) $(wildcard \
 	src/arch/$(ARCH)/*.c \
 	src/arch/$(ARCH)/mach/$(MACH)/*.c)
 
 COBJECTS := \
 	$(addprefix $(OUTDIR)/, \
 	$(patsubst %.c,%.o, $(CSOURCE)))
+
+CEXPANDS := \
+	$(patsubst %.o,%.expand, $(COBJECTS))
+
+CDOTS := \
+	$(patsubst %.expand,%.dot, $(CEXPANDS))
+
+CPDFS := \
+	$(patsubst %.dot,%.pdf, $(CDOTS))
 
 SOBJECTS := \
 	$(addprefix $(OUTDIR)/, \
@@ -94,7 +104,6 @@ HEADER := $(wildcard \
 	src/arch/$(ARCH)/mach/$(MACH)/include/*.h)
 
 CLASOURCE := $(wildcard \
-	src/core/*.cla \
 	src/arch/$(ARCH)/*.cla \
 	src/arch/$(ARCH)/mach/$(MACH)/*.cla \
 	$(addsuffix /*.cla, $(addprefix src/components/, $(COMPONENTS))) \
@@ -122,8 +131,9 @@ endif
 ifeq ($(CCCC), true)
 $(OUT)/libclaritycore.a: out/rel/report/cccc
 endif
-ifeq ($(EGYPT), true)
-$(OUT)/libclaritycore.a: out/rel/report/callgraph.png
+ifeq ($(ARQUA), true)
+$(OUT)/libclaritycore.a: out/rel/report/archreport.pdf
+$(OUT)/libclaritycore.a: $(CDOTS)
 endif
 $(OUT)/libclaritycore.a: $(CLA)
 $(OUT)/libclaritycore.a: $(OUTDIR)/libclaritycore.a
@@ -146,12 +156,21 @@ out/rel/report/cccc:
 	@ mkdir -p $@
 	@ cccc --outdir=$@ $(CSOURCE)
 
-out/rel/report/callgraph.png: out/rel/report/callgraph.dot
-	@ dot -Tpng -o $@ $<
+out/rel/report/archreport.pdf: $(OUTDIR)/archreport.pdf
+	@ mkdir -p $(dir $@)
+	@ cp $< $@
 
-out/rel/report/callgraph.dot: $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
-	@ egypt *.expand > $@
-	@ rm -f *.expand
+$(OUTDIR)/archreport.pdf: $(CPDFS) $(OUTDIR)/system.pdf
+	@ pdfunite $(OUTDIR)/system.pdf $(CPDFS) $@
+
+%.pdf: %.dot
+	@ unflatten -c4 $< | dot -Tpdf -Gfontsize=14 -Gratio="0.681" -Gsize="8.27,11.69 -Glandscape" -o $@
+
+$(OUTDIR)/system.dot : $(COBJECTS)
+	@ arqua --root $(OUTDIR)/src/core --stop 2 $(CEXPANDS) > $@
+
+$(OUTDIR)/%.dot: $(OUTDIR)/%.expand
+	@ arqua --root $(OUTDIR)/src/core --start 0 --stop 1 $< > $@
 
 $(CLAGENDIR)/%.c: %.cla $(CLA)
 	@ mkdir -p $(dir $@)
@@ -171,6 +190,9 @@ $(OUTDIR)/%.o: %.c
 	@ $(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) \
 		-DCLARITY_FILE=\"$(notdir $(basename $@))\" \
 		$(CFLAGS) -o $@ $(abspath $<)
+ifeq ($(ARQUA), true)
+	@ mv $(notdir $<).104r.expand $(dir $@)/$(notdir $(basename $@)).expand
+endif
 
 $(OUTDIR)/%.o: %.s
 	@ mkdir -p $(dir $@)

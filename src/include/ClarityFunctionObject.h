@@ -28,17 +28,20 @@
  */
 #ifndef __CLARITYFUNCTIONOBJECT_H__
 #define __CLARITYFUNCTIONOBJECT_H__
-#include "ClarityCore.h"
+#include "ClarityHeap.h"
 #include "ClarityObject.h"
+#include "ClarityEventLoop.h"
 
 typedef ClarityObject * (*ClarityFunctionPointer)(ClarityObject *);
 
-ClarityObject *clarityFunctionPrototypeCreate(ClarityCore *);
+void clarityFunctionStaticInitializer(ClarityHeap *,
+	ClarityEventLoop *, ClarityObject *);
+void clarityFunctionStaticRelease(void);
 
-ClarityObject *clarityFunctionObjectCreate(ClarityCore *,
+ClarityObject *clarityFunctionObjectCreate(ClarityHeap *,
 	ClarityFunctionPointer, ClarityObject *);
 
-ClarityObject *clarityFunctionObjectCreateAsync(ClarityCore *,
+ClarityObject *clarityFunctionObjectCreateAsync(ClarityHeap *,
 	ClarityFunctionPointer, ClarityObject *);
 
 ClarityObject *clarityFunctionObjectCall(ClarityObject *, ClarityObject *);

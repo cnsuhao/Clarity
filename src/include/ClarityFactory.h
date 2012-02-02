@@ -26,16 +26,21 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYEVENTLOOP_H__
-#define __CLARITYEVENTLOOP_H__
+#ifndef __CLARITYFACTORY_H__
+#define __CLARITYFACTORY_H__
+#include "ClarityTypes.h"
 #include "ClarityHeap.h"
+#include "ClarityEventLoop.h"
 
-typedef struct __ClarityEventLoop ClarityEventLoop;
+typedef struct __Clarity Clarity;
 
-typedef void(*ClarityEvent)(void *);
-void clarityEventLoopEnqueue(ClarityEventLoop *, ClarityEvent, void *);
-void clarityEventLoopPush(ClarityEventLoop *, ClarityEvent, void *);
-void clarityEventLoopStart(ClarityEventLoop *);
-ClarityEventLoop *clarityEventLoopCreate(ClarityHeap *, ClarityEvent, void *);
+typedef void*(*ClarityFileInit)(void *);
+
+Clarity *clarityCore(void);
+Clarity *clarityCreate(ClarityEvent, ClarityHeap *);
+void clarityStart(Clarity *);
+void clarityStop(Clarity *);
+void clarityRegisterFile(Clarity *, char *, ClarityFileInit);
 
 #endif
+

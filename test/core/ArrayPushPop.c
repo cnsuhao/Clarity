@@ -1,35 +1,38 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
 #include "ClarityArray.h"
-#include "ClarityString.h"
+#include "ClarityStringObject.h"
 #include <assert.h>
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	const char *data1 = "TestString1";
 	const char *data2 = "TestString2";
 	const char *data3 = "TestString3";
 	ClarityArray *array;
 	Uint32 length;
-	ClarityString *dataString1;
-	ClarityString *dataString2;
-	ClarityString *dataString3;
-	ClarityString *resultString;
+	ClarityObject *dataString1;
+	ClarityObject *dataString2;
+	ClarityObject *dataString3;
+	ClarityObject *resultString;
 
-	dataString1 = clarityStringCreate(core, data1);
-	dataString2 = clarityStringCreate(core, data2);
-	dataString3 = clarityStringCreate(core, data3);
-	array = clarityArrayCreate(core);
+	dataString1 = clarityStringObjectCreate(heap, data1);
+	dataString2 = clarityStringObjectCreate(heap, data2);
+	dataString3 = clarityStringObjectCreate(heap, data3);
+	array = clarityArrayCreate(heap);
 	clarityArrayPush(array, dataString1);
 	clarityArrayPush(array, dataString2);
 	clarityArrayPush(array, dataString3);
 	resultString = clarityArrayPop(array);
-	assert(clarityStringCompare(dataString3, resultString) == 0);
+	assert(clarityStrCmp(data3,
+		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityArrayPop(array);
-	assert(clarityStringCompare(dataString2, resultString) == 0);
+	assert(clarityStrCmp(data2,
+		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityArrayPop(array);
-	assert(clarityStringCompare(dataString1, resultString) == 0);
+	assert(clarityStrCmp(data1,
+		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityArrayPop(array);
 	assert(resultString == NULL);
 	clarityArrayPush(array, dataString1);

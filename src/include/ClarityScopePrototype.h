@@ -26,43 +26,16 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityString.h"
 
-struct __ClarityString {
-	ClarityCore *clarity;
-	Uint32 length;
-	char cString;
-};
+#ifndef __CLARITYSCOPEPROTOTYPE_H__
+#define __CLARITYSCOPEPROTOTYPE_H__
+#include "ClarityHeap.h"
+#include "ClarityObject.h"
+#include "ClarityEventLoop.h"
 
-ClarityString *clarityStringCreate(ClarityCore *core, const char *newCString)
-{
-	ClarityString *string;
-	char *cString;
-	Uint32 length;
+void clarityScopePrototypeStaticInitializer(ClarityEventLoop *,
+	ClarityObject *, ClarityObject *);
+void clarityScopePrototypeStaticRelease(void);
+ClarityObject *clarityScopePrototypeCreate(ClarityHeap *);
 
-	length = clarityStrLen(core, newCString);
-	string = clarityAllocate(core, sizeof(ClarityString) + length + 1);
-
-	string->length = length;
-	cString = &string->cString;
-
-	clarityMemCpy(core, cString, newCString, string->length);
-	cString[string->length] = '\0';
-	return clarityAutoRelease(string);
-}
-
-Sint8 clarityStringCompare(ClarityString *string, ClarityString *string2)
-{
-	return clarityStrCmp(clarityCore(), &string->cString,
-		&string2->cString);
-}
-
-Uint32 clarityStringLength(ClarityString *string)
-{
-	return string->length;
-}
-
-const char *clarityStringGetValue(ClarityString *string)
-{
-	return (const char *)&string->cString;
-}
+#endif

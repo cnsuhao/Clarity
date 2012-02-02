@@ -13,11 +13,11 @@ static ClarityObject *mapFunction(ClarityObject *scope)
 	Uint32 index;
 	ClarityObject *array;
 
-	data = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetOwnMember(scope, "$1")));
+	data = clarityIntegerObjectGetValue(
+		clarityObjectGetOwnMember(scope, "$1"));
 
-	index = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetOwnMember(scope, "$2")));
+	index = clarityIntegerObjectGetValue(
+		clarityObjectGetOwnMember(scope, "$2"));
 
 	assert((data == 2 && index == 0) ||
 		(data == 4 && index == 1) ||
@@ -26,7 +26,7 @@ static ClarityObject *mapFunction(ClarityObject *scope)
 
 	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
-	return clarityIntegerObjectCreate(clarityCore(), data * 2);
+	return clarityIntegerObjectCreate(clarityHeap(scope), data * 2);
 }
 
 static ClarityObject *mapCallback(ClarityObject *scope)
@@ -34,43 +34,43 @@ static ClarityObject *mapCallback(ClarityObject *scope)
 	ClarityArray *array = clarityObjectGetInnerData(
 		clarityObjectGetOwnMember(scope, "$1"));
 
-	assert(clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityArrayPop(array))) == 32);
+	assert(clarityIntegerObjectGetValue(
+		clarityArrayPop(array)) == 32);
 
-	assert(clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityArrayPop(array))) == 16);
+	assert(clarityIntegerObjectGetValue(
+		clarityArrayPop(array)) == 16);
 
-	assert(clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityArrayPop(array))) == 8);
+	assert(clarityIntegerObjectGetValue(
+		clarityArrayPop(array)) == 8);
 
-	assert(clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityArrayPop(array))) == 4);
+	assert(clarityIntegerObjectGetValue(
+		clarityArrayPop(array)) == 4);
 
 	gotCallback = TRUE;
-	return clarityUndefined();
+	return NULL;
 }
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *parameters;
 	ClarityArray *array;
 
-	array = clarityArrayCreate(core);
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 2));
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 4));
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 8));
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 16));
-	arrayObject = clarityArrayObjectCreate(core, array);
-	parameters = clarityObjectCreate(core);
+	array = clarityArrayCreate(heap);
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 2));
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 4));
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 8));
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 16));
+	arrayObject = clarityArrayObjectCreate(heap, array);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", arrayObject);
 	clarityObjectSetMember(parameters, "$1",
-		clarityFunctionObjectCreate(core, mapFunction,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, mapFunction,
+		NULL));
 
 	clarityObjectSetMember(parameters, "$2",
-		clarityFunctionObjectCreate(core, mapCallback,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, mapCallback,
+		NULL));
 
 	clarityFunctionObjectCall(
 		clarityObjectGetMember(arrayObject, "map"), parameters);

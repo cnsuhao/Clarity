@@ -5,11 +5,11 @@
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *object;
 	ClarityArray *array;
 
-	array = clarityArrayCreate(core);
-	object = clarityArrayObjectCreate(core, array);
+	array = clarityArrayCreate(heap);
+	object = clarityArrayObjectCreate(heap, array);
 	assert(object != NULL);
 }

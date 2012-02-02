@@ -1,17 +1,19 @@
-#include "Clarity.h"
-#include "ClarityHeap.h"
-#include "ClarityObject.h"
-#include "ClarityInteger.h"
-#include "ClarityStringObject.h"
-#include "ClarityFunctionObject.h"
+#include "ClarityTypes.h"
 #include <stdlib.h>
 
-void clarityEntry(ClarityObject *globalScope)
+void *_sbrk(long incr)
 {
-	ClarityCore *core = clarityCore();
-	clarityObjectCreate(core);
-	clarityStringObjectCreate(core, "string");
-	clarityIntegerCreate(core, 32);
+	extern char heapStart;
+	static char *heap_next = 0;
+	char  *prev_heap_next;
+
+	if (heap_next == NULL)
+		heap_next = &heapStart;
+
+	prev_heap_next = heap_next;
+	heap_next += incr;
+
+	return (void *)prev_heap_next;
 }
 
 void *clarityAlloc(Uint32 size)
@@ -24,7 +26,7 @@ void clarityFree(void *data)
 	free(data);
 }
 
-void *clarityMemCpy(ClarityCore *core, void *dstData,
+void *clarityMemCpy(void *dstData,
 	const void *srcData, Uint32 size)
 {
 	char* dst8 = (char *)dstData;
@@ -35,7 +37,7 @@ void *clarityMemCpy(ClarityCore *core, void *dstData,
 	return dstData;
 }
 
-void *clarityMemSet(ClarityCore *core, void *data, char value,
+void *clarityMemSet(void *data, char value,
 	Uint32 size)
 {
 	char *p;
@@ -46,7 +48,7 @@ void *clarityMemSet(ClarityCore *core, void *data, char value,
 	return data;
 }
 
-Uint32 clarityStrLen(ClarityCore *core, const char *cString)
+Uint32 clarityStrLen(const char *cString)
 {
 	const char *s;
 
@@ -55,7 +57,7 @@ Uint32 clarityStrLen(ClarityCore *core, const char *cString)
 	return (Uint32)(s - cString);
 }
 
-Sint8 clarityStrCmp(ClarityCore *core, const char *cString,
+Sint8 clarityStrCmp(const char *cString,
 	const char *cString2)
 {
 	unsigned char uc1;

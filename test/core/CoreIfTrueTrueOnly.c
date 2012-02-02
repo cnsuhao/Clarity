@@ -12,22 +12,22 @@ static Bool gotTrue = FALSE;
 static ClarityObject *ifTrue(ClarityObject *scope)
 {
 	gotTrue = TRUE;
-	return clarityUndefined();
+	return NULL;
 }
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *parameters;
 	ClarityObject *boolean;
 
-	parameters = clarityObjectCreate(core);
-	boolean = clarityBooleanObjectCreate(core, TRUE);
+	parameters = clarityObjectCreate(heap);
+	boolean = clarityBooleanObjectCreate(heap, TRUE);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", boolean);
 	clarityObjectSetMember(parameters, "$2",
-		clarityFunctionObjectCreate(core, ifTrue,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, ifTrue,
+		NULL));
 	clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "if"), parameters);
 }

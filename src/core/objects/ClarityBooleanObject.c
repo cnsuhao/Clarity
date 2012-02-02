@@ -26,13 +26,65 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYINTEGER_H__
-#define __CLARITYINTEGER_H__
-#include "ClarityCore.h"
+#include "ClarityBooleanObject.h"
 
-typedef struct __ClarityInteger ClarityInteger;
+static ClarityObject *gPrototype = NULL;
+static ClarityObject *gUndefined = NULL;
 
-ClarityInteger *clarityIntegerCreate(ClarityCore *, Uint32);
-Uint32 clarityIntegerGetValue(ClarityInteger *);
+void clarityBooleanStaticInitializer(ClarityObject *prototype,
+	ClarityObject *undefined)
+{
+	gUndefined = clarityHeapRetain(undefined);
+	gPrototype = clarityHeapRetain(prototype);
+}
 
-#endif
+void clarityBooleanStaticRelease(void)
+{
+	clarityHeapRelease(gUndefined);
+	clarityHeapForceRelease(gPrototype);
+}
+
+typedef struct {
+	Bool value;
+} ClarityBoolean;
+
+static ClarityBoolean *clarityBooleanCreate(ClarityHeap *heap, Bool value)
+{
+	ClarityBoolean *boolean;
+
+	boolean = clarityHeapAllocate(heap, sizeof(ClarityBoolean));
+
+	boolean->value = value;
+	return clarityHeapAutoRelease(boolean);
+}
+
+Bool clarityBooleanObjectGetValue(ClarityObject *boolean)
+{
+	Bool retVal = FALSE;
+	if (boolean) {
+		if (clarityStrCmp(clarityObjectTypeOf(boolean),
+			"boolean") == 0) {
+			ClarityBoolean *inner;
+
+			inner = (ClarityBoolean *)clarityObjectGetInnerData(boolean);
+			if (inner)
+				retVal = inner->value;
+		}
+	}
+	return retVal;
+}
+
+ClarityObject *clarityBooleanObjectCreate(ClarityHeap *heap, Bool value)
+{
+	ClarityObject *boolean;
+
+	boolean = clarityObjectCreateType(heap, "boolean",
+		clarityBooleanCreate(heap, value));
+
+	clarityObjectSetMember(boolean, "prototype",
+		gPrototype);
+
+	clarityObjectLock(boolean);
+	return boolean;
+}
+

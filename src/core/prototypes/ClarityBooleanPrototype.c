@@ -26,27 +26,53 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityBoolean.h"
+#include "ClarityBooleanObject.h"
+#include "ClarityFunctionObject.h"
 
-struct __ClarityBoolean {
-	Bool value;
-};
+static ClarityObject *gUndefined = NULL;
 
-ClarityBoolean *clarityBooleanCreate(ClarityCore *core, Bool value)
+void clarityBooleanPrototypeStaticInitializer(
+	ClarityObject *undefined)
 {
-	ClarityBoolean *boolean;
-
-	boolean = clarityAllocate(core, sizeof(ClarityBoolean));
-
-	boolean->value = value;
-	return clarityAutoRelease(boolean);
+	gUndefined = clarityHeapRetain(undefined);
 }
 
-Bool clarityBooleanGetValue(ClarityBoolean *boolean)
+void clarityBooleanPrototypeStaticRelease(void)
 {
-	Bool retVal = FALSE;
+	clarityHeapRelease(gUndefined);
+}
 
-	if (boolean)
-		retVal = boolean->value;
+static ClarityObject *equals(ClarityObject *scope)
+{
+	ClarityObject *retVal = gUndefined;
+
+	if (scope) {
+		Bool equal = FALSE;
+
+		if (clarityStrCmp(clarityObjectTypeOf(
+			clarityObjectGetMember(scope, "this")), "boolean") == 0 &&
+			clarityStrCmp(clarityObjectTypeOf(
+			clarityObjectGetOwnMember(scope, "$1")), "boolean") == 0) {
+			equal = (clarityBooleanObjectGetValue(
+				clarityObjectGetMember(scope, "this")) ==
+				clarityBooleanObjectGetValue(
+				clarityObjectGetOwnMember(scope, "$1")));
+		}
+		retVal = clarityBooleanObjectCreate(clarityHeap(scope), equal);
+	}
 	return retVal;
 }
+
+ClarityObject *clarityBooleanPrototypeCreate(ClarityHeap *heap)
+{
+	ClarityObject *prototype = clarityObjectCreate(heap);
+
+	clarityObjectSetMember(prototype, "equals",
+		clarityFunctionObjectCreate(heap,
+		equals,
+		gUndefined));
+
+		clarityObjectLock(prototype);
+		return prototype;
+}
+

@@ -26,17 +26,82 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITY_H__
-#define __CLARITY_H__
-#include "ClarityTypes.h"
-#include "ClarityFactory.h"
-#include "ClarityCore.h"
-#include "ClarityArray.h"
 #include "ClarityObject.h"
-#include "ClarityArrayObject.h"
-#include "ClarityStringObject.h"
 #include "ClarityIntegerObject.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
-#endif
 
+
+static ClarityObject *gPrototype = NULL;
+static ClarityObject *gUndefined = NULL;
+
+void clarityStringStaticInitializer(ClarityObject *prototype,
+	ClarityObject *undefined)
+{
+	gUndefined = clarityHeapRetain(undefined);
+	gPrototype = clarityHeapRetain(prototype);
+}
+
+void clarityStringStaticRelease(void)
+{
+	clarityHeapRelease(gUndefined);
+	clarityHeapForceRelease(gPrototype);
+}
+
+typedef struct {
+	Uint32 length;
+	char cString;
+} ClarityString;
+
+static ClarityString *clarityStringCreate(ClarityHeap *heap,
+	const char *newCString)
+{
+	ClarityString *string;
+	char *cString;
+	Uint32 length;
+
+	length = clarityStrLen(newCString);
+	string = clarityHeapAllocate(heap, sizeof(ClarityString) + length + 1);
+
+	string->length = length;
+	cString = &string->cString;
+
+	clarityMemCpy(cString, newCString, string->length);
+	cString[string->length] = '\0';
+	return clarityHeapAutoRelease(string);
+}
+
+static const char *clarityStringGetValue(ClarityString *string)
+{
+	return (const char *)&string->cString;
+}
+
+const char *clarityStringObjectGetValue(ClarityObject *string)
+{
+	const char *retVal = NULL;
+	if (string) {
+		if (clarityStrCmp(clarityObjectTypeOf(string),
+			"string") == 0) {
+			ClarityString *inner;
+
+			inner = (ClarityString *)clarityObjectGetInnerData(string);
+			if (inner)
+				retVal = clarityStringGetValue(inner);
+		}
+	}
+	return retVal;
+}
+
+ClarityObject *clarityStringObjectCreate(ClarityHeap *heap,
+	const char *cString)
+{
+	ClarityObject *string;
+
+	string = clarityObjectCreateType(heap, "string",
+		clarityStringCreate(heap, cString));
+
+	clarityObjectSetMember(string, "prototype", gPrototype);
+
+	clarityObjectLock(string);
+	return string;
+}

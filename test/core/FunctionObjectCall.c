@@ -1,22 +1,25 @@
 #include "Clarity.h"
+#include "ClarityCore.h"
 #include "ClarityHeap.h"
 #include "ClarityArrayObject.h"
 #include <assert.h>
 
 static ClarityObject *testFunction(ClarityObject *context)
 {
-	return clarityUndefined();
+	return NULL;
 }
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *object;
 	ClarityObject *scope;
 
-	scope = clarityObjectCreate(core);
-	object = clarityFunctionObjectCreate(core, testFunction, scope);
-	assert(clarityFunctionObjectCall(NULL, scope) == clarityUndefined());
-	assert(clarityFunctionObjectCall(object, NULL) == clarityUndefined());
+	scope = clarityObjectCreate(heap);
+	object = clarityFunctionObjectCreate(heap, testFunction, scope);
+	assert(clarityStrCmp(clarityObjectTypeOf(
+		clarityFunctionObjectCall(NULL, scope)), "undefined") == 0);
+	assert(clarityStrCmp(clarityObjectTypeOf(
+		clarityFunctionObjectCall(object, NULL)), "undefined") == 0);
 }
 

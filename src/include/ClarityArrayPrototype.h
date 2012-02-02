@@ -26,59 +26,15 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityBooleanObject.h"
-#include "ClarityFunctionObject.h"
-#include "ClarityBoolean.h"
 
-static ClarityObject *prototype = NULL;
+#ifndef __CLARITYARRAYPROTOTYPE_H__
+#define __CLARITYARRAYPROTOTYPE_H__
+#include "ClarityEventLoop.h"
+#include "ClarityObject.h"
 
-static ClarityObject *equals(ClarityObject *scope)
-{
-	ClarityObject *retVal = clarityUndefined();
+void clarityArrayPrototypeStaticInitializer(
+	ClarityEventLoop *, ClarityObject *);
+void clarityArrayPrototypeStaticRelease(void);
+ClarityObject *clarityArrayPrototypeCreate(ClarityHeap *);
 
-	if (scope) {
-		Bool equal = FALSE;
-		ClarityCore *core = clarityCore();
-
-		if (clarityStrCmp(core, clarityObjectTypeOf(
-			clarityObjectGetMember(scope, "this")), "boolean") == 0 &&
-			clarityStrCmp(core, clarityObjectTypeOf(
-			clarityObjectGetOwnMember(scope, "$1")), "boolean") == 0) {
-			equal = (clarityBooleanGetValue(clarityObjectGetInnerData(
-				clarityObjectGetMember(scope, "this"))) ==
-				clarityBooleanGetValue(clarityObjectGetInnerData(
-				clarityObjectGetOwnMember(scope, "$1"))));
-		}
-		retVal = clarityBooleanObjectCreate(core, equal);
-	}
-	return retVal;
-}
-
-ClarityObject *clarityBooleanPrototypeCreate(ClarityCore *core)
-{
-	if (!prototype) {
-		prototype = clarityObjectCreate(core);
-
-		clarityObjectSetMember(prototype, "equals",
-			clarityFunctionObjectCreate(core,
-				equals,
-				clarityUndefined()));
-
-		clarityObjectLock(prototype);
-	}
-	return prototype;
-}
-
-ClarityObject *clarityBooleanObjectCreate(ClarityCore *core, Bool value)
-{
-	ClarityObject *boolean;
-
-	boolean = clarityObjectCreateType(core, "boolean",
-		clarityBooleanCreate(core, value));
-
-	clarityObjectSetMember(boolean, "prototype",
-		clarityBooleanPrototypeCreate(core));
-
-	clarityObjectLock(boolean);
-	return boolean;
-}
+#endif

@@ -15,47 +15,47 @@ static Bool gotCondition = FALSE;
 static ClarityObject *ifTrue(ClarityObject *scope)
 {
 	gotTrue = TRUE;
-	return clarityUndefined();
+	return NULL;
 }
 
 static ClarityObject *ifFalse(ClarityObject *scope)
 {
 	gotFalse = TRUE;
-	return clarityUndefined();
+	return NULL;
 }
 
 static ClarityObject *ifDone(ClarityObject *scope)
 {
 	gotDone = TRUE;
 	assert(gotTrue);
-	return clarityUndefined();
+	return NULL;
 }
 
 static ClarityObject *condition(ClarityObject *scope)
 {
 	gotCondition = TRUE;
-	return clarityBooleanObjectCreate(clarityCore(), TRUE);
+	return clarityBooleanObjectCreate(clarityHeap(scope), TRUE);
 }
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *parameters;
 
-	parameters = clarityObjectCreate(core);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1",
-		clarityFunctionObjectCreate(core, condition,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, condition,
+		NULL));
 	clarityObjectSetMember(parameters, "$2",
-		clarityFunctionObjectCreate(core, ifTrue,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, ifTrue,
+		NULL));
 	clarityObjectSetMember(parameters, "$3",
-		clarityFunctionObjectCreate(core, ifFalse,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, ifFalse,
+		NULL));
 	clarityObjectSetMember(parameters, "$4",
-		clarityFunctionObjectCreate(core, ifDone,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, ifDone,
+		NULL));
 	clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "if"), parameters);
 }

@@ -26,16 +26,44 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYEVENTLOOP_H__
-#define __CLARITYEVENTLOOP_H__
-#include "ClarityHeap.h"
+#include "ClarityObject.h"
+#include "ClarityBooleanObject.h"
+#include "ClarityFunctionObject.h"
 
-typedef struct __ClarityEventLoop ClarityEventLoop;
+static ClarityObject *gUndefined = NULL;
 
-typedef void(*ClarityEvent)(void *);
-void clarityEventLoopEnqueue(ClarityEventLoop *, ClarityEvent, void *);
-void clarityEventLoopPush(ClarityEventLoop *, ClarityEvent, void *);
-void clarityEventLoopStart(ClarityEventLoop *);
-ClarityEventLoop *clarityEventLoopCreate(ClarityHeap *, ClarityEvent, void *);
+void clarityObjectPrototypeStaticInitializer(ClarityObject *undefined)
+{
+	gUndefined = clarityHeapRetain(undefined);
+}
 
-#endif
+void clarityObjectPrototypeStaticRelease(void)
+{
+	clarityHeapRelease(gUndefined);
+}
+
+static ClarityObject *equals(ClarityObject *scope)
+{
+	ClarityObject *retVal = gUndefined;
+
+	if (scope) {
+		Bool equals = (clarityObjectGetMember(scope, "this") ==
+			clarityObjectGetOwnMember(scope, "$1"));
+		retVal = clarityBooleanObjectCreate(clarityHeap(scope), equals);
+	}
+	return retVal;
+}
+
+ClarityObject *clarityObjectPrototypeCreate(ClarityHeap *heap)
+{
+	ClarityObject *prototype = clarityObjectCreateType(heap, "object", NULL);
+
+	clarityObjectSetMember(prototype, "equals",
+			clarityFunctionObjectCreate(heap,
+				equals,
+				gUndefined));
+
+	clarityObjectLock(prototype);
+	return prototype;
+}
+

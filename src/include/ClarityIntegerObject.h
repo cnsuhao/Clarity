@@ -29,10 +29,13 @@
 
 #ifndef __CLARITYINTEGEROBJECT_H__
 #define __CLARITYINTEGEROBJECT_H__
-#include "ClarityCore.h"
+#include "ClarityHeap.h"
 #include "ClarityObject.h"
 
-ClarityObject *clarityIntegerPrototypeCreate(ClarityCore *);
-ClarityObject *clarityIntegerObjectCreate(ClarityCore *, Uint32);
+void clarityIntegerStaticInitializer(ClarityObject *, ClarityObject *);
+void clarityIntegerStaticRelease(void);
+ClarityObject *clarityIntegerObjectCreate(ClarityHeap *, Uint32);
+Uint32 clarityIntegerObjectGetValue(ClarityObject *);
 
 #endif
+

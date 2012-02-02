@@ -26,13 +26,14 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYBOOLEAN_H__
-#define __CLARITYBOOLEAN_H__
-#include "ClarityCore.h"
 
-typedef struct __ClarityBoolean ClarityBoolean;
+#ifndef __CLARITYSTRINGPROTOTYPE_H__
+#define __CLARITYSTRINGPROTOTYPE_H__
+#include "ClarityHeap.h"
+#include "ClarityObject.h"
 
-ClarityBoolean *clarityBooleanCreate(ClarityCore *, Bool);
-Bool clarityBooleanGetValue(ClarityBoolean *);
+void clarityStringPrototypeStaticInitializer(ClarityObject *);
+void clarityStringPrototypeStaticRelease(void);
+ClarityObject *clarityStringPrototypeCreate(ClarityHeap *);
 
 #endif

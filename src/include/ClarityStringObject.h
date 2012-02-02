@@ -29,10 +29,12 @@
 
 #ifndef __CLARITYSTRINGOBJECT_H__
 #define __CLARITYSTRINGOBJECT_H__
-#include "ClarityCore.h"
+#include "ClarityHeap.h"
 #include "ClarityObject.h"
 
-ClarityObject *clarityStringPrototypeCreate(ClarityCore *);
-ClarityObject *clarityStringObjectCreate(ClarityCore *, const char *);
+void clarityStringStaticInitializer(ClarityObject *, ClarityObject *);
+void clarityStringStaticRelease(void);
+ClarityObject *clarityStringObjectCreate(ClarityHeap *, const char *);
+const char *clarityStringObjectGetValue(ClarityObject *string);
 
 #endif

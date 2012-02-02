@@ -5,17 +5,17 @@
 
 static ClarityObject *testFunction(ClarityObject *context)
 {
-	return clarityUndefined();
+	return NULL;
 }
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *object;
 	ClarityObject *context;
 
-	context = clarityObjectCreate(core);
-	object = clarityFunctionObjectCreate(core, testFunction, context);
+	context = clarityObjectCreate(heap);
+	object = clarityFunctionObjectCreate(heap, testFunction, context);
 	assert(object != NULL);
 }
 

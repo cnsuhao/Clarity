@@ -28,13 +28,15 @@
  */
 #ifndef __CLARITYOBJECT_H__
 #define __CLARITYOBJECT_H__
-#include "ClarityCore.h"
+#include "ClarityHeap.h"
 
 typedef struct __ClarityObject ClarityObject;
 
-ClarityObject *clarityObjectPrototypeCreate(ClarityCore *);
-ClarityObject *clarityObjectCreate(ClarityCore *);
-ClarityObject *clarityObjectCreateType(ClarityCore *, const char *, void *);
+void clarityObjectStaticInitializer(ClarityObject *,
+	ClarityObject *);
+void clarityObjectStaticRelease(void);
+ClarityObject *clarityObjectCreate(ClarityHeap *);
+ClarityObject *clarityObjectCreateType(ClarityHeap *, const char *, void *);
 
 ClarityObject *clarityObjectSetMember(ClarityObject *, const char *,
 	ClarityObject *);

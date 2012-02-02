@@ -7,17 +7,17 @@
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	Uint32 length;
 	ClarityObject *parameters;
 	ClarityObject *object;
 
-	object = clarityStringObjectCreate(core, TEST_VALUE);
-	parameters = clarityObjectCreate(core);
+	object = clarityStringObjectCreate(heap, TEST_VALUE);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", object);
-	length = clarityIntegerGetValue((ClarityInteger *)clarityObjectGetInnerData(
+	length = clarityIntegerObjectGetValue(
 		clarityFunctionObjectCall(
-		clarityObjectGetMember(object, "length"), parameters)));
-	assert(clarityStrLen(core, TEST_VALUE) == length);
+		clarityObjectGetMember(object, "length"), parameters));
+	assert(clarityStrLen(TEST_VALUE) == length);
 }
 

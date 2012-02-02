@@ -5,23 +5,22 @@
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	Uint32 length;
 	ClarityObject *parameters;
 	ClarityObject *object;
 	ClarityArray *array;
 
-	array = clarityArrayCreate(core);
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 2));
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 4));
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 8));
-	object = clarityArrayObjectCreate(core, array);
-	parameters = clarityObjectCreate(core);
+	array = clarityArrayCreate(heap);
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 2));
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 4));
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 8));
+	object = clarityArrayObjectCreate(heap, array);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", object);
-	length = clarityIntegerGetValue(
-		(ClarityInteger *)clarityObjectGetInnerData(
+	length = clarityIntegerObjectGetValue(
 		clarityFunctionObjectCall(
-		clarityObjectGetMember(object, "length"), parameters)));
+		clarityObjectGetMember(object, "length"), parameters));
 	assert(3 == length);
 }
 

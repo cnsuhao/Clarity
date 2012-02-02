@@ -1,18 +1,15 @@
 #include "Clarity.h"
 #include "ClarityHeap.h"
 #include "ClarityIntegerObject.h"
-#include "ClarityInteger.h"
 #include <assert.h>
 
 #define TEST_VALUE 23
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *object;
-	ClarityInteger *integer;
 
-	object = clarityIntegerObjectCreate(core, TEST_VALUE);
-	integer = clarityObjectGetInnerData(object);
-	assert(clarityIntegerGetValue(integer) == TEST_VALUE);
+	object = clarityIntegerObjectCreate(heap, TEST_VALUE);
+	assert(clarityIntegerObjectGetValue(object) == TEST_VALUE);
 }

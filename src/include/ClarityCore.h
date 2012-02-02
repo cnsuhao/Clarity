@@ -29,38 +29,11 @@
 #ifndef __CLARITYCORE_H__
 #define __CLARITYCORE_H__
 #include "ClarityTypes.h"
-#include "ClarityHeap.h"
 
-typedef struct __ClarityCore ClarityCore;
-
-typedef void(*ClarityEvent)(void *);
-typedef void*(*ClarityFileInit)(void *);
 typedef Sint8(*ClarityComparator)(void *, void *);
-typedef void(*ClarityDestructor)(void *);
 
-void *clarityAllocate(ClarityCore *, Uint32);
-void *clarityAllocateWithDestructor(ClarityCore *core, Uint32 size,
-	ClarityDestructor destructor);
-
-void *clarityAutoRelease(void *);
-void clarityRelease(void *);
-void clarityForceRelease(void *);
-void *clarityRetain(void *);
-void clarityCollectGarbage(ClarityCore *);
-
-ClarityCore *clarityCore();
-void *clarityUndefined(void);
-void clarityRegisterFile(ClarityCore *, char *, ClarityFileInit);
-void *clarityFileRegistry(ClarityCore *);
-
-void *clarityMemCpy(ClarityCore *, void *, const void *, Uint32);
-Uint32 clarityStrLen(ClarityCore *, const char *);
-Sint8 clarityStrCmp(ClarityCore *, const char *, const char *);
-
-ClarityCore *clarityCreate(ClarityEvent, ClarityHeap *);
-void clarityEnqueueEvent(ClarityCore *, ClarityEvent, void *);
-void clarityPushEvent(ClarityCore *, ClarityEvent, void *);
-void clarityStart(ClarityCore *);
-void clarityStop(ClarityCore *);
-
+void *clarityMemCpy(void *, const void *, Uint32);
+Uint32 clarityStrLen(const char *);
+Sint8 clarityStrCmp(const char *, const char *);
 #endif
+

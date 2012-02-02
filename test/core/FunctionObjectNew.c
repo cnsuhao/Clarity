@@ -9,23 +9,22 @@ static ClarityObject *testFunction(ClarityObject *scope)
 
 	clarityObjectSetMember(this, "testMember",
 		clarityObjectGetOwnMember(scope, "$1"));
-	return clarityUndefined();
+	return NULL;
 }
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *function;
 	ClarityObject *scope;
 	ClarityObject *newObject;
 
-	scope = clarityObjectCreate(core);
-	function = clarityFunctionObjectCreate(core, testFunction, scope);
+	scope = clarityObjectCreate(heap);
+	function = clarityFunctionObjectCreate(heap, testFunction, scope);
 	newObject = clarityFunctionObjectNew(function,
-		clarityObjectSetMember(clarityObjectCreate(core), "$1",
-		clarityIntegerObjectCreate(core, 34)));
-	assert(clarityIntegerGetValue(
-		clarityObjectGetInnerData(
-		clarityObjectGetMember(newObject, "testMember"))) == 34);
+		clarityObjectSetMember(clarityObjectCreate(heap), "$1",
+		clarityIntegerObjectCreate(heap, 34)));
+	assert(clarityIntegerObjectGetValue(
+		clarityObjectGetMember(newObject, "testMember")) == 34);
 }
 

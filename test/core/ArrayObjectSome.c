@@ -13,11 +13,11 @@ static ClarityObject *someFunction1(ClarityObject *scope)
 	Uint32 index;
 	ClarityObject *array;
 
-	data = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetOwnMember(scope, "$1")));
+	data = clarityIntegerObjectGetValue(
+		clarityObjectGetOwnMember(scope, "$1"));
 
-	index = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetOwnMember(scope, "$2")));
+	index = clarityIntegerObjectGetValue(
+		clarityObjectGetOwnMember(scope, "$2"));
 
 	assert((data == 2 && index == 0) ||
 		(data == 4 && index == 1) ||
@@ -26,15 +26,15 @@ static ClarityObject *someFunction1(ClarityObject *scope)
 
 	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
-	return clarityBooleanObjectCreate(clarityCore(), (data == 4));
+	return clarityBooleanObjectCreate(clarityHeap(scope), (data == 4));
 }
 
 static ClarityObject *someCallback1(ClarityObject *scope)
 {
-	assert(clarityBooleanGetValue(clarityObjectGetInnerData(
+	assert(clarityBooleanObjectGetValue((
 		clarityObjectGetOwnMember(scope, "$1"))) == TRUE);
 	gotCallback = TRUE;
-	return clarityUndefined();
+	return NULL;
 }
 
 static ClarityObject *someFunction2(ClarityObject *scope)
@@ -43,11 +43,11 @@ static ClarityObject *someFunction2(ClarityObject *scope)
 	Uint32 index;
 	ClarityObject *array;
 
-	data = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetOwnMember(scope, "$1")));
+	data = clarityIntegerObjectGetValue(
+		clarityObjectGetOwnMember(scope, "$1"));
 
-	index = clarityIntegerGetValue(clarityObjectGetInnerData(
-		clarityObjectGetOwnMember(scope, "$2")));
+	index = clarityIntegerObjectGetValue(
+		clarityObjectGetOwnMember(scope, "$2"));
 
 	assert((data == 2 && index == 0) ||
 		(data == 4 && index == 1) ||
@@ -56,51 +56,51 @@ static ClarityObject *someFunction2(ClarityObject *scope)
 
 	array = clarityObjectGetOwnMember(scope, "$3");
 	assert(array == arrayObject);
-	return clarityBooleanObjectCreate(clarityCore(), FALSE);
+	return clarityBooleanObjectCreate(clarityHeap(scope), FALSE);
 }
 
 static ClarityObject *someCallback2(ClarityObject *scope)
 {
-	assert(clarityBooleanGetValue(clarityObjectGetInnerData(
+	assert(clarityBooleanObjectGetValue((
 		clarityObjectGetOwnMember(scope, "$1"))) == FALSE);
 	gotCallback = TRUE;
-	return clarityUndefined();
+	return NULL;
 }
 
 void clarityEntry(ClarityObject *globalScope)
 {
-	ClarityCore *core = clarityCore();
+	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *parameters;
 	ClarityArray *array;
 
-	array = clarityArrayCreate(core);
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 2));
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 4));
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 8));
-	clarityArrayPush(array, clarityIntegerObjectCreate(core, 16));
-	arrayObject = clarityArrayObjectCreate(core, array);
-	parameters = clarityObjectCreate(core);
+	array = clarityArrayCreate(heap);
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 2));
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 4));
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 8));
+	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 16));
+	arrayObject = clarityArrayObjectCreate(heap, array);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", arrayObject);
 	clarityObjectSetMember(parameters, "$1",
-		clarityFunctionObjectCreate(core, someFunction1,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, someFunction1,
+		NULL));
 
 	clarityObjectSetMember(parameters, "$2",
-		clarityFunctionObjectCreate(core, someCallback1,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, someCallback1,
+		NULL));
 
 	clarityFunctionObjectCall(
 		clarityObjectGetMember(arrayObject, "some"), parameters);
 
-	parameters = clarityObjectCreate(core);
+	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", arrayObject);
 	clarityObjectSetMember(parameters, "$1",
-		clarityFunctionObjectCreate(core, someFunction2,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, someFunction2,
+		NULL));
 
 	clarityObjectSetMember(parameters, "$2",
-		clarityFunctionObjectCreate(core, someCallback2,
-		clarityUndefined()));
+		clarityFunctionObjectCreate(heap, someCallback2,
+		NULL));
 
 	clarityFunctionObjectCall(
 		clarityObjectGetMember(arrayObject, "some"), parameters);

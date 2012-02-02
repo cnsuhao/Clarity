@@ -25,7 +25,7 @@ SECTIONS {
 		ramEnd = ABSOLUTE(.);
 		. = . + 1024;
 		stack = ABSOLUTE(.);
-		end = .;
+		heapStart = .;
 	} >ram AT>flash
 
 	ramSize = ramEnd - ramStart;

@@ -28,19 +28,34 @@
  */
 #include "ClarityCore.h"
 #include "ClarityObject.h"
-#include "ClarityGlobalScopeObject.h"
+#include "ClarityScopePrototype.h"
 #include "ClarityBooleanObject.h"
-#include "ClarityBoolean.h"
 #include "ClarityStringObject.h"
-#include "ClarityString.h"
 #include "ClarityFunctionObject.h"
 
-static ClarityObject *globalScope = NULL;
 static ClarityObject *loadedFiles = NULL;
+static ClarityEventLoop *gEventLoop = NULL;
+static ClarityObject *gUndefined = NULL;
+static ClarityObject *gFileRegistry = NULL;
+
+void clarityScopePrototypeStaticInitializer(ClarityEventLoop *eventLoop,
+	ClarityObject *undefined, ClarityObject *fileRegistry)
+{
+	gEventLoop = clarityHeapRetain(eventLoop);
+	gUndefined = clarityHeapRetain(undefined);
+	gFileRegistry = clarityHeapRetain(fileRegistry);
+}
+
+void clarityScopePrototypeStaticRelease(void)
+{
+	clarityHeapRelease(gUndefined);
+	clarityHeapRelease(gEventLoop);
+	clarityHeapRelease(gFileRegistry);
+}
 
 static ClarityObject *clarityTypeOf(ClarityObject *parameters)
 {
-	return clarityStringObjectCreate(clarityCore(),
+	return clarityStringObjectCreate(clarityHeap(parameters),
 		clarityObjectTypeOf(clarityObjectGetOwnMember(parameters, "$1")));
 }
 
@@ -53,36 +68,34 @@ static void clarityIfEventDone(ClarityObject *parameters)
 static void clarityIfEvent(ClarityObject *parameters)
 {
 	ClarityObject *scope;
-	ClarityCore *core = clarityCore();
 
 	clarityFunctionObjectCall(
 		clarityObjectGetOwnMember(parameters, "$1"), parameters);
-	scope = clarityObjectCreate(clarityCore());
+	scope = clarityObjectCreate(clarityHeap(parameters));
 	clarityObjectSetMember(scope, "prototype", parameters);
 	clarityObjectSetMember(scope, "$1",
 		clarityObjectGetOwnMember(parameters, "$2"));
-	clarityEnqueueEvent(core, (ClarityEvent)clarityIfEventDone, scope);
+	clarityEventLoopEnqueue(gEventLoop,
+		(ClarityEvent)clarityIfEventDone, scope);
 }
 
 static ClarityObject *clarityIf(ClarityObject *parameters)
 {
 	ClarityObject *scope;
-	ClarityCore *core = clarityCore();
 	ClarityObject *testObject = clarityObjectGetOwnMember(parameters, "$1");
 	Bool test = FALSE;
 
-	if (clarityStrCmp(core,
+	if (clarityStrCmp(
 		clarityObjectTypeOf(testObject), "function") == 0) {
 			testObject = clarityFunctionObjectCall(testObject, parameters);
 	}
 
-	if (clarityStrCmp(core,
+	if (clarityStrCmp(
 		clarityObjectTypeOf(testObject), "boolean") == 0) {
-			test = clarityBooleanGetValue(
-					clarityObjectGetInnerData(testObject));
+			test = clarityBooleanObjectGetValue(testObject);
 	}
 
-	scope = clarityObjectCreate(clarityCore());
+	scope = clarityObjectCreate(clarityHeap(parameters));
 	clarityObjectSetMember(scope, "prototype", parameters);
 
 	if (test) {
@@ -94,28 +107,26 @@ static ClarityObject *clarityIf(ClarityObject *parameters)
 	}
 	clarityObjectSetMember(scope, "$2",
 		clarityObjectGetOwnMember(parameters, "$4"));
-	clarityEnqueueEvent(core, (ClarityEvent)clarityIfEvent, scope);
-	return clarityUndefined();
+	clarityEventLoopEnqueue(gEventLoop, (ClarityEvent)clarityIfEvent, scope);
+	return gUndefined;
 }
 
 static ClarityObject *clarityRequire(ClarityObject *parameters)
 {
-	ClarityCore *core = clarityCore();
-	ClarityObject *retVal = clarityUndefined();
+	ClarityObject *retVal = gUndefined;
 	ClarityObject *file = clarityObjectGetOwnMember(parameters, "$1");
 
-	if (clarityStrCmp(core,
+	if (clarityStrCmp(
 		clarityObjectTypeOf(file), "string") == 0) {
 			ClarityObject *loadedFile;
 			const char *name;
 
-			name = clarityStringGetValue(clarityObjectGetInnerData(file));
+			name = clarityStringObjectGetValue(file);
 			loadedFile = clarityObjectGetMember(loadedFiles, name);
-			if (loadedFile == clarityUndefined()) {
+			if (loadedFile == gUndefined) {
 				loadedFile = clarityFunctionObjectCall(
-					clarityObjectGetMember(
-					(ClarityObject *)clarityFileRegistry(core), name),
-					clarityObjectCreate(core));
+					clarityObjectGetMember(gFileRegistry, name),
+					clarityObjectCreate(clarityHeap(parameters)));
 				clarityObjectSetMember(loadedFiles, name, loadedFile);
 				retVal = clarityObjectGetMember(loadedFile, "exports");
 			}
@@ -124,27 +135,25 @@ static ClarityObject *clarityRequire(ClarityObject *parameters)
 	return retVal;
 }
 
-ClarityObject *clarityGlobalScopeObjectCreate(ClarityCore *core)
+ClarityObject *clarityScopePrototypeCreate(ClarityHeap *heap)
 {
-	if (!globalScope) {
-		globalScope = clarityObjectCreate(core);
+	ClarityObject *prototype = clarityObjectCreate(heap);
 
-		clarityObjectSetMember(globalScope, "typeOf",
-			clarityFunctionObjectCreate(core,
-				clarityTypeOf, clarityUndefined()));
+	clarityObjectSetMember(prototype, "typeOf",
+		clarityFunctionObjectCreate(heap,
+		clarityTypeOf, gUndefined));
 
-		clarityObjectSetMember(globalScope, "if",
-			clarityFunctionObjectCreate(core,
-				clarityIf, clarityUndefined()));
+	clarityObjectSetMember(prototype, "if",
+		clarityFunctionObjectCreate(heap,
+		clarityIf, gUndefined));
 
-		clarityObjectSetMember(globalScope, "require",
-			clarityFunctionObjectCreate(core,
-				clarityRequire, clarityUndefined()));
+	clarityObjectSetMember(prototype, "require",
+		clarityFunctionObjectCreate(heap,
+		clarityRequire, gUndefined));
 
-		if (!loadedFiles)
-			loadedFiles = clarityObjectCreate(core);
+	if (!loadedFiles)
+		loadedFiles = clarityObjectCreate(heap);
 
-		clarityObjectLock(globalScope);
-	}
-	return globalScope;
+	clarityObjectLock(prototype);
+	return prototype;
 }

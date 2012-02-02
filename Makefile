@@ -36,7 +36,7 @@ export CHECKPATCH := ./src/tools/checkpatch/checkpatch.pl \
 main: test build
 
 build:
-	@ $(MAKE) -f target.mk CCCC=false EGYPT=false
+	@ $(MAKE) -f target.mk CCCC=false ARQUA=false
 
 test: buildtestlib
 	@ $(MAKE) -f tester.mk

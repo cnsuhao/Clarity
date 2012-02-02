@@ -26,15 +26,15 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYSTRING_H__
-#define __CLARITYSTRING_H__
-#include "ClarityCore.h"
 
-typedef struct __ClarityString ClarityString;
+#ifndef __CLARITYINTEGERPROTOTYPE_H__
+#define __CLARITYINTEGERPROTOTYPE_H__
+#include "ClarityHeap.h"
+#include "ClarityObject.h"
 
-ClarityString *clarityStringCreate(ClarityCore *, const char*);
-Uint32 clarityStringLength(ClarityString *);
-Sint8 clarityStringCompare(ClarityString *, ClarityString *);
-const char *clarityStringGetValue(ClarityString *);
+ClarityObject *clarityIntegerPrototypeStaticInitializer(ClarityObject *);
+void clarityIntegerPrototypeStaticRelease(void);
+ClarityObject *clarityIntegerPrototypeCreate(ClarityHeap *);
 
 #endif
+
