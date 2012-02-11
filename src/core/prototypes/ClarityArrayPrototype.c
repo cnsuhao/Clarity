@@ -200,8 +200,8 @@ static ClarityObject *length(ClarityObject *scope)
 	if (scope) {
 		ClarityHeap *heap = clarityHeap(scope);
 
-		if (clarityStrCmp(clarityObjectTypeOf(
-		clarityObjectGetMember(scope, "this")), "array") == 0) {
+		if (clarityObjectIsTypeOf(
+		clarityObjectGetMember(scope, "this"), "array")) {
 			Uint32 length = clarityArrayLength(
 				clarityObjectGetInnerData(
 				clarityObjectGetMember(scope,

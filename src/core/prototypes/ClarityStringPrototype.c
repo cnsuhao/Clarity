@@ -52,12 +52,10 @@ static ClarityObject *equals(ClarityObject *scope)
 	if (scope) {
 		Bool equal = FALSE;
 
-		if (clarityStrCmp(clarityObjectTypeOf(
-			clarityObjectGetMember(scope, "this")),
-			"string") == 0 &&
-			clarityStrCmp(clarityObjectTypeOf(
-			clarityObjectGetOwnMember(scope, "$1")),
-			"string") == 0) {
+		if (clarityObjectIsTypeOf(
+			clarityObjectGetMember(scope, "this"), "string") &&
+			clarityObjectIsTypeOf(
+			clarityObjectGetOwnMember(scope, "$1"), "string")) {
 			equal = (clarityStrCmp(clarityStringObjectGetValue(
 				clarityObjectGetMember(scope, "this")),
 				clarityStringObjectGetValue(

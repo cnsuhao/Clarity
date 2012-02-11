@@ -63,8 +63,7 @@ Uint32 clarityIntegerObjectGetValue(ClarityObject *integer)
 {
 	Uint32 retVal = 0;
 	if (integer) {
-		if (clarityStrCmp(clarityObjectTypeOf(integer),
-			"number") == 0) {
+		if (clarityObjectIsTypeOf(integer, "number")) {
 			ClarityInteger *inner;
 
 			inner = (ClarityInteger *)

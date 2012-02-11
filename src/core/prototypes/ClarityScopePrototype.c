@@ -86,16 +86,11 @@ static ClarityObject *clarityIf(ClarityObject *parameters)
 	ClarityObject *testObject = clarityObjectGetOwnMember(parameters, "$1");
 	Bool test = FALSE;
 
-	if (clarityStrCmp(
-		clarityObjectTypeOf(testObject), "function") == 0) {
-			testObject = clarityFunctionObjectCall(
-				testObject, parameters);
-	}
+	if (clarityObjectIsTypeOf(testObject, "function"))
+		testObject = clarityFunctionObjectCall(testObject, parameters);
 
-	if (clarityStrCmp(
-		clarityObjectTypeOf(testObject), "boolean") == 0) {
-			test = clarityBooleanObjectGetValue(testObject);
-	}
+	if (clarityObjectIsTypeOf(testObject, "boolean"))
+		test = clarityBooleanObjectGetValue(testObject);
 
 	scope = clarityObjectCreate(clarityHeap(parameters));
 	clarityObjectSetMember(scope, "prototype", parameters);
@@ -122,7 +117,7 @@ static ClarityObject *clarityRequire(ClarityObject *parameters)
 	ClarityObject *retVal = gUndefined;
 	ClarityObject *file = clarityObjectGetOwnMember(parameters, "$1");
 
-	if (clarityStrCmp(clarityObjectTypeOf(file), "string") == 0) {
+	if (clarityObjectIsTypeOf(file, "string")) {
 		ClarityObject *loadedFile;
 		const char *name;
 

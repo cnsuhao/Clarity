@@ -49,12 +49,10 @@ static ClarityObject *equals(ClarityObject *scope)
 	if (scope) {
 		Bool equal = FALSE;
 
-		if (clarityStrCmp(clarityObjectTypeOf(
-			clarityObjectGetMember(scope, "this")),
-			"number") == 0 &&
-			clarityStrCmp(clarityObjectTypeOf(
-			clarityObjectGetOwnMember(scope, "$1")),
-			"number") == 0) {
+		if (clarityObjectIsTypeOf(
+			clarityObjectGetMember(scope, "this"), "number") &&
+			clarityObjectIsTypeOf(
+			clarityObjectGetOwnMember(scope, "$1"), "number")) {
 			equal = (clarityIntegerObjectGetValue(
 				clarityObjectGetMember(scope, "this"))) ==
 				clarityIntegerObjectGetValue(

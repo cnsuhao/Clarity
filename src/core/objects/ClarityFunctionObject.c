@@ -90,8 +90,7 @@ static Bool clarityFunctionCheckFunctionObject(ClarityObject *function,
 	Bool retVal = FALSE;
 
 	if (function && parameters)
-		if (clarityStrCmp(clarityObjectTypeOf(function),
-			"function") == 0)
+		if (clarityObjectIsTypeOf(function, "function"))
 			retVal = TRUE;
 	return retVal;
 }

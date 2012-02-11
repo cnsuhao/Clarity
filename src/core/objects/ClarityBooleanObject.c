@@ -62,8 +62,7 @@ Bool clarityBooleanObjectGetValue(ClarityObject *boolean)
 {
 	Bool retVal = FALSE;
 	if (boolean) {
-		if (clarityStrCmp(clarityObjectTypeOf(boolean),
-			"boolean") == 0) {
+		if (clarityObjectIsTypeOf(boolean, "boolean")) {
 			ClarityBoolean *inner;
 
 			inner = (ClarityBoolean *)

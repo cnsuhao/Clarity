@@ -201,6 +201,18 @@ const char *clarityObjectTypeOf(ClarityObject *object)
 
 	if (object)
 		retVal = object->type;
+
+	return retVal;
+}
+
+Bool clarityObjectIsTypeOf(ClarityObject *object, const char *type)
+{
+	Bool retVal = FALSE;
+
+	if (type)
+		retVal = (clarityStrCmp(
+			clarityObjectTypeOf(object), type) == 0);
+
 	return retVal;
 }
 

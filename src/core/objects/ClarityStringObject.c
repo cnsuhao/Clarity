@@ -80,8 +80,7 @@ const char *clarityStringObjectGetValue(ClarityObject *string)
 {
 	const char *retVal = NULL;
 	if (string) {
-		if (clarityStrCmp(clarityObjectTypeOf(string),
-			"string") == 0) {
+		if (clarityObjectIsTypeOf(string, "string")) {
 			ClarityString *inner;
 
 			inner = (ClarityString *)
