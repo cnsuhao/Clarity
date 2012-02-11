@@ -167,8 +167,12 @@ ClarityObject *clarityObjectGetMember(ClarityObject *object, const char *name)
 static ClarityObject *setObjectFound(Node **node, const char *name,
 	ClarityObject *object)
 {
-	clarityHeapRelease((*node)->object);
-	(*node)->object = clarityHeapRetain(object);
+	ClarityObject *nodeObject = (*node)->object;
+
+	if (object != nodeObject) {
+		clarityHeapRelease(nodeObject);
+		(*node)->object = clarityHeapRetain(object);
+	}
 	return (*node)->object;
 }
 
