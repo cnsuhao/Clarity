@@ -51,6 +51,7 @@ void clarityScopePrototypeStaticRelease(void)
 	clarityHeapRelease(gUndefined);
 	clarityHeapRelease(gEventLoop);
 	clarityHeapRelease(gFileRegistry);
+	clarityHeapRelease(loadedFiles);
 }
 
 static ClarityObject *clarityTypeOf(ClarityObject *parameters)
@@ -153,7 +154,7 @@ ClarityObject *clarityScopePrototypeCreate(ClarityHeap *heap)
 		clarityRequire, gUndefined));
 
 	if (!loadedFiles)
-		loadedFiles = clarityObjectCreate(heap);
+		loadedFiles = clarityHeapRetain(clarityObjectCreate(heap));
 
 	clarityObjectLock(prototype);
 	return prototype;
