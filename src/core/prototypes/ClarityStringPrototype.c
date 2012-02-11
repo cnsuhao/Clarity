@@ -53,9 +53,11 @@ static ClarityObject *equals(ClarityObject *scope)
 		Bool equal = FALSE;
 
 		if (clarityStrCmp(clarityObjectTypeOf(
-			clarityObjectGetMember(scope, "this")), "string") == 0 &&
+			clarityObjectGetMember(scope, "this")),
+			"string") == 0 &&
 			clarityStrCmp(clarityObjectTypeOf(
-			clarityObjectGetOwnMember(scope, "$1")), "string") == 0) {
+			clarityObjectGetOwnMember(scope, "$1")),
+			"string") == 0) {
 			equal = (clarityStrCmp(clarityStringObjectGetValue(
 				clarityObjectGetMember(scope, "this")),
 				clarityStringObjectGetValue(
@@ -78,7 +80,8 @@ static ClarityObject *length(ClarityObject *scope)
 				clarityStringObjectGetValue(
 				clarityObjectGetMember(scope, "this")));
 
-			retVal = clarityIntegerObjectCreate(clarityHeap(scope), length);
+			retVal = clarityIntegerObjectCreate(clarityHeap(scope),
+				length);
 		}
 	}
 	return retVal;

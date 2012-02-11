@@ -84,7 +84,9 @@ const char *clarityStringObjectGetValue(ClarityObject *string)
 			"string") == 0) {
 			ClarityString *inner;
 
-			inner = (ClarityString *)clarityObjectGetInnerData(string);
+			inner = (ClarityString *)
+				clarityObjectGetInnerData(string);
+
 			if (inner)
 				retVal = clarityStringGetValue(inner);
 		}

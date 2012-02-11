@@ -167,7 +167,7 @@ $(OUTDIR)/archreport.pdf: $(CPDFS) $(OUTDIR)/system.pdf
 	@ unflatten -c4 $< | dot -Tpdf -Gfontsize=14 -Gratio="0.681" -Gsize="8.27,11.69 -Glandscape" -o $@
 
 $(OUTDIR)/system.dot : $(COBJECTS)
-	@ arqua --root $(OUTDIR)/src/core --stop 2 $(CEXPANDS) > $@
+	@ arqua --root $(OUTDIR)/src/core --stop 2 -functions $(CEXPANDS) > $@
 
 $(OUTDIR)/%.dot: $(OUTDIR)/%.expand
 	@ arqua --root $(OUTDIR)/src/core --start 0 --stop 1 $< > $@

@@ -89,7 +89,8 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 	clarity->fileRegistry = clarityHeapRetain(clarityObjectCreate(heap));
 	clarity->scopePrototype = clarityHeapRetain(
 		clarityScopePrototypeCreate(heap));
-	clarity->eventLoop = clarityHeapRetain(clarityEventLoopCreate(clarity->heap,
+	clarity->eventLoop = clarityHeapRetain(
+		clarityEventLoopCreate(clarity->heap,
 		entry, clarity->scopePrototype));
 	clarityObjectPrototypeStaticInitializer(undefined);
 	clarity->objectPrototype = clarityObjectPrototypeCreate(heap);
@@ -107,7 +108,7 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 		clarityStringPrototypeCreate(heap), undefined);
 	clarityScopePrototypeStaticInitializer(clarity->eventLoop,
 		undefined, clarity->fileRegistry);
-		clarityFunctionStaticInitializer(heap, clarity->eventLoop, undefined);
+	clarityFunctionStaticInitializer(heap, clarity->eventLoop, undefined);
 	return clarityHeapAutoRelease(clarity);
 }
 

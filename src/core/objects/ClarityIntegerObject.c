@@ -67,7 +67,9 @@ Uint32 clarityIntegerObjectGetValue(ClarityObject *integer)
 			"number") == 0) {
 			ClarityInteger *inner;
 
-			inner = (ClarityInteger *)clarityObjectGetInnerData(integer);
+			inner = (ClarityInteger *)
+				clarityObjectGetInnerData(integer);
+
 			if (inner)
 				retVal = inner->value;
 		}

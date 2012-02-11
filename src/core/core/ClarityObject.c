@@ -148,17 +148,17 @@ ClarityObject *clarityObjectGetOwnMember(ClarityObject *object,
 
 ClarityObject *clarityObjectGetMember(ClarityObject *object, const char *name)
 {
-	ClarityObject *undefined = gUndefined;
-	ClarityObject *retVal = undefined;
+	ClarityObject *retVal = gUndefined;
 
 	if (object && name) {
 		ClarityObject *prototype = object;
 
-		while (prototype != undefined && retVal == undefined) {
+		while (prototype != gUndefined && retVal == gUndefined) {
 			retVal = clarityObjectGetOwnMember(prototype, name);
 
-			if (retVal == undefined)
-				prototype = clarityObjectGetOwnMember(prototype, "prototype");
+			if (retVal == gUndefined)
+				prototype = clarityObjectGetOwnMember(prototype,
+					"prototype");
 		}
 	}
 	return retVal;
@@ -175,7 +175,9 @@ static ClarityObject *setObjectFound(Node **node, const char *name,
 static ClarityObject *setObjectNotFound(Node **node, const char *name,
 	ClarityObject *object)
 {
-	*node = clarityHeapRetain(nodeCreate(clarityHeap(object), name, object));
+	*node = clarityHeapRetain(nodeCreate(clarityHeap(object),
+		name, object));
+
 	return (*node)->object;
 }
 

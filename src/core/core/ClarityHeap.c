@@ -160,7 +160,8 @@ static Header *heapItemHeader(void *data)
 	if (data != NULL) {
 		Header *header;
 
-		header = (Header *)((Uint8 *)data - sizeof(Header) + sizeof(data));
+		header = (Header *)
+			((Uint8 *)data - sizeof(Header) + sizeof(data));
 
 		if (header->magic == HEAP_MAGIC)
 			retVal = header;
@@ -267,7 +268,8 @@ ClarityHeap *clarityHeapCreate(void)
 
 		header = heapItemHeader(heap);
 		header->heap = heap;
-		heap->autoReleasePool = (AutoReleaseItem *)&LAST_AUTO_RELEASE_ITEM;
+		heap->autoReleasePool =
+			(AutoReleaseItem *)&LAST_AUTO_RELEASE_ITEM;
 		heap->alloc = clarityAlloc;
 		heap->free = clarityFree;
 	}

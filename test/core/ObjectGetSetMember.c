@@ -45,7 +45,8 @@ void clarityEntry(ClarityObject *globalScope)
 		clarityStringObjectGetValue(moreDataString),
 		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityObjectGetMember(object, missingKey);
-	assert(clarityStrCmp(clarityObjectTypeOf(resultString), "undefined") == 0);
+	assert(clarityStrCmp(clarityObjectTypeOf(resultString),
+		"undefined") == 0);
 	object2 = clarityObjectCreate(heap);
 	clarityObjectSetMember(object2, missingKey, baseDataString2);
 	clarityObjectSetMember(object, "prototype", object2);

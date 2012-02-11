@@ -26,7 +26,7 @@ out/rel/report/test.txt: $(TESTEROUT)/testreport.txt
 	@ cp $(TESTEROUT)/testreport.txt out/rel/report/test.txt
 
 $(TESTERCOVERAGE): $(TESTEROUT)/coverage.info
-	@ genhtml --num-spaces 4 -q -c test/gcov.css \
+	@ genhtml -q -c test/gcov.css \
 		-t "Clarity" -o $@ $<
 
 $(TESTEROUT)/testreport.txt: $(TESTEROUT)/coverage.info

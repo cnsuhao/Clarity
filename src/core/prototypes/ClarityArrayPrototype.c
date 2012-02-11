@@ -79,7 +79,7 @@ static void iteratorNext(Iterator *iterator)
 	iterator->index++;
 	if (clarityArrayIteratorHasItem(iterator->arrayIterator)) {
 		clarityEventLoopEnqueue(gEventLoop,
-								iterator->handle, iterator);
+			iterator->handle, iterator);
 		clarityEventLoopEnqueue(gEventLoop,
 			(ClarityEvent)iterator->next, iterator);
 	} else
@@ -130,7 +130,8 @@ static Bool testFunction(Iterator *iterator)
 	clarityObjectSetMember(scope, "$1", iterator->data);
 
 	clarityObjectSetMember(scope, "$2",
-		clarityIntegerObjectCreate(clarityHeap(iterator), iterator->index));
+		clarityIntegerObjectCreate(clarityHeap(iterator),
+		iterator->index));
 
 	clarityObjectSetMember(scope, "$3",
 		clarityObjectGetMember(iterator->scope, "this"));
@@ -146,7 +147,8 @@ static void testCallback(Iterator *iterator)
 	ClarityObject *scope = clarityObjectCreate(clarityHeap(iterator));
 
 	clarityObjectSetMember(scope, "$1",
-		clarityBooleanObjectCreate(clarityHeap(iterator), test->retVal));
+		clarityBooleanObjectCreate(clarityHeap(iterator),
+		test->retVal));
 
 	clarityFunctionObjectCall(
 		clarityObjectGetOwnMember(iterator->scope, "$2"), scope);
@@ -178,7 +180,8 @@ static void filterHandler(Iterator *iterator)
 	clarityObjectSetMember(scope, "$1", iterator->data);
 
 	clarityObjectSetMember(scope, "$2",
-		clarityIntegerObjectCreate(clarityHeap(iterator), iterator->index));
+		clarityIntegerObjectCreate(clarityHeap(iterator),
+		iterator->index));
 
 	clarityObjectSetMember(scope, "$3",
 		clarityObjectGetMember(iterator->scope, "this"));
@@ -200,7 +203,8 @@ static ClarityObject *length(ClarityObject *scope)
 		if (clarityStrCmp(clarityObjectTypeOf(
 		clarityObjectGetMember(scope, "this")), "array") == 0) {
 			Uint32 length = clarityArrayLength(
-				clarityObjectGetInnerData(clarityObjectGetMember(scope,
+				clarityObjectGetInnerData(
+				clarityObjectGetMember(scope,
 				"this")));
 
 			retVal = clarityIntegerObjectCreate(heap, length);
@@ -217,7 +221,8 @@ static void forEachFunction(Iterator *iterator)
 	clarityObjectSetMember(scope, "$1", iterator->data);
 
 	clarityObjectSetMember(scope, "$2",
-		clarityIntegerObjectCreate(clarityHeap(iterator), iterator->index));
+		clarityIntegerObjectCreate(clarityHeap(iterator),
+		iterator->index));
 
 	clarityObjectSetMember(scope, "$3",
 		clarityObjectGetMember(iterator->scope, "this"));
@@ -237,7 +242,8 @@ static void mapHandler(Iterator *iterator)
 	clarityObjectSetMember(scope, "$1", iterator->data);
 
 	clarityObjectSetMember(scope, "$2",
-		clarityIntegerObjectCreate(clarityHeap(iterator), iterator->index));
+		clarityIntegerObjectCreate(clarityHeap(iterator),
+		iterator->index));
 
 	clarityObjectSetMember(scope, "$3",
 		clarityObjectGetMember(iterator->scope, "this"));
@@ -250,7 +256,8 @@ static void mapHandler(Iterator *iterator)
 static void forEachCallback(Iterator *iterator)
 {
 	clarityFunctionObjectCall(
-		clarityObjectGetOwnMember(iterator->scope, "$2"), iterator->scope);
+		clarityObjectGetOwnMember(iterator->scope, "$2"),
+		iterator->scope);
 }
 
 static void mapDone(Iterator *iterator)
@@ -271,7 +278,8 @@ static ClarityObject *forEach(ClarityObject *scope)
 	Iterator *iterator;
 
 	iterator = iteratorCreate(clarityHeap(scope),
-		clarityObjectGetInnerData(clarityObjectGetMember(scope, "this")),
+		clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "this")),
 		scope, (ClarityEvent)forEachFunction,
 		(ClarityEvent)forEachCallback, NULL);
 
@@ -284,7 +292,8 @@ static ClarityObject *map(ClarityObject *scope)
 	Iterator *iterator;
 
 	iterator = iteratorCreate(clarityHeap(scope),
-		clarityObjectGetInnerData(clarityObjectGetMember(scope, "this")),
+		clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "this")),
 		scope, (ClarityEvent)mapHandler, (ClarityEvent)mapDone,
 		clarityArrayCreate(clarityHeap(scope)));
 
@@ -297,7 +306,8 @@ static  ClarityObject *every(ClarityObject *scope)
 	Iterator *iterator;
 
 	iterator = iteratorCreate(clarityHeap(scope),
-		clarityObjectGetInnerData(clarityObjectGetMember(scope, "this")),
+		clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "this")),
 		scope, (ClarityEvent)everyHandler, (ClarityEvent)testCallback,
 		testCreate(clarityHeap(scope)));
 
@@ -313,8 +323,10 @@ static ClarityObject *some(ClarityObject *scope)
 	test = testCreate(clarityHeap(scope));
 
 	iterator = iteratorCreate(clarityHeap(scope),
-		clarityObjectGetInnerData(clarityObjectGetMember(scope, "this")),
-		scope, (ClarityEvent)someHandler, (ClarityEvent)testCallback, test);
+		clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "this")),
+		scope, (ClarityEvent)someHandler,
+		(ClarityEvent)testCallback, test);
 
 	test->retVal = FALSE;
 	iteratorStart(iterator);
@@ -326,9 +338,11 @@ static  ClarityObject *filter(ClarityObject *scope)
 	Iterator *iterator;
 
 	iterator = iteratorCreate(clarityHeap(scope),
-		clarityObjectGetInnerData(clarityObjectGetMember(scope, "this")),
+		clarityObjectGetInnerData(
+		clarityObjectGetMember(scope, "this")),
 		scope, (ClarityEvent)filterHandler,
-		(ClarityEvent)mapDone, clarityArrayCreate(clarityHeap(scope)));
+		(ClarityEvent)mapDone,
+		clarityArrayCreate(clarityHeap(scope)));
 
 	iteratorStart(iterator);
 	return gUndefined;

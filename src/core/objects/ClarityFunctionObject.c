@@ -57,11 +57,13 @@ static void destroyClarityFunction(ClarityFunction *clarityFunction)
 }
 
 static ClarityFunction *clarityFunctionCreate(ClarityHeap *heap,
-	ClarityFunctionPointer functionPointer, ClarityObject *scope, Bool async)
+	ClarityFunctionPointer functionPointer,
+	ClarityObject *scope, Bool async)
 {
 	ClarityFunction *function;
 
-	function = clarityHeapAllocateWithDestructor(heap, sizeof(ClarityFunction),
+	function = clarityHeapAllocateWithDestructor(heap,
+		sizeof(ClarityFunction),
 		(ClarityHeapDestructor)destroyClarityFunction);
 
 	function->functionPointer = functionPointer;
@@ -70,7 +72,7 @@ static ClarityFunction *clarityFunctionCreate(ClarityHeap *heap,
 	return clarityHeapAutoRelease(function);
 }
 
-static void functionObjectCallAsyncEvent(ClarityObject *parameters)
+static void callAsyncEvent(ClarityObject *parameters)
 {
 	ClarityObject *function;
 	ClarityFunction *inner;
@@ -88,7 +90,8 @@ static Bool clarityFunctionCheckFunctionObject(ClarityObject *function,
 	Bool retVal = FALSE;
 
 	if (function && parameters)
-		if (clarityStrCmp(clarityObjectTypeOf(function), "function") == 0)
+		if (clarityStrCmp(clarityObjectTypeOf(function),
+			"function") == 0)
 			retVal = TRUE;
 	return retVal;
 }
@@ -111,8 +114,8 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 
 			if (inner->async) {
 				clarityEventLoopEnqueue(gEventLoop,
-						(ClarityEvent)functionObjectCallAsyncEvent,
-						parameters);
+					(ClarityEvent)callAsyncEvent,
+					parameters);
 				retVal = gUndefined;
 			} else {
 				retVal = inner->functionPointer(parameters);
@@ -134,7 +137,8 @@ ClarityObject *clarityFunctionObjectNew(ClarityObject *function,
 }
 
 static ClarityObject *innerFunctionObjectCreate(ClarityHeap *heap,
-	ClarityFunctionPointer functionPointer, ClarityObject *scope, Bool async)
+	ClarityFunctionPointer functionPointer,
+	ClarityObject *scope, Bool async)
 {
 	ClarityObject *function;
 

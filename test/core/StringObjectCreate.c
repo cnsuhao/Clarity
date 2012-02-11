@@ -11,6 +11,7 @@ void clarityEntry(ClarityObject *globalScope)
 	ClarityObject *object;
 
 	object = clarityStringObjectCreate(heap, TEST_VALUE);
-	assert(clarityStrCmp(clarityStringObjectGetValue(object), TEST_VALUE) == 0);
+	assert(clarityStrCmp(clarityStringObjectGetValue(object),
+		TEST_VALUE) == 0);
 }
 

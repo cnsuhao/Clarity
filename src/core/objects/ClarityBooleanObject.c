@@ -66,7 +66,9 @@ Bool clarityBooleanObjectGetValue(ClarityObject *boolean)
 			"boolean") == 0) {
 			ClarityBoolean *inner;
 
-			inner = (ClarityBoolean *)clarityObjectGetInnerData(boolean);
+			inner = (ClarityBoolean *)
+				clarityObjectGetInnerData(boolean);
+
 			if (inner)
 				retVal = inner->value;
 		}

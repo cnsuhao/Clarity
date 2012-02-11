@@ -56,7 +56,8 @@ static ClarityObject *equals(ClarityObject *scope)
 
 ClarityObject *clarityObjectPrototypeCreate(ClarityHeap *heap)
 {
-	ClarityObject *prototype = clarityObjectCreateType(heap, "object", NULL);
+	ClarityObject *prototype = clarityObjectCreateType(heap,
+		"object", NULL);
 
 	clarityObjectSetMember(prototype, "equals",
 			clarityFunctionObjectCreate(heap,

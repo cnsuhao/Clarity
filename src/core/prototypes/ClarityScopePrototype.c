@@ -56,7 +56,8 @@ void clarityScopePrototypeStaticRelease(void)
 static ClarityObject *clarityTypeOf(ClarityObject *parameters)
 {
 	return clarityStringObjectCreate(clarityHeap(parameters),
-		clarityObjectTypeOf(clarityObjectGetOwnMember(parameters, "$1")));
+		clarityObjectTypeOf(
+		clarityObjectGetOwnMember(parameters, "$1")));
 }
 
 static void clarityIfEventDone(ClarityObject *parameters)
@@ -87,7 +88,8 @@ static ClarityObject *clarityIf(ClarityObject *parameters)
 
 	if (clarityStrCmp(
 		clarityObjectTypeOf(testObject), "function") == 0) {
-			testObject = clarityFunctionObjectCall(testObject, parameters);
+			testObject = clarityFunctionObjectCall(
+				testObject, parameters);
 	}
 
 	if (clarityStrCmp(
@@ -105,9 +107,13 @@ static ClarityObject *clarityIf(ClarityObject *parameters)
 		clarityObjectSetMember(scope, "$1",
 			clarityObjectGetOwnMember(parameters, "$3"));
 	}
+
 	clarityObjectSetMember(scope, "$2",
 		clarityObjectGetOwnMember(parameters, "$4"));
-	clarityEventLoopEnqueue(gEventLoop, (ClarityEvent)clarityIfEvent, scope);
+
+	clarityEventLoopEnqueue(gEventLoop,
+		(ClarityEvent)clarityIfEvent, scope);
+
 	return gUndefined;
 }
 
@@ -116,20 +122,20 @@ static ClarityObject *clarityRequire(ClarityObject *parameters)
 	ClarityObject *retVal = gUndefined;
 	ClarityObject *file = clarityObjectGetOwnMember(parameters, "$1");
 
-	if (clarityStrCmp(
-		clarityObjectTypeOf(file), "string") == 0) {
-			ClarityObject *loadedFile;
-			const char *name;
+	if (clarityStrCmp(clarityObjectTypeOf(file), "string") == 0) {
+		ClarityObject *loadedFile;
+		const char *name;
 
-			name = clarityStringObjectGetValue(file);
-			loadedFile = clarityObjectGetMember(loadedFiles, name);
-			if (loadedFile == gUndefined) {
-				loadedFile = clarityFunctionObjectCall(
-					clarityObjectGetMember(gFileRegistry, name),
-					clarityObjectCreate(clarityHeap(parameters)));
-				clarityObjectSetMember(loadedFiles, name, loadedFile);
-				retVal = clarityObjectGetMember(loadedFile, "exports");
-			}
+		name = clarityStringObjectGetValue(file);
+		loadedFile = clarityObjectGetMember(loadedFiles, name);
+
+		if (loadedFile == gUndefined) {
+			loadedFile = clarityFunctionObjectCall(
+				clarityObjectGetMember(gFileRegistry, name),
+				clarityObjectCreate(clarityHeap(parameters)));
+			clarityObjectSetMember(loadedFiles, name, loadedFile);
+			retVal = clarityObjectGetMember(loadedFile, "exports");
+		}
 	}
 
 	return retVal;

@@ -52,7 +52,8 @@ void clarityArrayStaticRelease(void)
 ClarityObject *clarityArrayObjectCreate(ClarityHeap *heap,
 	ClarityArray *innerArray)
 {
-	ClarityObject *array = clarityObjectCreateType(heap, "array", innerArray);
+	ClarityObject *array = clarityObjectCreateType(heap,
+		"array", innerArray);
 
 	clarityObjectSetMember(array, "prototype", gPrototype);
 	clarityObjectLock(array);
