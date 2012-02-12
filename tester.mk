@@ -29,6 +29,9 @@ $(TESTERCOVERAGE): $(TESTEROUT)/coverage.info
 	@ genhtml -q -c test/gcov.css \
 		-t "Clarity" -o $@ $<
 
+$(TESTEROUT)/coverage.info: $(TESTEROUT)/coverage-all.info
+	@ lcov --remove $< "/usr*" -o $@
+
 $(TESTEROUT)/testreport.txt: $(TESTEROUT)/coverage.info
 	@ rm -f $@
 	@ for res in $(TESTERRESULTS) ; do \
@@ -38,7 +41,7 @@ $(TESTEROUT)/testreport.txt: $(TESTEROUT)/coverage.info
 	done
 	@ lcov -l $<  >> $@
 
-$(TESTEROUT)/coverage.info: $(TESTERTRACES)
+$(TESTEROUT)/coverage-all.info: $(TESTERTRACES)
 	@ lcov -q  -a $(TESTEROUT)/init.info $(addprefix -a , $(TESTERTRACES)) -o $@
 
 $(TESTEROUT)/%.info: $(TESTEROUT)/%.test
