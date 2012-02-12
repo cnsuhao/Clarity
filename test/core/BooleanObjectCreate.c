@@ -1,6 +1,4 @@
 #include "Clarity.h"
-#include "ClarityHeap.h"
-#include "ClarityBooleanObject.h"
 #include <assert.h>
 
 static ClarityObject *clarityEntry(ClarityObject *globalScope)

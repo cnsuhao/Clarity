@@ -1,6 +1,4 @@
 #include "Clarity.h"
-#include "ClarityHeap.h"
-#include "ClarityArrayObject.h"
 #include <assert.h>
 
 static ClarityObject *testFunction(ClarityObject *context)

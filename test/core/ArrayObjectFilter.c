@@ -1,4 +1,5 @@
 #include "Clarity.h"
+#include "ClarityArray.h"
 #include <assert.h>
 
 static ClarityObject *arrayObject;

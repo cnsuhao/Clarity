@@ -1,5 +1,5 @@
 #include "Clarity.h"
-#include "ClarityHeap.h"
+#include "ClarityCore.h"
 #include <assert.h>
 
 static ClarityObject *clarityEntry(ClarityObject *globalScope)

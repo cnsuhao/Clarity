@@ -29,7 +29,6 @@
 #ifndef __CLARITY_H__
 #define __CLARITY_H__
 #include "ClarityTypes.h"
-#include "ClarityCore.h"
 #include "ClarityFactory.h"
 #include "ClarityHeap.h"
 #include "ClarityObject.h"
@@ -38,6 +37,5 @@
 #include "ClarityNumberObject.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
-#include "ClarityArray.h"
 #endif
 

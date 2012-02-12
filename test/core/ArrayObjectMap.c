@@ -1,7 +1,5 @@
 #include "Clarity.h"
-#include "ClarityHeap.h"
-#include "ClarityArrayObject.h"
-#include "ClarityFunctionObject.h"
+#include "ClarityArray.h"
 #include <assert.h>
 
 static ClarityObject *arrayObject;

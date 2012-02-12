@@ -1,10 +1,4 @@
 #include "Clarity.h"
-#include "ClarityHeap.h"
-#include "ClarityStringObject.h"
-#include "ClarityArrayObject.h"
-#include "ClarityNumberObject.h"
-#include "ClarityFunctionObject.h"
-#include "ClarityBooleanObject.h"
 #include "ClarityCore.h"
 #include <assert.h>
 
