@@ -45,7 +45,7 @@ void clarityStringStaticInitializer(ClarityObject *prototype,
 void clarityStringStaticRelease(void)
 {
 	clarityHeapRelease(gUndefined);
-	clarityHeapForceRelease(gPrototype);
+	clarityHeapRelease(gPrototype);
 }
 
 typedef struct {
@@ -78,7 +78,7 @@ static const char *clarityStringGetValue(ClarityString *string)
 
 const char *clarityStringObjectGetValue(ClarityObject *string)
 {
-	const char *retVal = NULL;
+	const char *retVal = "";
 	if (string) {
 		if (clarityObjectIsTypeOf(string, "string")) {
 			ClarityString *inner;

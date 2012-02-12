@@ -41,7 +41,7 @@ void clarityBooleanStaticInitializer(ClarityObject *prototype,
 void clarityBooleanStaticRelease(void)
 {
 	clarityHeapRelease(gUndefined);
-	clarityHeapForceRelease(gPrototype);
+	clarityHeapRelease(gPrototype);
 }
 
 typedef struct {
@@ -54,7 +54,9 @@ static ClarityBoolean *clarityBooleanCreate(ClarityHeap *heap, Bool value)
 
 	boolean = clarityHeapAllocate(heap, sizeof(ClarityBoolean));
 
-	boolean->value = value;
+	if (boolean)
+		boolean->value = value;
+
 	return clarityHeapAutoRelease(boolean);
 }
 

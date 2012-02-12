@@ -49,8 +49,10 @@ struct __ClarityArrayIterator {
 
 static void clarityArrayIteratorDestroy(ClarityArrayIterator *arrayIterator)
 {
-	clarityHeapRelease(arrayIterator->element);
-	clarityHeapRelease(arrayIterator->array);
+	if (arrayIterator) {
+		clarityHeapRelease(arrayIterator->element);
+		clarityHeapRelease(arrayIterator->array);
+	}
 }
 
 Bool clarityArrayIteratorHasItem(ClarityArrayIterator *arrayIterator)
@@ -64,30 +66,42 @@ Bool clarityArrayIteratorHasItem(ClarityArrayIterator *arrayIterator)
 
 void *clarityArrayIteratorNextItem(ClarityArrayIterator *arrayIterator)
 {
-	Element *element = arrayIterator->element->next;
+	void *retVal = NULL;
+	if (arrayIterator) {
+		Element *element = arrayIterator->element->next;
 
-	clarityHeapRelease(arrayIterator->element);
-	arrayIterator->element = clarityHeapRetain(element);
-	return arrayIterator->element->data;
+		clarityHeapRelease(arrayIterator->element);
+		arrayIterator->element = clarityHeapRetain(element);
+		if (arrayIterator->element)
+			retVal = arrayIterator->element->data;
+	}
+	return retVal;
 }
 
 ClarityArrayIterator *clarityArrayIteratorCreate(ClarityHeap *heap,
 	ClarityArray *array)
 {
-	ClarityArrayIterator *arrayIterator;
+	ClarityArrayIterator *arrayIterator = NULL;
 
-	arrayIterator = clarityHeapAllocateWithDestructor(heap,
-		sizeof(ClarityArrayIterator),
-		(ClarityHeapDestructor)clarityArrayIteratorDestroy);
+	if (array) {
+		arrayIterator = clarityHeapAllocateWithDestructor(heap,
+			sizeof(ClarityArrayIterator),
+			(ClarityHeapDestructor)clarityArrayIteratorDestroy);
 
-	arrayIterator->array = clarityHeapRetain(array);
-	arrayIterator->element = clarityHeapRetain(array->first);
+		if (arrayIterator) {
+			arrayIterator->array = clarityHeapRetain(array);
+			arrayIterator->element =
+				clarityHeapRetain(array->first);
+		}
+	}
+
 	return clarityHeapAutoRelease(arrayIterator);
 }
 
 static void elementDestroy(Element *element)
 {
-	clarityHeapRelease(element->data);
+	if (element)
+		clarityHeapRelease(element->data);
 }
 
 static Element *elementCreate(ClarityHeap *heap, void *data)
@@ -97,51 +111,60 @@ static Element *elementCreate(ClarityHeap *heap, void *data)
 	element = clarityHeapAllocateWithDestructor(heap,
 		sizeof(Element), (ClarityHeapDestructor)elementDestroy);
 
-	element->data = clarityHeapRetain(data);
-	element->next = NULL;
-	element->prev = NULL;
+	if (element) {
+		element->data = clarityHeapRetain(data);
+		element->next = NULL;
+		element->prev = NULL;
+	}
+
 	return clarityHeapAutoRelease(element);
 }
 
 static void arrayDestroy(ClarityArray *array)
 {
-	Element *item;
-	Element *next;
+	if (array) {
+		Element *item;
+		Element *next;
 
-	item = array->first->next;
+		item = array->first->next;
 
-	while (item != array->last) {
-		next = item->next;
-		clarityHeapRelease(item);
-		item = next;
+		while (item != array->last) {
+			next = item->next;
+			clarityHeapRelease(item);
+			item = next;
+		}
+		clarityHeapRelease(array->last);
+		clarityHeapRelease(array->first);
 	}
-	clarityHeapRelease(array->last);
-	clarityHeapRelease(array->first);
 }
 
 ClarityArray *clarityArrayUnshift(ClarityArray *array, void *data)
 {
-	if (array && !array->locked) {
+	if (array && !array->locked && array->first && array->first->next) {
 		Element *newElement;
 
-		newElement = elementCreate(clarityHeap(array), data);
-		newElement = clarityHeapRetain(newElement);
-		newElement->next = array->first->next;
-		newElement->prev = array->first;
-		newElement->next->prev = newElement;
-		array->first->next = newElement;
-		array->length++;
+		newElement = clarityHeapRetain(
+			elementCreate(clarityHeap(array), data));
+		if (newElement) {
+			newElement->next = array->first->next;
+			newElement->prev = array->first;
+			newElement->next->prev = newElement;
+			array->first->next = newElement;
+			array->length++;
+		}
 	}
 	return array;
 }
 
 void *clarityArrayShift(ClarityArray *array)
 {
-	void *retVal;
+	void *retVal = NULL;
 
-	retVal = NULL;
-
-	if (clarityArrayLength(array) && !array->locked) {
+	if (array && array->first &&
+		array->first->next &&
+		array->first->next->next &&
+		clarityArrayLength(array) &&
+		!array->locked) {
 		Element *element;
 
 		element = array->first->next;
@@ -158,16 +181,21 @@ void *clarityArrayShift(ClarityArray *array)
 
 ClarityArray *clarityArrayPush(ClarityArray *array, void *data)
 {
-	if (array && !array->locked) {
+	if (array && !array->locked &&
+		array->last &&
+		array->last->prev) {
 		Element *newElement;
 
-		newElement = elementCreate(clarityHeap(array), data);
-		newElement = clarityHeapRetain(newElement);
-		newElement->prev = array->last->prev;
-		newElement->next = array->last;
-		array->last->prev->next = newElement;
-		array->last->prev = newElement;
-		array->length++;
+		newElement = clarityHeapRetain(
+			elementCreate(clarityHeap(array), data));
+
+		if (newElement) {
+			newElement->prev = array->last->prev;
+			newElement->next = array->last;
+			array->last->prev->next = newElement;
+			array->last->prev = newElement;
+			array->length++;
+		}
 	}
 	return array;
 }
@@ -178,7 +206,11 @@ void *clarityArrayPop(ClarityArray *array)
 
 	retVal = NULL;
 
-	if (clarityArrayLength(array) && !array->locked) {
+	if (array && clarityArrayLength(array) &&
+		!array->locked &&
+		array->last &&
+		array->last->prev &&
+		array->last->prev->next) {
 		Element *element;
 
 		element = array->last->prev;
@@ -201,7 +233,10 @@ ClarityArray *clarityArrayLock(ClarityArray *array)
 
 Uint32 clarityArrayLength(ClarityArray *array)
 {
-	return array->length;
+	Uint32 retVal = 0;
+	if (array)
+		retVal = array->length;
+	return retVal;
 }
 
 ClarityArray *clarityArrayCreate(ClarityHeap *heap)
@@ -211,11 +246,15 @@ ClarityArray *clarityArrayCreate(ClarityHeap *heap)
 	array = clarityHeapAllocateWithDestructor(heap,
 		sizeof(ClarityArray), (ClarityHeapDestructor)arrayDestroy);
 
-	array->length = 0;
-	array->locked = FALSE;
-	array->first = clarityHeapRetain(elementCreate(heap, NULL));
-	array->last = clarityHeapRetain(elementCreate(heap, NULL));
-	array->first->next = array->last;
-	array->last->prev = array->first;
+	if (array) {
+		array->length = 0;
+		array->locked = FALSE;
+		array->first = clarityHeapRetain(elementCreate(heap, NULL));
+		array->last = clarityHeapRetain(elementCreate(heap, NULL));
+		if (array->first && array->last) {
+			array->first->next = array->last;
+			array->last->prev = array->first;
+		}
+	}
 	return clarityHeapAutoRelease(array);
 }

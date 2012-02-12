@@ -46,20 +46,20 @@ static ClarityObject *equals(ClarityObject *scope)
 {
 	ClarityObject *retVal = gUndefined;
 
-	if (scope) {
-		Bool equal = FALSE;
+	Bool equal = FALSE;
 
-		if (clarityObjectIsTypeOf(
-			clarityObjectGetMember(scope, "this"), "number") &&
-			clarityObjectIsTypeOf(
-			clarityObjectGetOwnMember(scope, "$1"), "number")) {
-			equal = (clarityIntegerObjectGetValue(
-				clarityObjectGetMember(scope, "this"))) ==
-				clarityIntegerObjectGetValue(
-				clarityObjectGetOwnMember(scope, "$1"));
-		}
+	if (clarityObjectIsTypeOf(
+		clarityObjectGetMember(scope, "this"), "number") &&
+		clarityObjectIsTypeOf(
+		clarityObjectGetOwnMember(scope, "$1"), "number")) {
+		equal = (clarityIntegerObjectGetValue(
+			clarityObjectGetMember(scope, "this"))) ==
+			clarityIntegerObjectGetValue(
+			clarityObjectGetOwnMember(scope, "$1"));
+
 		retVal = clarityBooleanObjectCreate(clarityHeap(scope), equal);
 	}
+
 	return retVal;
 }
 

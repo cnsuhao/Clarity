@@ -43,7 +43,7 @@ void clarityIntegerStaticInitializer(ClarityObject *prototype,
 void clarityIntegerStaticRelease(void)
 {
 	clarityHeapRelease(gUndefined);
-	clarityHeapForceRelease(gPrototype);
+	clarityHeapRelease(gPrototype);
 }
 
 typedef struct {
@@ -55,23 +55,23 @@ static ClarityInteger *clarityIntegerCreate(ClarityHeap *heap, Uint32 value)
 	ClarityInteger *integer;
 
 	integer = clarityHeapAllocate(heap, sizeof(ClarityInteger));
-	integer->value = value;
+	if (integer)
+		integer->value = value;
+
 	return clarityHeapAutoRelease(integer);
 }
 
 Uint32 clarityIntegerObjectGetValue(ClarityObject *integer)
 {
 	Uint32 retVal = 0;
-	if (integer) {
-		if (clarityObjectIsTypeOf(integer, "number")) {
-			ClarityInteger *inner;
+	if (clarityObjectIsTypeOf(integer, "number")) {
+		ClarityInteger *inner;
 
-			inner = (ClarityInteger *)
-				clarityObjectGetInnerData(integer);
+		inner = (ClarityInteger *)
+			clarityObjectGetInnerData(integer);
 
-			if (inner)
-				retVal = inner->value;
-		}
+		if (inner)
+			retVal = inner->value;
 	}
 	return retVal;
 }

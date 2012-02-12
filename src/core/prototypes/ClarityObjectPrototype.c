@@ -44,14 +44,9 @@ void clarityObjectPrototypeStaticRelease(void)
 
 static ClarityObject *equals(ClarityObject *scope)
 {
-	ClarityObject *retVal = gUndefined;
-
-	if (scope) {
-		Bool equals = (clarityObjectGetMember(scope, "this") ==
-			clarityObjectGetOwnMember(scope, "$1"));
-		retVal = clarityBooleanObjectCreate(clarityHeap(scope), equals);
-	}
-	return retVal;
+	return clarityBooleanObjectCreate(clarityHeap(scope),
+		clarityObjectGetMember(scope, "this") ==
+		clarityObjectGetOwnMember(scope, "$1"));
 }
 
 ClarityObject *clarityObjectPrototypeCreate(ClarityHeap *heap)

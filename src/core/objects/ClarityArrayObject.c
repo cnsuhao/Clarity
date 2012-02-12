@@ -46,7 +46,7 @@ void clarityArrayStaticInitializer(
 void clarityArrayStaticRelease(void)
 {
 	clarityHeapRelease(gUndefined);
-	clarityHeapForceRelease(gPrototype);
+	clarityHeapRelease(gPrototype);
 }
 
 ClarityObject *clarityArrayObjectCreate(ClarityHeap *heap,

@@ -53,7 +53,8 @@ void clarityFunctionStaticRelease(void)
 
 static void destroyClarityFunction(ClarityFunction *clarityFunction)
 {
-	clarityHeapRelease(clarityFunction->scope);
+	if (clarityFunction)
+		clarityHeapRelease(clarityFunction->scope);
 }
 
 static ClarityFunction *clarityFunctionCreate(ClarityHeap *heap,
@@ -66,9 +67,12 @@ static ClarityFunction *clarityFunctionCreate(ClarityHeap *heap,
 		sizeof(ClarityFunction),
 		(ClarityHeapDestructor)destroyClarityFunction);
 
-	function->functionPointer = functionPointer;
-	function->scope = clarityHeapRetain(scope);
-	function->async = async;
+	if (function) {
+		function->functionPointer = functionPointer;
+		function->scope = clarityHeapRetain(scope);
+		function->async = async;
+	}
+
 	return clarityHeapAutoRelease(function);
 }
 
@@ -79,20 +83,11 @@ static void callAsyncEvent(ClarityObject *parameters)
 
 	function = clarityObjectGetOwnMember(parameters, "$0");
 	inner = (ClarityFunction *)clarityObjectGetInnerData(function);
-	clarityObjectSetMember(parameters, "prototype", inner->scope);
-	clarityObjectLock(parameters);
-	inner->functionPointer(parameters);
-}
-
-static Bool clarityFunctionCheckFunctionObject(ClarityObject *function,
-	ClarityObject *parameters)
-{
-	Bool retVal = FALSE;
-
-	if (function && parameters)
-		if (clarityObjectIsTypeOf(function, "function"))
-			retVal = TRUE;
-	return retVal;
+	if (inner) {
+		clarityObjectSetMember(parameters, "prototype", inner->scope);
+		clarityObjectLock(parameters);
+		inner->functionPointer(parameters);
+	}
 }
 
 ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
@@ -100,7 +95,7 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 {
 	ClarityObject *retVal = gUndefined;
 
-	if (clarityFunctionCheckFunctionObject(function, parameters)) {
+	if (clarityObjectIsTypeOf(function, "function")) {
 		ClarityFunction *inner;
 
 		inner = (ClarityFunction *)clarityObjectGetInnerData(function);
@@ -108,7 +103,7 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 		if (inner && inner->functionPointer) {
 			clarityObjectSetMember(parameters, "$0", function);
 			clarityObjectSetMember(parameters, "prototype",
-					inner->scope);
+				inner->scope);
 			clarityObjectLock(parameters);
 
 			if (inner->async) {
@@ -132,6 +127,7 @@ ClarityObject *clarityFunctionObjectNew(ClarityObject *function,
 	clarityObjectSetMember(parameters, "this", object);
 	clarityFunctionObjectCall(function, parameters);
 	clarityObjectLock(object);
+
 	return object;
 }
 

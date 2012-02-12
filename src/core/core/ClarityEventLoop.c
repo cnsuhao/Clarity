@@ -41,7 +41,8 @@ struct __ClarityEventLoop {
 
 static void eventDestroy(Event *event)
 {
-	clarityHeapRelease(event->data);
+	if (event)
+		clarityHeapRelease(event->data);
 }
 
 static Event *eventCreate(ClarityHeap *heap, ClarityEvent function,
@@ -52,28 +53,37 @@ static Event *eventCreate(ClarityHeap *heap, ClarityEvent function,
 	event = clarityHeapAllocateWithDestructor(heap, sizeof(Event),
 		(ClarityHeapDestructor)eventDestroy);
 
-	event->data = clarityHeapRetain(data);
-	event->function = function;
+	if (event) {
+		event->data = clarityHeapRetain(data);
+		event->function = function;
+	}
 	return clarityHeapAutoRelease(event);
 }
 
 static Bool hasEvent(ClarityEventLoop *eventLoop)
 {
-	return clarityArrayLength(eventLoop->events);
+	Bool retVal = FALSE;
+	if (eventLoop)
+		retVal = clarityArrayLength(eventLoop->events);
+	return retVal;
 }
 
 static void eventLoopDestroy(ClarityEventLoop *eventLoop)
 {
-	clarityHeapRelease(eventLoop->events);
+	if (eventLoop)
+		clarityHeapRelease(eventLoop->events);
 }
 
 static void dequeue(ClarityEventLoop *eventLoop)
 {
 	Event *event;
 
-	event = clarityArrayPop(eventLoop->events);
-	event->function(event->data);
-	clarityHeapCollectGarbage(clarityHeap(eventLoop));
+	if (eventLoop) {
+		event = clarityArrayPop(eventLoop->events);
+		if (event)
+			event->function(event->data);
+		clarityHeapCollectGarbage(clarityHeap(eventLoop));
+	}
 }
 
 typedef ClarityArray *(*Adder)(ClarityArray *, void *);
@@ -81,22 +91,18 @@ typedef ClarityArray *(*Adder)(ClarityArray *, void *);
 static void clarityEventLoopAdd(ClarityEventLoop *eventLoop,
 	ClarityEvent function, void *data, Adder adder)
 {
-	Event *event;
+	if (eventLoop) {
+		Event *event;
 
-	event = eventCreate(clarityHeap(eventLoop), function, data);
-	adder(eventLoop->events, event);
+		event = eventCreate(clarityHeap(eventLoop), function, data);
+		adder(eventLoop->events, event);
+	}
 }
 
 void clarityEventLoopEnqueue(ClarityEventLoop *eventLoop,
 	ClarityEvent function, void *data)
 {
 	clarityEventLoopAdd(eventLoop, function, data, clarityArrayUnshift);
-}
-
-void clarityEventLoopPush(ClarityEventLoop *eventLoop, ClarityEvent function,
-	void *data)
-{
-	clarityEventLoopAdd(eventLoop, function, data, clarityArrayPush);
 }
 
 void clarityEventLoopStart(ClarityEventLoop *eventLoop)
@@ -114,7 +120,9 @@ ClarityEventLoop *clarityEventLoopCreate(ClarityHeap *heap,
 		sizeof(ClarityEventLoop),
 		(ClarityHeapDestructor)eventLoopDestroy);
 
-	eventLoop->events = clarityHeapRetain(clarityArrayCreate(heap));
-	clarityEventLoopEnqueue(eventLoop, entry, data);
+	if (eventLoop) {
+		eventLoop->events = clarityHeapRetain(clarityArrayCreate(heap));
+		clarityEventLoopEnqueue(eventLoop, entry, data);
+	}
 	return clarityHeapAutoRelease(eventLoop);
 }

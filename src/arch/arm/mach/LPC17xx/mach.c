@@ -40,11 +40,14 @@ void *clarityMemCpy(void *dstData,
 void *clarityMemSet(void *data, char value,
 	Uint32 size)
 {
-	char *p;
+	if (data) {
+		char *p;
 
-	p = data;
-	while (size--)
-		*p++ = value;
+		p = data;
+		while (size--)
+			*p++ = value;
+	}
+
 	return data;
 }
 
@@ -57,8 +60,7 @@ Uint32 clarityStrLen(const char *cString)
 	return (Uint32)(s - cString);
 }
 
-Sint8 clarityStrCmp(const char *cString,
-	const char *cString2)
+Sint8 clarityStrCmp(const char *cString, const char *cString2)
 {
 	unsigned char uc1;
 	unsigned char uc2;

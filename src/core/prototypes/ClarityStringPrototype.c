@@ -49,18 +49,16 @@ static ClarityObject *equals(ClarityObject *scope)
 {
 	ClarityObject *retVal = gUndefined;
 
-	if (scope) {
-		Bool equal = FALSE;
+	Bool equal = FALSE;
 
-		if (clarityObjectIsTypeOf(
-			clarityObjectGetMember(scope, "this"), "string") &&
-			clarityObjectIsTypeOf(
-			clarityObjectGetOwnMember(scope, "$1"), "string")) {
-			equal = (clarityStrCmp(clarityStringObjectGetValue(
-				clarityObjectGetMember(scope, "this")),
-				clarityStringObjectGetValue(
-				clarityObjectGetOwnMember(scope, "$1"))) == 0);
-		}
+	if (clarityObjectIsTypeOf(
+		clarityObjectGetMember(scope, "this"), "string") &&
+		clarityObjectIsTypeOf(
+		clarityObjectGetOwnMember(scope, "$1"), "string")) {
+		equal = (clarityStrCmp(clarityStringObjectGetValue(
+			clarityObjectGetMember(scope, "this")),
+			clarityStringObjectGetValue(
+			clarityObjectGetOwnMember(scope, "$1"))) == 0);
 		retVal = clarityBooleanObjectCreate(clarityHeap(scope), equal);
 	}
 	return retVal;
@@ -70,17 +68,14 @@ static ClarityObject *length(ClarityObject *scope)
 {
 	ClarityObject *retVal = gUndefined;
 
-	if (scope) {
+	if (clarityObjectIsTypeOf(
+		clarityObjectGetMember(scope, "this"), "string")) {
+		Uint32 length = clarityStrLen(
+			clarityStringObjectGetValue(
+			clarityObjectGetMember(scope, "this")));
 
-		if (clarityStrCmp(clarityObjectTypeOf(
-		clarityObjectGetMember(scope, "this")), "string") == 0) {
-			Uint32 length = clarityStrLen(
-				clarityStringObjectGetValue(
-				clarityObjectGetMember(scope, "this")));
-
-			retVal = clarityIntegerObjectCreate(clarityHeap(scope),
-				length);
-		}
+		retVal = clarityIntegerObjectCreate(clarityHeap(scope),
+			length);
 	}
 	return retVal;
 }
