@@ -8,10 +8,14 @@
 void clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
-	ClarityObject *object;
+	ClarityObject *string;
+	ClarityObject *integer;
 
-	object = clarityStringObjectCreate(heap, TEST_VALUE);
-	assert(clarityStrCmp(clarityStringObjectGetValue(object),
+	string = clarityStringObjectCreate(heap, TEST_VALUE);
+	integer = clarityIntegerObjectCreate(heap, 2);
+	assert(clarityStrCmp(clarityStringObjectGetValue(string),
 		TEST_VALUE) == 0);
+	assert(clarityStrCmp(clarityStringObjectGetValue(NULL), "") == 0);
+	assert(clarityStrCmp(clarityStringObjectGetValue(integer), "") == 0);
 }
 

@@ -44,5 +44,6 @@ void clarityEntry(ClarityObject *globalScope)
 	clarityArrayUnshift(array, dataString3);
 	assert(length == clarityArrayLength(array));
 	clarityArrayUnshift(NULL, dataString3);
+	clarityArrayLock(NULL);
 }
 

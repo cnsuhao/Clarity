@@ -6,13 +6,17 @@
 void clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
-	ClarityObject *object;
+	ClarityObject *boolean;
+	ClarityObject *integer;
 
-	object = clarityBooleanObjectCreate(heap, TRUE);
-	assert(object != NULL);
-	assert(clarityBooleanObjectGetValue(object) == TRUE);
-	object = clarityBooleanObjectCreate(heap, FALSE);
-	assert(object != NULL);
-	assert(clarityBooleanObjectGetValue(object) == FALSE);
+	boolean = clarityBooleanObjectCreate(heap, TRUE);
+	integer = clarityIntegerObjectCreate(heap, 23);
+	assert(boolean != NULL);
+	assert(clarityBooleanObjectGetValue(boolean) == TRUE);
+	boolean = clarityBooleanObjectCreate(heap, FALSE);
+	assert(boolean != NULL);
+	assert(clarityBooleanObjectGetValue(boolean) == FALSE);
+	assert(clarityBooleanObjectGetValue(NULL) == FALSE);
+	assert(clarityBooleanObjectGetValue(integer) == FALSE);
 }
 

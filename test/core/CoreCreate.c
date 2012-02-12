@@ -4,5 +4,7 @@
 
 void clarityEntry(ClarityObject *globalScope)
 {
+	clarityCore();
+	clarityCore();
+	clarityStart(NULL);
 }
-

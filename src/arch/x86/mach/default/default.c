@@ -46,3 +46,15 @@ Sint8 clarityStrCmp(const char *cString,
 	uc2 = (*(unsigned char *) cString2);
 	return ((uc1 < uc2) ? -1 : (uc1 > uc2));
 }
+
+void *clarityMemSet(void *s, Uint32 c, Uint32 n)
+{
+	unsigned char *us = s;
+	unsigned char uc = c;
+
+	while (n-- != 0)
+		*us++ = uc;
+
+	return s;
+}
+

@@ -30,6 +30,7 @@ void clarityEntry(ClarityObject *globalScope)
 	moreDataString = clarityStringObjectCreate(heap, moreData);
 
 	clarityObjectSetMember(object, baseKey, baseDataString);
+	clarityObjectSetMember(object, baseKey, baseDataString);
 	clarityObjectSetMember(object, baseKey, baseDataString2);
 	clarityObjectSetMember(object, moreKey, moreDataString);
 	clarityObjectSetMember(object, lessKey, lessDataString);
