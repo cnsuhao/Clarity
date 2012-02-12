@@ -26,10 +26,11 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
+#include "ClarityObjectPriv.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
-static ClarityObject *gUndefined = NULL;
+static ClarityObject *gUndefined = 0;
 
 void clarityBooleanPrototypeStaticInitializer(
 	ClarityObject *undefined)
@@ -46,7 +47,7 @@ static ClarityObject *equals(ClarityObject *scope)
 {
 	ClarityObject *retVal = gUndefined;
 
-	Bool equal = FALSE;
+	Bool equal = 0;
 
 	if (clarityObjectIsTypeOf(
 		clarityObjectGetMember(scope, "this"), "boolean") &&

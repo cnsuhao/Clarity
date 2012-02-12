@@ -2,7 +2,7 @@
 #include "ClarityHeap.h"
 #include "ClarityStringObject.h"
 #include "ClarityArrayObject.h"
-#include "ClarityIntegerObject.h"
+#include "ClarityNumberObject.h"
 #include "ClarityFunctionObject.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityCore.h"
@@ -15,7 +15,7 @@ static ClarityObject *testFunction(ClarityObject *scope)
 	return scope;
 }
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *parameters;
@@ -34,7 +34,7 @@ void clarityEntry(ClarityObject *globalScope)
 		"typeOf"), parameters)), "string") == 0);
 
 	parameters = clarityObjectCreate(heap);
-	integer = clarityIntegerObjectCreate(heap, 23);
+	integer = clarityNumberObjectCreate(heap, 23);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", integer);
 	assert(clarityStrCmp(clarityStringObjectGetValue(
@@ -51,7 +51,7 @@ void clarityEntry(ClarityObject *globalScope)
 		parameters)), "function") == 0);
 
 	parameters = clarityObjectCreate(heap);
-	boolean = clarityBooleanObjectCreate(heap, TRUE);
+	boolean = clarityBooleanObjectCreate(heap, 1);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", boolean);
 	assert(clarityStrCmp(clarityStringObjectGetValue(
@@ -60,12 +60,19 @@ void clarityEntry(ClarityObject *globalScope)
 		parameters)), "boolean") == 0);
 
 	parameters = clarityObjectCreate(heap);
-	array = clarityArrayObjectCreate(heap, clarityArrayCreate(heap));
+	array = clarityArrayObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", array);
 	assert(clarityStrCmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "typeOf"),
 		parameters)), "array") == 0);
+	return clarityObjectCreate(heap);
 }
 
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
+}

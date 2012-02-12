@@ -28,13 +28,13 @@
  */
 #include "ClarityArray.h"
 #include "ClarityArrayObject.h"
-#include "ClarityObject.h"
-#include "ClarityIntegerObject.h"
+#include "ClarityObjectPriv.h"
+#include "ClarityNumberObject.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
-static ClarityObject *gPrototype = NULL;
-static ClarityObject *gUndefined = NULL;
+static ClarityObject *gPrototype = 0;
+static ClarityObject *gUndefined = 0;
 
 void clarityArrayStaticInitializer(
 	ClarityObject *prototype, ClarityObject *undefined)
@@ -49,14 +49,28 @@ void clarityArrayStaticRelease(void)
 	clarityHeapRelease(gPrototype);
 }
 
-ClarityObject *clarityArrayObjectCreate(ClarityHeap *heap,
-	ClarityArray *innerArray)
+ClarityObject *clarityArrayObjectPush(ClarityObject *array,
+	ClarityObject *item)
 {
-	ClarityObject *array = clarityObjectCreateType(heap,
-		"array", innerArray);
+	if (array) {
+		if (clarityObjectIsTypeOf(array, "array")) {
+			ClarityArray *inner;
 
-	clarityObjectSetMember(array, "prototype", gPrototype);
-	clarityObjectLock(array);
+			inner = (ClarityArray *)
+				clarityObjectGetInnerData(array);
+
+			if (inner)
+				clarityArrayPush(inner, item);
+		}
+	}
 	return array;
 }
 
+ClarityObject *clarityArrayObjectCreate(ClarityHeap *heap)
+{
+	ClarityObject *array = clarityObjectCreateType(heap,
+		"array", clarityArrayCreate(heap));
+
+	clarityObjectSetMember(array, "prototype", gPrototype);
+	return array;
+}

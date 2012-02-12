@@ -5,7 +5,7 @@
 
 #define TEST_VALUE "test string"
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	Uint32 length;
@@ -15,9 +15,16 @@ void clarityEntry(ClarityObject *globalScope)
 	object = clarityStringObjectCreate(heap, TEST_VALUE);
 	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", object);
-	length = clarityIntegerObjectGetValue(
+	length = clarityNumberObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(object, "length"), parameters));
 	assert(clarityStrLen(TEST_VALUE) == length);
+	return clarityObjectCreate(heap);
 }
 
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
+}

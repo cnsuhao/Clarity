@@ -3,7 +3,7 @@
 #include "ClarityArray.h"
 #include <assert.h>
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	const char *data1 = "TestString1";
@@ -33,17 +33,24 @@ void clarityEntry(ClarityObject *globalScope)
 	assert(clarityStrCmp(data1,
 		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityArrayShift(array);
-	assert(resultString == NULL);
+	assert(resultString == 0);
 	clarityArrayUnshift(array, dataString1);
 	clarityArrayUnshift(array, dataString2);
 	clarityArrayUnshift(array, dataString3);
 	clarityArrayLock(array);
 	length = clarityArrayLength(array);
-	assert(clarityArrayShift(array) == NULL);
+	assert(clarityArrayShift(array) == 0);
 	assert(length == clarityArrayLength(array));
 	clarityArrayUnshift(array, dataString3);
 	assert(length == clarityArrayLength(array));
-	clarityArrayUnshift(NULL, dataString3);
-	clarityArrayLock(NULL);
+	clarityArrayUnshift(0, dataString3);
+	clarityArrayLock(0);
+	return clarityObjectCreate(heap);
 }
 
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
+}

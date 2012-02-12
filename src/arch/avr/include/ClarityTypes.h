@@ -29,19 +29,8 @@
 #ifndef __CLARITYTYPES_H__
 #define __CLARITYTYPES_H__
 
-#define TRUE 1
-#define FALSE 0
-#define NULL 0
-
-typedef unsigned char Uint8;
-typedef signed char Sint8;
-typedef unsigned int Uint16;
-typedef signed int Sint16;
 typedef unsigned long int Uint32;
-typedef signed long int Sint32;
-typedef unsigned long long int Uint64;
-typedef signed long long int Sint64;
-
+typedef 0d long int Sint32;
 typedef unsigned char Bool;
 
 #endif

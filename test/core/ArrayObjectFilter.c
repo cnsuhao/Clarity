@@ -2,7 +2,7 @@
 #include <assert.h>
 
 static ClarityObject *arrayObject;
-static Bool gotCallback = FALSE;
+static Bool gotCallback = 0;
 
 static ClarityObject *filterFunction(ClarityObject *scope)
 {
@@ -10,10 +10,10 @@ static ClarityObject *filterFunction(ClarityObject *scope)
 	Uint32 index;
 	ClarityObject *array;
 
-	data = clarityIntegerObjectGetValue(
+	data = clarityNumberObjectGetValue(
 		clarityObjectGetOwnMember(scope, "$1"));
 
-	index = clarityIntegerObjectGetValue(
+	index = clarityNumberObjectGetValue(
 		clarityObjectGetOwnMember(scope, "$2"));
 
 	assert((data == 2 && index == 0) ||
@@ -31,43 +31,50 @@ static ClarityObject *filterCallback(ClarityObject *scope)
 	ClarityArray *array = clarityObjectGetInnerData(
 		clarityObjectGetOwnMember(scope, "$1"));
 
-	assert(clarityIntegerObjectGetValue(
+	assert(clarityNumberObjectGetValue(
 		clarityArrayPop(array)) == 16);
 
-	assert(clarityIntegerObjectGetValue(
+	assert(clarityNumberObjectGetValue(
 		clarityArrayPop(array)) == 4);
 
-	assert(clarityIntegerObjectGetValue(
+	assert(clarityNumberObjectGetValue(
 		clarityArrayPop(array)) == 2);
 
-	assert(clarityArrayPop(array) == NULL);
+	assert(clarityArrayPop(array) == 0);
 
-	gotCallback = TRUE;
-	return NULL;
+	gotCallback = 1;
+	return 0;
 }
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *parameters;
-	ClarityArray *array;
 
-	array = clarityArrayCreate(heap);
-	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 2));
-	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 4));
-	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 8));
-	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 16));
-	arrayObject = clarityArrayObjectCreate(heap, array);
+	arrayObject = clarityArrayObjectCreate(heap);
+	clarityArrayObjectPush(arrayObject, clarityNumberObjectCreate(heap, 2));
+	clarityArrayObjectPush(arrayObject, clarityNumberObjectCreate(heap, 4));
+	clarityArrayObjectPush(arrayObject, clarityNumberObjectCreate(heap, 8));
+	clarityArrayObjectPush(arrayObject,
+		clarityNumberObjectCreate(heap, 16));
 	parameters = clarityObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", arrayObject);
 	clarityObjectSetMember(parameters, "$1",
 		clarityFunctionObjectCreate(heap, filterFunction,
-		NULL));
+		0));
 
 	clarityObjectSetMember(parameters, "$2",
 		clarityFunctionObjectCreate(heap, filterCallback,
-		NULL));
+		0));
 
 	clarityFunctionObjectCall(
 		clarityObjectGetMember(arrayObject, "filter"), parameters);
+	return clarityObjectCreate(heap);
+}
+
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
 }

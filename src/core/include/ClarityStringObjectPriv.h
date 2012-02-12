@@ -27,14 +27,11 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 
-#ifndef __CLARITYINTEGERPROTOTYPE_H__
-#define __CLARITYINTEGERPROTOTYPE_H__
-#include "ClarityHeap.h"
-#include "ClarityObject.h"
+#ifndef __CLARITYSTRINGOBJECTPRIV_H__
+#define __CLARITYSTRINGOBJECTPRIV_H__
+#include "ClarityStringObject.h"
 
-ClarityObject *clarityIntegerPrototypeStaticInitializer(ClarityObject *);
-void clarityIntegerPrototypeStaticRelease(void);
-ClarityObject *clarityIntegerPrototypeCreate(ClarityHeap *);
-
+void clarityStringStaticInitializer(ClarityObject *, ClarityObject *);
+void clarityStringStaticRelease(void);
 #endif
 

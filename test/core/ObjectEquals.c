@@ -3,7 +3,7 @@
 #include "ClarityStringObject.h"
 #include <assert.h>
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	Bool equals;
@@ -27,5 +27,12 @@ void clarityEntry(ClarityObject *globalScope)
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(object1, "equals"), parameters));
 	assert(!equals);
+	return clarityObjectCreate(heap);
 }
 
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
+}

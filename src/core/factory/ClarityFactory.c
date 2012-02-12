@@ -28,18 +28,18 @@
  */
 #include "ClarityFactory.h"
 #include "ClarityCore.h"
-#include "ClarityObject.h"
+#include "ClarityObjectPriv.h"
 #include "ClarityObjectPrototype.h"
 #include "ClarityArrayPrototype.h"
-#include "ClarityIntegerPrototype.h"
+#include "ClarityNumberPrototype.h"
 #include "ClarityBooleanPrototype.h"
 #include "ClarityStringPrototype.h"
 #include "ClarityScopePrototype.h"
-#include "ClarityArrayObject.h"
-#include "ClarityBooleanObject.h"
-#include "ClarityIntegerObject.h"
-#include "ClarityStringObject.h"
-#include "ClarityFunctionObject.h"
+#include "ClarityArrayObjectPriv.h"
+#include "ClarityBooleanObjectPriv.h"
+#include "ClarityNumberObjectPriv.h"
+#include "ClarityStringObjectPriv.h"
+#include "ClarityFunctionObjectPriv.h"
 #include "ClarityEventLoop.h"
 
 struct __Clarity {
@@ -51,9 +51,10 @@ struct __Clarity {
 	ClarityObject *undefined;
 };
 
-static Clarity *clarity = NULL;
+static Clarity *clarity = 0;
 
-void clarityRegisterFile(Clarity *clarity, char *name, ClarityFileInit init)
+void clarityRegisterFile(Clarity *clarity, const char *name,
+	ClarityFileInit init)
 {
 	if (clarity)
 		clarityObjectSetMember(clarity->fileRegistry, name,
@@ -73,7 +74,7 @@ static void clarityDestroy(Clarity *clarity)
 	}
 }
 
-Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
+Clarity *clarityCreate(ClarityHeap *heap)
 {
 	Clarity *clarity = clarityHeapAllocateWithDestructor(heap,
 		sizeof(Clarity),
@@ -82,15 +83,14 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 	if (clarity) {
 		clarity->heap = clarityHeapRetain(heap);
 		clarity->undefined = clarityHeapRetain(
-			clarityObjectCreateType(heap, "undefined", NULL));
+			clarityObjectCreateType(heap, "undefined", 0));
 		clarityObjectLock(clarity->undefined);
 		clarity->fileRegistry = clarityHeapRetain(
 			clarityObjectCreate(heap));
 		clarity->scopePrototype = clarityHeapRetain(
 			clarityScopePrototypeCreate(heap));
 		clarity->eventLoop = clarityHeapRetain(
-			clarityEventLoopCreate(clarity->heap,
-			entry, clarity->scopePrototype));
+			clarityEventLoopCreate(clarity->heap));
 		clarityObjectPrototypeStaticInitializer(clarity->undefined);
 		clarity->objectPrototype = clarityObjectPrototypeCreate(heap);
 		clarityObjectStaticInitializer(clarity->objectPrototype,
@@ -99,9 +99,9 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 			clarity->undefined);
 		clarityArrayStaticInitializer(
 			clarityArrayPrototypeCreate(heap), clarity->undefined);
-		clarityIntegerPrototypeStaticInitializer(clarity->undefined);
-		clarityIntegerStaticInitializer(
-			clarityIntegerPrototypeCreate(heap),
+		clarityNumberPrototypeStaticInitializer(clarity->undefined);
+		clarityNumberStaticInitializer(
+			clarityNumberPrototypeCreate(heap),
 			clarity->undefined);
 		clarityBooleanPrototypeStaticInitializer(clarity->undefined);
 		clarityBooleanStaticInitializer(
@@ -112,16 +112,23 @@ Clarity *clarityCreate(ClarityEvent entry, ClarityHeap *heap)
 			clarityStringPrototypeCreate(heap), clarity->undefined);
 		clarityScopePrototypeStaticInitializer(clarity->eventLoop,
 			clarity->undefined, clarity->fileRegistry);
-		clarityFunctionStaticInitializer(heap,
-			clarity->eventLoop, clarity->undefined);
+		clarityFunctionStaticInitializer(clarity->eventLoop,
+			clarity->undefined);
 	}
 	return clarityHeapAutoRelease(clarity);
 }
 
-void clarityStart(Clarity *clarity)
+void clarityStart(Clarity *clarity, const char *entry)
 {
 	if (clarity) {
 		clarityHeapRetain(clarity);
+		clarityFunctionObjectCall(
+			clarityObjectGetMember(clarity->scopePrototype,
+			"require"),
+			clarityObjectSetMember(
+			clarityObjectCreate(clarityHeap(clarity)), "$1",
+			clarityStringObjectCreate(
+			clarityHeap(clarity), entry)));
 		clarityEventLoopStart(clarity->eventLoop);
 	}
 }
@@ -131,11 +138,11 @@ void clarityStop(Clarity *clarity)
 	clarityFunctionStaticRelease();
 	clarityArrayStaticRelease();
 	clarityBooleanStaticRelease();
-	clarityIntegerStaticRelease();
+	clarityNumberStaticRelease();
 	clarityStringStaticRelease();
 	clarityScopePrototypeStaticRelease();
 	clarityArrayPrototypeStaticRelease();
-	clarityIntegerPrototypeStaticRelease();
+	clarityNumberPrototypeStaticRelease();
 	clarityBooleanPrototypeStaticRelease();
 	clarityStringPrototypeStaticRelease();
 	clarityObjectPrototypeStaticRelease();
@@ -143,24 +150,17 @@ void clarityStop(Clarity *clarity)
 	clarityHeapRelease(clarity);
 }
 
-ClarityObject *clarityEntry(ClarityObject *) __attribute__((weak));
-ClarityObject *clarityEntry(ClarityObject *object)
-{
-	return NULL;
-}
-
 Clarity *clarityCore(void)
 {
 	if (!clarity)
-		clarity = clarityCreate((ClarityEvent)clarityEntry,
-			clarityHeapCreate());
+		clarity = clarityCreate(clarityHeapCreate());
 	return clarity;
 }
 
 int main(void) __attribute__((weak));
 int main(void)
 {
-	clarityStart(clarityCore());
+	clarityStart(clarityCore(), "entry");
 	clarityStop(clarity);
 	return 0;
 }

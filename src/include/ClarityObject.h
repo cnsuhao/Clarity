@@ -32,19 +32,14 @@
 
 typedef struct __ClarityObject ClarityObject;
 
-void clarityObjectStaticInitializer(ClarityObject *, ClarityObject *);
-void clarityObjectStaticRelease(void);
 ClarityObject *clarityObjectCreate(ClarityHeap *);
-ClarityObject *clarityObjectCreateType(ClarityHeap *, const char *, void *);
-
-ClarityObject *clarityObjectSetMember(ClarityObject *, const char *,
-	ClarityObject *);
-
 ClarityObject *clarityObjectGetMember(ClarityObject *, const char *);
 ClarityObject *clarityObjectGetOwnMember(ClarityObject *, const char *);
+ClarityObject *clarityObjectSetMember(ClarityObject *, const char *,
+	ClarityObject *);
+void *clarityObjectGetInnerData(ClarityObject *);
 Bool clarityObjectIsTypeOf(ClarityObject *, const char *);
 const char *clarityObjectTypeOf(ClarityObject *);
-void *clarityObjectGetInnerData(ClarityObject *);
 void clarityObjectLock(ClarityObject *);
-
 #endif
+

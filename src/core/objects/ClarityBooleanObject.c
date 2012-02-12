@@ -27,9 +27,10 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityBooleanObject.h"
+#include "ClarityObjectPriv.h"
 
-static ClarityObject *gPrototype = NULL;
-static ClarityObject *gUndefined = NULL;
+static ClarityObject *gPrototype = 0;
+static ClarityObject *gUndefined = 0;
 
 void clarityBooleanStaticInitializer(ClarityObject *prototype,
 	ClarityObject *undefined)
@@ -62,7 +63,7 @@ static ClarityBoolean *clarityBooleanCreate(ClarityHeap *heap, Bool value)
 
 Bool clarityBooleanObjectGetValue(ClarityObject *boolean)
 {
-	Bool retVal = FALSE;
+	Bool retVal = 0;
 	if (boolean) {
 		if (clarityObjectIsTypeOf(boolean, "boolean")) {
 			ClarityBoolean *inner;

@@ -44,8 +44,8 @@ struct __ClarityObject {
 	void *innerData;
 };
 
-static ClarityObject *gPrototype = NULL;
-static ClarityObject *gUndefined = NULL;
+static ClarityObject *gPrototype = 0;
+static ClarityObject *gUndefined = 0;
 
 void clarityObjectStaticInitializer(
 	ClarityObject *prototype, ClarityObject *undefined)
@@ -78,8 +78,8 @@ static Node *nodeCreate(ClarityHeap *heap, const char *name,
 	if (node) {
 		node->name = name;
 		node->object = clarityHeapRetain(object);
-		node->left = NULL;
-		node->right = NULL;
+		node->left = 0;
+		node->right = 0;
 	}
 
 	return clarityHeapAutoRelease(node);
@@ -95,7 +95,7 @@ static void objectDestroy(ClarityObject *object)
 
 void *clarityObjectGetInnerData(ClarityObject *object)
 {
-	void *retVal = NULL;
+	void *retVal = 0;
 
 	if (object)
 		retVal = object->innerData;
@@ -105,7 +105,7 @@ void *clarityObjectGetInnerData(ClarityObject *object)
 void clarityObjectLock(ClarityObject *object)
 {
 	if (object)
-		object->locked = TRUE;
+		object->locked = 1;
 }
 
 typedef ClarityObject *(*NodeApplier)(Node **, const char *, ClarityObject *);
@@ -121,8 +121,8 @@ static void *applyNode(ClarityObject *object, const char *name,
 		node = object->root;
 		assignee = &object->root;
 
-		while (node != NULL) {
-			Sint8 compare = clarityStrCmp(name, node->name);
+		while (node != 0) {
+			Sint32 compare = clarityStrCmp(name, node->name);
 
 			if (compare == 0)
 				return found(&node, name, subObject);
@@ -156,7 +156,7 @@ static ClarityObject *getObjectNotFound(Node **node, const char *name,
 ClarityObject *clarityObjectGetOwnMember(ClarityObject *object,
 	const char *name)
 {
-	return applyNode(object, name, NULL,
+	return applyNode(object, name, 0,
 		getObjectFound, getObjectNotFound);
 }
 
@@ -225,7 +225,7 @@ const char *clarityObjectTypeOf(ClarityObject *object)
 
 Bool clarityObjectIsTypeOf(ClarityObject *object, const char *type)
 {
-	Bool retVal = FALSE;
+	Bool retVal = 0;
 
 	if (type)
 		retVal = (clarityStrCmp(
@@ -243,10 +243,10 @@ ClarityObject *clarityObjectCreateType(ClarityHeap *heap,
 			(ClarityHeapDestructor)objectDestroy);
 
 	if (object) {
-		object->locked = FALSE;
+		object->locked = 0;
 		object->type = type;
 		object->innerData = clarityHeapRetain(innerData);
-		object->root = NULL;
+		object->root = 0;
 	}
 
 	return clarityHeapAutoRelease(object);
@@ -254,7 +254,7 @@ ClarityObject *clarityObjectCreateType(ClarityHeap *heap,
 
 ClarityObject *clarityObjectCreate(ClarityHeap *heap)
 {
-	ClarityObject *object = clarityObjectCreateType(heap, "object", NULL);
+	ClarityObject *object = clarityObjectCreateType(heap, "object", 0);
 
 	clarityObjectSetMember(object, "prototype", gPrototype);
 

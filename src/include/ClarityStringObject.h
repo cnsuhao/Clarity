@@ -32,9 +32,7 @@
 #include "ClarityHeap.h"
 #include "ClarityObject.h"
 
-void clarityStringStaticInitializer(ClarityObject *, ClarityObject *);
-void clarityStringStaticRelease(void);
 ClarityObject *clarityStringObjectCreate(ClarityHeap *, const char *);
 const char *clarityStringObjectGetValue(ClarityObject *string);
-
 #endif
+

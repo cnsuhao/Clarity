@@ -3,13 +3,19 @@
 #include "ClarityArrayObject.h"
 #include <assert.h>
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *object;
-	ClarityArray *array;
 
-	array = clarityArrayCreate(heap);
-	object = clarityArrayObjectCreate(heap, array);
-	assert(object != NULL);
+	object = clarityArrayObjectCreate(heap);
+	assert(object != 0);
+	return clarityObjectCreate(heap);
+}
+
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
 }

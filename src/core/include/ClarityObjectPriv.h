@@ -26,16 +26,17 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-
-#ifndef __CLARITYINTEGEROBJECT_H__
-#define __CLARITYINTEGEROBJECT_H__
-#include "ClarityHeap.h"
+#ifndef __CLARITYOBJECTPRIV_H__
+#define __CLARITYOBJECTPRIV_H__
 #include "ClarityObject.h"
+#include "ClarityHeap.h"
 
-void clarityIntegerStaticInitializer(ClarityObject *, ClarityObject *);
-void clarityIntegerStaticRelease(void);
-ClarityObject *clarityIntegerObjectCreate(ClarityHeap *, Uint32);
-Uint32 clarityIntegerObjectGetValue(ClarityObject *);
+void clarityObjectStaticInitializer(ClarityObject *, ClarityObject *);
+void clarityObjectStaticRelease(void);
+ClarityObject *clarityObjectCreateType(ClarityHeap *, const char *, void *);
 
+Bool clarityObjectIsTypeOf(ClarityObject *, const char *);
+const char *clarityObjectTypeOf(ClarityObject *);
+void clarityObjectLock(ClarityObject *);
 #endif
 

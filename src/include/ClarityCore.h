@@ -30,11 +30,11 @@
 #define __CLARITYCORE_H__
 #include "ClarityTypes.h"
 
-typedef Sint8(*ClarityComparator)(void *, void *);
+typedef Sint32(*ClarityComparator)(void *, void *);
 
 void *clarityMemCpy(void *, const void *, Uint32);
 void *clarityMemSet(void *s, Uint32 c, Uint32 n);
 Uint32 clarityStrLen(const char *);
-Sint8 clarityStrCmp(const char *, const char *);
+Sint32 clarityStrCmp(const char *, const char *);
 #endif
 

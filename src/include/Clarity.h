@@ -29,14 +29,15 @@
 #ifndef __CLARITY_H__
 #define __CLARITY_H__
 #include "ClarityTypes.h"
-#include "ClarityFactory.h"
 #include "ClarityCore.h"
-#include "ClarityArray.h"
+#include "ClarityFactory.h"
+#include "ClarityHeap.h"
 #include "ClarityObject.h"
 #include "ClarityArrayObject.h"
 #include "ClarityStringObject.h"
-#include "ClarityIntegerObject.h"
+#include "ClarityNumberObject.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
+#include "ClarityArray.h"
 #endif
 

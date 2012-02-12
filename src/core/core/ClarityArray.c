@@ -57,7 +57,7 @@ static void clarityArrayIteratorDestroy(ClarityArrayIterator *arrayIterator)
 
 Bool clarityArrayIteratorHasItem(ClarityArrayIterator *arrayIterator)
 {
-	Bool retVal = FALSE;
+	Bool retVal = 0;
 
 	if (arrayIterator)
 		retVal = arrayIterator->element != arrayIterator->array->last;
@@ -66,7 +66,7 @@ Bool clarityArrayIteratorHasItem(ClarityArrayIterator *arrayIterator)
 
 void *clarityArrayIteratorNextItem(ClarityArrayIterator *arrayIterator)
 {
-	void *retVal = NULL;
+	void *retVal = 0;
 	if (arrayIterator) {
 		Element *element = arrayIterator->element->next;
 
@@ -81,7 +81,7 @@ void *clarityArrayIteratorNextItem(ClarityArrayIterator *arrayIterator)
 ClarityArrayIterator *clarityArrayIteratorCreate(ClarityHeap *heap,
 	ClarityArray *array)
 {
-	ClarityArrayIterator *arrayIterator = NULL;
+	ClarityArrayIterator *arrayIterator = 0;
 
 	if (array) {
 		arrayIterator = clarityHeapAllocateWithDestructor(heap,
@@ -113,8 +113,8 @@ static Element *elementCreate(ClarityHeap *heap, void *data)
 
 	if (element) {
 		element->data = clarityHeapRetain(data);
-		element->next = NULL;
-		element->prev = NULL;
+		element->next = 0;
+		element->prev = 0;
 	}
 
 	return clarityHeapAutoRelease(element);
@@ -158,7 +158,7 @@ ClarityArray *clarityArrayUnshift(ClarityArray *array, void *data)
 
 void *clarityArrayShift(ClarityArray *array)
 {
-	void *retVal = NULL;
+	void *retVal = 0;
 
 	if (array && array->first &&
 		array->first->next &&
@@ -204,7 +204,7 @@ void *clarityArrayPop(ClarityArray *array)
 {
 	void *retVal;
 
-	retVal = NULL;
+	retVal = 0;
 
 	if (array && clarityArrayLength(array) &&
 		!array->locked &&
@@ -227,7 +227,7 @@ void *clarityArrayPop(ClarityArray *array)
 ClarityArray *clarityArrayLock(ClarityArray *array)
 {
 	if (array)
-		array->locked = TRUE;
+		array->locked = 1;
 	return array;
 }
 
@@ -248,9 +248,9 @@ ClarityArray *clarityArrayCreate(ClarityHeap *heap)
 
 	if (array) {
 		array->length = 0;
-		array->locked = FALSE;
-		array->first = clarityHeapRetain(elementCreate(heap, NULL));
-		array->last = clarityHeapRetain(elementCreate(heap, NULL));
+		array->locked = 0;
+		array->first = clarityHeapRetain(elementCreate(heap, 0));
+		array->last = clarityHeapRetain(elementCreate(heap, 0));
 		if (array->first && array->last) {
 			array->first->next = array->last;
 			array->last->prev = array->first;

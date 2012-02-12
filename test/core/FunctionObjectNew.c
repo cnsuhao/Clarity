@@ -9,10 +9,10 @@ static ClarityObject *testFunction(ClarityObject *scope)
 
 	clarityObjectSetMember(this, "testMember",
 		clarityObjectGetOwnMember(scope, "$1"));
-	return NULL;
+	return 0;
 }
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *function;
@@ -23,8 +23,15 @@ void clarityEntry(ClarityObject *globalScope)
 	function = clarityFunctionObjectCreate(heap, testFunction, scope);
 	newObject = clarityFunctionObjectNew(function,
 		clarityObjectSetMember(clarityObjectCreate(heap), "$1",
-		clarityIntegerObjectCreate(heap, 34)));
-	assert(clarityIntegerObjectGetValue(
+		clarityNumberObjectCreate(heap, 34)));
+	assert(clarityNumberObjectGetValue(
 		clarityObjectGetMember(newObject, "testMember")) == 34);
+	return clarityObjectCreate(heap);
 }
 
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
+}

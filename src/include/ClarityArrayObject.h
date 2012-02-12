@@ -29,13 +29,11 @@
 
 #ifndef __CLARITYARRAYOBJECT_H__
 #define __CLARITYARRAYOBJECT_H__
-#include "ClarityEventLoop.h"
-#include "ClarityArray.h"
+#include "ClarityHeap.h"
+#include "ClarityTypes.h"
 #include "ClarityObject.h"
 
-void clarityArrayStaticInitializer(ClarityObject *,
-	ClarityObject *);
-void clarityArrayStaticRelease(void);
-ClarityObject *clarityArrayObjectCreate(ClarityHeap *, ClarityArray *);
-
+ClarityObject *clarityArrayObjectCreate(ClarityHeap *);
+ClarityObject *clarityArrayObjectPush(ClarityObject *, ClarityObject *);
 #endif
+

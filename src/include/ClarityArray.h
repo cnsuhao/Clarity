@@ -33,7 +33,6 @@
 typedef struct __ClarityArray ClarityArray;
 typedef struct __ClarityArrayIterator ClarityArrayIterator;
 
-
 ClarityArray *clarityArrayCreate(ClarityHeap *);
 ClarityArray *clarityArrayPush(ClarityArray *, void *);
 void *clarityArrayPop(ClarityArray *);

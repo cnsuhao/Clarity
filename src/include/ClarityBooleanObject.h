@@ -29,12 +29,11 @@
 
 #ifndef __CLARITYBOOLEANOBJECT_H__
 #define __CLARITYBOOLEANOBJECT_H__
-#include "ClarityCore.h"
+#include "ClarityHeap.h"
+#include "ClarityTypes.h"
 #include "ClarityObject.h"
 
-void clarityBooleanStaticInitializer(ClarityObject *, ClarityObject *);
-void clarityBooleanStaticRelease(void);
 ClarityObject *clarityBooleanObjectCreate(ClarityHeap *, Bool);
 Bool clarityBooleanObjectGetValue(ClarityObject *);
-
 #endif
+

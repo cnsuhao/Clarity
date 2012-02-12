@@ -26,14 +26,15 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityObject.h"
-#include "ClarityIntegerObject.h"
+#include "ClarityObjectPriv.h"
+#include "ClarityCore.h"
+#include "ClarityNumberObject.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
 
-static ClarityObject *gPrototype = NULL;
-static ClarityObject *gUndefined = NULL;
+static ClarityObject *gPrototype = 0;
+static ClarityObject *gUndefined = 0;
 
 void clarityStringStaticInitializer(ClarityObject *prototype,
 	ClarityObject *undefined)

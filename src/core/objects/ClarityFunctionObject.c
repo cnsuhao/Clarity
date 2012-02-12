@@ -27,6 +27,8 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityFunctionObject.h"
+#include "ClarityEventLoop.h"
+#include "ClarityObjectPriv.h"
 #include "ClarityCore.h"
 
 typedef struct {
@@ -35,11 +37,11 @@ typedef struct {
 	Bool async;
 } ClarityFunction;
 
-static ClarityEventLoop *gEventLoop = NULL;
-static ClarityObject *gUndefined = NULL;
+static ClarityEventLoop *gEventLoop = 0;
+static ClarityObject *gUndefined = 0;
 
-void clarityFunctionStaticInitializer(ClarityHeap *heap,
-	ClarityEventLoop *eventLoop, ClarityObject *undefined)
+void clarityFunctionStaticInitializer(ClarityEventLoop *eventLoop,
+	ClarityObject *undefined)
 {
 	gEventLoop = clarityHeapRetain(eventLoop);
 	gUndefined = clarityHeapRetain(undefined);
@@ -146,14 +148,13 @@ static ClarityObject *innerFunctionObjectCreate(ClarityHeap *heap,
 ClarityObject *clarityFunctionObjectCreateAsync(ClarityHeap *heap,
 	ClarityFunctionPointer functionPointer, ClarityObject *scope)
 {
-	return innerFunctionObjectCreate(heap, functionPointer,
-		scope, TRUE);
+	return innerFunctionObjectCreate(heap, functionPointer, scope, 1);
 }
 
 ClarityObject *clarityFunctionObjectCreate(ClarityHeap *heap,
 	ClarityFunctionPointer functionPointer, ClarityObject *scope)
 {
 	return innerFunctionObjectCreate(heap, functionPointer,
-		scope, FALSE);
+		scope, 0);
 
 }

@@ -68,7 +68,8 @@ INCLUDE := \
 	src/include/ \
 	src/arch/$(ARCH)/mach/$(MACH)/include/ \
 	src/arch/$(ARCH)/include/ \
-	src/arch/include/
+	src/arch/include/ \
+	src/core/include/
 
 SSOURCE := $(wildcard \
 	src/arch/$(ARCH)/*.s \

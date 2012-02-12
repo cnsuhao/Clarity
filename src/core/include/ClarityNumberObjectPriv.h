@@ -26,20 +26,12 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#ifndef __CLARITYFUNCTIONOBJECT_H__
-#define __CLARITYFUNCTIONOBJECT_H__
-#include "ClarityHeap.h"
+
+#ifndef __CLARITYNUMBEROBJECTPRIV_H__
+#define __CLARITYNUMBEROBJECTPRIV_H__
 #include "ClarityObject.h"
 
-typedef ClarityObject * (*ClarityFunctionPointer)(ClarityObject *);
-
-ClarityObject *clarityFunctionObjectCreate(ClarityHeap *,
-	ClarityFunctionPointer, ClarityObject *);
-
-ClarityObject *clarityFunctionObjectCreateAsync(ClarityHeap *,
-	ClarityFunctionPointer, ClarityObject *);
-
-ClarityObject *clarityFunctionObjectCall(ClarityObject *, ClarityObject *);
-ClarityObject *clarityFunctionObjectNew(ClarityObject *, ClarityObject *);
+void clarityNumberStaticInitializer(ClarityObject *, ClarityObject *);
+void clarityNumberStaticRelease(void);
 #endif
 

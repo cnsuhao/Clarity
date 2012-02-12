@@ -27,16 +27,16 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityCore.h"
-#include "ClarityObject.h"
+#include "ClarityObjectPriv.h"
 #include "ClarityScopePrototype.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityStringObject.h"
 #include "ClarityFunctionObject.h"
 
-static ClarityObject *loadedFiles = NULL;
-static ClarityEventLoop *gEventLoop = NULL;
-static ClarityObject *gUndefined = NULL;
-static ClarityObject *gFileRegistry = NULL;
+static ClarityObject *loadedFiles = 0;
+static ClarityEventLoop *gEventLoop = 0;
+static ClarityObject *gUndefined = 0;
+static ClarityObject *gFileRegistry = 0;
 
 void clarityScopePrototypeStaticInitializer(ClarityEventLoop *eventLoop,
 	ClarityObject *undefined, ClarityObject *fileRegistry)
@@ -85,7 +85,7 @@ static ClarityObject *clarityIf(ClarityObject *parameters)
 {
 	ClarityObject *scope;
 	ClarityObject *testObject = clarityObjectGetOwnMember(parameters, "$1");
-	Bool test = FALSE;
+	Bool test = 0;
 
 	if (clarityObjectIsTypeOf(testObject, "function"))
 		testObject = clarityFunctionObjectCall(testObject, parameters);

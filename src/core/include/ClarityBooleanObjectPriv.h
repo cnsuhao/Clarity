@@ -26,53 +26,12 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityIntegerObject.h"
+
+#ifndef __CLARITYBOOLEANOBJECTPRIV_H__
+#define __CLARITYBOOLEANOBJECTPRIV_H__
 #include "ClarityBooleanObject.h"
-#include "ClarityFunctionObject.h"
 
-static ClarityObject *gUndefined = NULL;
-
-void clarityIntegerPrototypeStaticInitializer(ClarityObject *undefined)
-{
-	gUndefined = clarityHeapRetain(undefined);
-}
-
-void clarityIntegerPrototypeStaticRelease(void)
-{
-	clarityHeapRelease(gUndefined);
-}
-
-static ClarityObject *equals(ClarityObject *scope)
-{
-	ClarityObject *retVal = gUndefined;
-
-	Bool equal = FALSE;
-
-	if (clarityObjectIsTypeOf(
-		clarityObjectGetMember(scope, "this"), "number") &&
-		clarityObjectIsTypeOf(
-		clarityObjectGetOwnMember(scope, "$1"), "number")) {
-		equal = (clarityIntegerObjectGetValue(
-			clarityObjectGetMember(scope, "this"))) ==
-			clarityIntegerObjectGetValue(
-			clarityObjectGetOwnMember(scope, "$1"));
-
-		retVal = clarityBooleanObjectCreate(clarityHeap(scope), equal);
-	}
-
-	return retVal;
-}
-
-ClarityObject *clarityIntegerPrototypeCreate(ClarityHeap *heap)
-{
-	ClarityObject *prototype = clarityObjectCreate(heap);
-
-	clarityObjectSetMember(prototype, "equals",
-		clarityFunctionObjectCreate(heap,
-		equals,
-		gUndefined));
-
-		clarityObjectLock(prototype);
-	return prototype;
-}
+void clarityBooleanStaticInitializer(ClarityObject *, ClarityObject *);
+void clarityBooleanStaticRelease(void);
+#endif
 

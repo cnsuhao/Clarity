@@ -26,11 +26,11 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityObject.h"
+#include "ClarityObjectPriv.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
-static ClarityObject *gUndefined = NULL;
+static ClarityObject *gUndefined = 0;
 
 void clarityObjectPrototypeStaticInitializer(ClarityObject *undefined)
 {
@@ -52,7 +52,7 @@ static ClarityObject *equals(ClarityObject *scope)
 ClarityObject *clarityObjectPrototypeCreate(ClarityHeap *heap)
 {
 	ClarityObject *prototype = clarityObjectCreateType(heap,
-		"object", NULL);
+		"object", 0);
 
 	clarityObjectSetMember(prototype, "equals",
 			clarityFunctionObjectCreate(heap,

@@ -3,24 +3,28 @@
 #include "ClarityArrayObject.h"
 #include <assert.h>
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	Uint32 length;
 	ClarityObject *parameters;
-	ClarityObject *object;
-	ClarityArray *array;
-
-	array = clarityArrayCreate(heap);
-	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 2));
-	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 4));
-	clarityArrayPush(array, clarityIntegerObjectCreate(heap, 8));
-	object = clarityArrayObjectCreate(heap, array);
+	ClarityObject *arrayObject;
+	arrayObject = clarityArrayObjectCreate(heap);
+	clarityArrayObjectPush(arrayObject, clarityNumberObjectCreate(heap, 2));
+	clarityArrayObjectPush(arrayObject, clarityNumberObjectCreate(heap, 4));
+	clarityArrayObjectPush(arrayObject, clarityNumberObjectCreate(heap, 8));
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", object);
-	length = clarityIntegerObjectGetValue(
+	clarityObjectSetMember(parameters, "this", arrayObject);
+	length = clarityNumberObjectGetValue(
 		clarityFunctionObjectCall(
-		clarityObjectGetMember(object, "length"), parameters));
+		clarityObjectGetMember(arrayObject, "length"), parameters));
 	assert(3 == length);
+	return clarityObjectCreate(heap);
 }
 
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
+}

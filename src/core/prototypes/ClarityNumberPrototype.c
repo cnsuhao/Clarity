@@ -26,65 +26,54 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityIntegerObject.h"
+#include "ClarityObjectPriv.h"
+#include "ClarityNumberObject.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityFunctionObject.h"
 
-static ClarityObject *gPrototype = NULL;
-static ClarityObject *gUndefined = NULL;
+static ClarityObject *gUndefined = 0;
 
-void clarityIntegerStaticInitializer(ClarityObject *prototype,
-	ClarityObject *undefined)
+void clarityNumberPrototypeStaticInitializer(ClarityObject *undefined)
 {
 	gUndefined = clarityHeapRetain(undefined);
-	gPrototype = clarityHeapRetain(prototype);
 }
 
-void clarityIntegerStaticRelease(void)
+void clarityNumberPrototypeStaticRelease(void)
 {
 	clarityHeapRelease(gUndefined);
-	clarityHeapRelease(gPrototype);
 }
 
-typedef struct {
-	Uint32 value;
-} ClarityInteger;
-
-static ClarityInteger *clarityIntegerCreate(ClarityHeap *heap, Uint32 value)
+static ClarityObject *equals(ClarityObject *scope)
 {
-	ClarityInteger *integer;
+	ClarityObject *retVal = gUndefined;
 
-	integer = clarityHeapAllocate(heap, sizeof(ClarityInteger));
-	if (integer)
-		integer->value = value;
+	Bool equal = 0;
 
-	return clarityHeapAutoRelease(integer);
-}
+	if (clarityObjectIsTypeOf(
+		clarityObjectGetMember(scope, "this"), "number") &&
+		clarityObjectIsTypeOf(
+		clarityObjectGetOwnMember(scope, "$1"), "number")) {
+		equal = (clarityNumberObjectGetValue(
+			clarityObjectGetMember(scope, "this"))) ==
+			clarityNumberObjectGetValue(
+			clarityObjectGetOwnMember(scope, "$1"));
 
-Uint32 clarityIntegerObjectGetValue(ClarityObject *integer)
-{
-	Uint32 retVal = 0;
-	if (clarityObjectIsTypeOf(integer, "number")) {
-		ClarityInteger *inner;
-
-		inner = (ClarityInteger *)
-			clarityObjectGetInnerData(integer);
-
-		if (inner)
-			retVal = inner->value;
+		retVal = clarityBooleanObjectCreate(clarityHeap(scope), equal);
 	}
+
 	return retVal;
 }
 
-ClarityObject *clarityIntegerObjectCreate(ClarityHeap *heap, Uint32 uint32)
+ClarityObject *clarityNumberPrototypeCreate(ClarityHeap *heap)
 {
-	ClarityObject *integer;
+	ClarityObject *prototype = clarityObjectCreate(heap);
 
-	integer = clarityObjectCreateType(heap, "number",
-		clarityIntegerCreate(heap, uint32));
+	clarityObjectSetMember(prototype, "equals",
+		clarityFunctionObjectCreate(heap,
+		equals,
+		gUndefined));
 
-	clarityObjectSetMember(integer, "prototype", gPrototype);
-
-	clarityObjectLock(integer);
-	return integer;
+		clarityObjectLock(prototype);
+	return prototype;
 }
+

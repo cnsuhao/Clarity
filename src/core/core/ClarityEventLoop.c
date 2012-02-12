@@ -62,7 +62,7 @@ static Event *eventCreate(ClarityHeap *heap, ClarityEvent function,
 
 static Bool hasEvent(ClarityEventLoop *eventLoop)
 {
-	Bool retVal = FALSE;
+	Bool retVal = 0;
 	if (eventLoop)
 		retVal = clarityArrayLength(eventLoop->events);
 	return retVal;
@@ -111,8 +111,7 @@ void clarityEventLoopStart(ClarityEventLoop *eventLoop)
 		dequeue(eventLoop);
 }
 
-ClarityEventLoop *clarityEventLoopCreate(ClarityHeap *heap,
-	ClarityEvent entry, void *data)
+ClarityEventLoop *clarityEventLoopCreate(ClarityHeap *heap)
 {
 	ClarityEventLoop *eventLoop;
 
@@ -120,9 +119,8 @@ ClarityEventLoop *clarityEventLoopCreate(ClarityHeap *heap,
 		sizeof(ClarityEventLoop),
 		(ClarityHeapDestructor)eventLoopDestroy);
 
-	if (eventLoop) {
+	if (eventLoop)
 		eventLoop->events = clarityHeapRetain(clarityArrayCreate(heap));
-		clarityEventLoopEnqueue(eventLoop, entry, data);
-	}
+
 	return clarityHeapAutoRelease(eventLoop);
 }

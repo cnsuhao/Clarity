@@ -7,7 +7,7 @@ void *_sbrk(long incr)
 	static char *heap_next = 0;
 	char  *prev_heap_next;
 
-	if (heap_next == NULL)
+	if (heap_next == 0)
 		heap_next = &heapStart;
 
 	prev_heap_next = heap_next;
@@ -60,7 +60,7 @@ Uint32 clarityStrLen(const char *cString)
 	return (Uint32)(s - cString);
 }
 
-Sint8 clarityStrCmp(const char *cString, const char *cString2)
+Sint32 clarityStrCmp(const char *cString, const char *cString2)
 {
 	unsigned char uc1;
 	unsigned char uc2;

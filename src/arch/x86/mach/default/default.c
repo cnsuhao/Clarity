@@ -31,7 +31,7 @@ Uint32 clarityStrLen(const char *cString)
 	return (Uint32)(s - cString);
 }
 
-Sint8 clarityStrCmp(const char *cString,
+Sint32 clarityStrCmp(const char *cString,
 	const char *cString2)
 {
 	unsigned char uc1;

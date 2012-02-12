@@ -30,17 +30,16 @@
 #define __CLARITYFACTORY_H__
 #include "ClarityTypes.h"
 #include "ClarityHeap.h"
-#include "ClarityEventLoop.h"
 
 typedef struct __Clarity Clarity;
 
 typedef void*(*ClarityFileInit)(void *);
 
 Clarity *clarityCore(void);
-Clarity *clarityCreate(ClarityEvent, ClarityHeap *);
-void clarityStart(Clarity *);
+Clarity *clarityCreate(ClarityHeap *);
+void clarityStart(Clarity *, const char *);
 void clarityStop(Clarity *);
-void clarityRegisterFile(Clarity *, char *, ClarityFileInit);
+void clarityRegisterFile(Clarity *, const char *, ClarityFileInit);
 
 #endif
 

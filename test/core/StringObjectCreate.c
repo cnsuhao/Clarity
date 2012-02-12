@@ -5,17 +5,24 @@
 
 #define TEST_VALUE "test string"
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *string;
 	ClarityObject *integer;
 
 	string = clarityStringObjectCreate(heap, TEST_VALUE);
-	integer = clarityIntegerObjectCreate(heap, 2);
+	integer = clarityNumberObjectCreate(heap, 2);
 	assert(clarityStrCmp(clarityStringObjectGetValue(string),
 		TEST_VALUE) == 0);
-	assert(clarityStrCmp(clarityStringObjectGetValue(NULL), "") == 0);
+	assert(clarityStrCmp(clarityStringObjectGetValue(0), "") == 0);
 	assert(clarityStrCmp(clarityStringObjectGetValue(integer), "") == 0);
+	return clarityObjectCreate(heap);
 }
 
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
+}

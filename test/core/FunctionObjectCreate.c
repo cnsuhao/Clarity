@@ -5,10 +5,10 @@
 
 static ClarityObject *testFunction(ClarityObject *context)
 {
-	return NULL;
+	return 0;
 }
 
-void clarityEntry(ClarityObject *globalScope)
+static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
 	ClarityHeap *heap = clarityHeap(globalScope);
 	ClarityObject *object;
@@ -16,6 +16,13 @@ void clarityEntry(ClarityObject *globalScope)
 
 	context = clarityObjectCreate(heap);
 	object = clarityFunctionObjectCreate(heap, testFunction, context);
-	assert(object != NULL);
+	assert(object != 0);
+	return clarityObjectCreate(heap);
 }
 
+static void init(void) __attribute__((unused, constructor));
+static void init(void)
+{
+	clarityRegisterFile(clarityCore(),
+		"entry", (ClarityFileInit)clarityEntry);
+}

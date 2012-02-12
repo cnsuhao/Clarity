@@ -55,7 +55,7 @@ struct __ClarityHeap {
 typedef void(*Release)(ClarityHeap *heap, Header *header);
 
 static const Uint32 HEAP_MAGIC = 0xC0FFEE0D;
-static const AutoReleaseItem LAST_AUTO_RELEASE_ITEM = {NULL, NULL};
+static const AutoReleaseItem LAST_AUTO_RELEASE_ITEM = {0, 0};
 
 static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
 {
@@ -76,7 +76,7 @@ static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
 
 static Header *autoReleasePoolPop(ClarityHeap *heap)
 {
-	Header *header = NULL;
+	Header *header = 0;
 	if (heap && heap->autoReleasePool) {
 		AutoReleaseItem *item;
 
@@ -95,7 +95,7 @@ static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
 		AutoReleaseItem *prev;
 
 		item = heap->autoReleasePool;
-		prev = NULL;
+		prev = 0;
 
 		while (item != &LAST_AUTO_RELEASE_ITEM) {
 			AutoReleaseItem *next;
@@ -112,7 +112,7 @@ static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
 			}
 			item = next;
 			if (item == heap->autoReleasePool)
-				prev = NULL;
+				prev = 0;
 		}
 	}
 }
@@ -133,7 +133,7 @@ static void *clarityHeapInnerAllocate(ClarityHeap *heap, ClarityAlloc alloc,
 	Uint32 size, ClarityHeapDestructor destructor)
 {
 	Header *header;
-	void *retVal = NULL;
+	void *retVal = 0;
 
 	header = alloc(size + sizeof(Header));
 
@@ -163,13 +163,13 @@ static Header *heapItemHeader(void *data)
 {
 	Header *retVal;
 
-	retVal = NULL;
+	retVal = 0;
 
-	if (data != NULL) {
+	if (data != 0) {
 		Header *header;
 
 		header = (Header *)
-			((Uint8 *)data - sizeof(Header) + sizeof(data));
+			((Byte *)data - sizeof(Header) + sizeof(data));
 
 		if (header->magic == HEAP_MAGIC)
 			retVal = header;
@@ -203,7 +203,7 @@ static void innerRelease(void *data, Release release)
 
 ClarityHeap *clarityHeap(void *data)
 {
-	ClarityHeap *retVal = NULL;
+	ClarityHeap *retVal = 0;
 	Header *header;
 
 	header = heapItemHeader(data);
@@ -256,7 +256,7 @@ ClarityHeap *clarityHeapCreate(void)
 {
 	ClarityHeap *heap;
 
-	heap = clarityHeapInnerAllocate(NULL, clarityAlloc, sizeof(ClarityHeap),
+	heap = clarityHeapInnerAllocate(0, clarityAlloc, sizeof(ClarityHeap),
 			(ClarityHeapDestructor)heapDestroy);
 
 	if (heap) {

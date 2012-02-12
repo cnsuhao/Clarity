@@ -26,76 +26,66 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
-#include "ClarityCore.h"
-#include "ClarityObjectPriv.h"
 #include "ClarityNumberObject.h"
 #include "ClarityBooleanObject.h"
+#include "ClarityObjectPriv.h"
 #include "ClarityFunctionObject.h"
-#include "ClarityStringObject.h"
 
+static ClarityObject *gPrototype = 0;
 static ClarityObject *gUndefined = 0;
 
-void clarityStringPrototypeStaticInitializer(
-ClarityObject *undefined)
+void clarityNumberStaticInitializer(ClarityObject *prototype,
+	ClarityObject *undefined)
 {
-gUndefined = clarityHeapRetain(undefined);
+	gUndefined = clarityHeapRetain(undefined);
+	gPrototype = clarityHeapRetain(prototype);
 }
 
-void clarityStringPrototypeStaticRelease(void)
+void clarityNumberStaticRelease(void)
 {
-clarityHeapRelease(gUndefined);
+	clarityHeapRelease(gUndefined);
+	clarityHeapRelease(gPrototype);
 }
 
-static ClarityObject *equals(ClarityObject *scope)
+typedef struct {
+	Number value;
+} ClarityNumber;
+
+static ClarityNumber *clarityNumberCreate(ClarityHeap *heap, Number value)
 {
-ClarityObject *retVal = gUndefined;
+	ClarityNumber *integer;
 
-Bool equal = 0;
+	integer = clarityHeapAllocate(heap, sizeof(ClarityNumber));
+	if (integer)
+		integer->value = value;
 
-if (clarityObjectIsTypeOf(
-	clarityObjectGetMember(scope, "this"), "string") &&
-	clarityObjectIsTypeOf(
-	clarityObjectGetOwnMember(scope, "$1"), "string")) {
-	equal = (clarityStrCmp(clarityStringObjectGetValue(
-			clarityObjectGetMember(scope, "this")),
-			clarityStringObjectGetValue(
-			clarityObjectGetOwnMember(scope, "$1"))) == 0);
-		retVal = clarityBooleanObjectCreate(clarityHeap(scope), equal);
+	return clarityHeapAutoRelease(integer);
+}
+
+Number clarityNumberObjectGetValue(ClarityObject *integer)
+{
+	Number retVal = 0;
+	if (clarityObjectIsTypeOf(integer, "number")) {
+		ClarityNumber *inner;
+
+		inner = (ClarityNumber *)
+			clarityObjectGetInnerData(integer);
+
+		if (inner)
+			retVal = inner->value;
 	}
 	return retVal;
 }
 
-static ClarityObject *length(ClarityObject *scope)
+ClarityObject *clarityNumberObjectCreate(ClarityHeap *heap, Number number)
 {
-	ClarityObject *retVal = gUndefined;
+	ClarityObject *numberObject;
 
-	if (clarityObjectIsTypeOf(
-		clarityObjectGetMember(scope, "this"), "string")) {
-		Uint32 length = clarityStrLen(
-			clarityStringObjectGetValue(
-			clarityObjectGetMember(scope, "this")));
+	numberObject = clarityObjectCreateType(heap, "number",
+		clarityNumberCreate(heap, number));
 
-		retVal = clarityNumberObjectCreate(clarityHeap(scope),
-			length);
-	}
-	return retVal;
+	clarityObjectSetMember(numberObject, "prototype", gPrototype);
+
+	clarityObjectLock(numberObject);
+	return numberObject;
 }
-
-ClarityObject *clarityStringPrototypeCreate(ClarityHeap *heap)
-{
-	ClarityObject *prototype = clarityObjectCreate(heap);
-
-	clarityObjectSetMember(prototype, "equals",
-		clarityFunctionObjectCreate(heap,
-		equals,
-		gUndefined));
-
-	clarityObjectSetMember(prototype, "length",
-		clarityFunctionObjectCreate(heap,
-		length,
-		gUndefined));
-
-	clarityObjectLock(prototype);
-	return prototype;
-}
-
