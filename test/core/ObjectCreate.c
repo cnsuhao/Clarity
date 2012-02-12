@@ -12,18 +12,16 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	object = clarityObjectCreate(heap);
 	assert(object != 0);
 	assert(clarityObjectGetInnerData(0) == 0);
-	clarityObjectLock(0);
-	assert(clarityStrCmp(
-		clarityObjectTypeOf(0), "undefined") == 0);
+	assert(clarityObjectIsTypeOf(0, "undefined"));
 	subObject = clarityObjectGetMember(object, 0);
-	assert(clarityStrCmp(clarityObjectTypeOf(subObject), "undefined") == 0);
+	assert(clarityObjectIsTypeOf(subObject, "undefined"));
 	subObject = clarityObjectGetMember(0, "string");
-	assert(clarityStrCmp(clarityObjectTypeOf(subObject), "undefined") == 0);
+	assert(clarityObjectIsTypeOf(subObject, "undefined"));
 	subObject = clarityObjectCreate(heap);
-	assert(clarityStrCmp(clarityObjectTypeOf(clarityObjectSetMember(
-		0, "string", subObject)), "undefined") == 0);
-	assert(clarityStrCmp(clarityObjectTypeOf(clarityObjectSetMember(
-		object, 0, subObject)), "object") == 0);
+	assert(clarityObjectIsTypeOf(clarityObjectSetMember(
+		0, "string", subObject), "undefined"));
+	assert(clarityObjectIsTypeOf(clarityObjectSetMember(
+		object, 0, subObject), "object"));
 	return clarityObjectCreate(heap);
 }
 

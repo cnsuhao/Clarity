@@ -39,7 +39,5 @@ ClarityObject *clarityObjectSetMember(ClarityObject *, const char *,
 	ClarityObject *);
 void *clarityObjectGetInnerData(ClarityObject *);
 Bool clarityObjectIsTypeOf(ClarityObject *, const char *);
-const char *clarityObjectTypeOf(ClarityObject *);
-void clarityObjectLock(ClarityObject *);
 #endif
 

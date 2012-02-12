@@ -17,10 +17,10 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 
 	scope = clarityObjectCreate(heap);
 	object = clarityFunctionObjectCreate(heap, testFunction, scope);
-	assert(clarityStrCmp(clarityObjectTypeOf(
-		clarityFunctionObjectCall(0, scope)), "undefined") == 0);
-	assert(clarityStrCmp(clarityObjectTypeOf(
-		clarityFunctionObjectCall(object, 0)), "undefined") == 0);
+	assert(clarityObjectIsTypeOf(
+		clarityFunctionObjectCall(0, scope), "undefined"));
+	assert(clarityObjectIsTypeOf(
+		clarityFunctionObjectCall(object, 0), "undefined"));
 	return clarityObjectCreate(heap);
 }
 
