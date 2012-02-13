@@ -27,5 +27,5 @@ static void init(void) __attribute__((unused, constructor));
 static void init(void)
 {
 	clarityRegisterFile(clarityCore(),
-		"entry", (ClarityFileInit)clarityEntry);
+		CLARITY_FILE, (ClarityFileInit)clarityEntry);
 }

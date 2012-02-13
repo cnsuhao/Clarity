@@ -42,7 +42,7 @@ typedef struct {
 
 typedef struct __AutoReleaseItem AutoReleaseItem;
 struct __AutoReleaseItem {
-	Header *header;
+	void *data;
 	AutoReleaseItem *next;
 };
 
@@ -57,7 +57,7 @@ typedef void(*Release)(ClarityHeap *heap, Header *header);
 static const Uint32 HEAP_MAGIC = 0xC0FFEE0D;
 static const AutoReleaseItem LAST_AUTO_RELEASE_ITEM = {0, 0};
 
-static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
+static void autoReleasePoolPush(ClarityHeap *heap, void *data)
 {
 	if (heap) {
 		AutoReleaseItem *newItem;
@@ -68,52 +68,21 @@ static void autoReleasePoolPush(ClarityHeap *heap, Header *header)
 
 			pool = heap->autoReleasePool;
 			heap->autoReleasePool = newItem;
-			heap->autoReleasePool->header = header;
+			heap->autoReleasePool->data = data;
 			heap->autoReleasePool->next = pool;
 		}
 	}
 }
 
-static Header *autoReleasePoolPop(ClarityHeap *heap)
+static void autoReleasePoolPop(ClarityHeap *heap)
 {
-	Header *header = 0;
 	if (heap && heap->autoReleasePool) {
 		AutoReleaseItem *item;
 
 		item = heap->autoReleasePool;
 		heap->autoReleasePool = item->next;
-		header = item->header;
+		clarityHeapRelease(item->data);
 		clarityHeapRelease(item);
-	}
-	return header;
-}
-
-static void autoReleasePoolDelete(ClarityHeap *heap, Header *header)
-{
-	if (heap && heap->autoReleasePool) {
-		AutoReleaseItem *item;
-		AutoReleaseItem *prev;
-
-		item = heap->autoReleasePool;
-		prev = 0;
-
-		while (item != &LAST_AUTO_RELEASE_ITEM) {
-			AutoReleaseItem *next;
-
-			next = item->next;
-			if (item->header == header) {
-				if (prev)
-					prev->next = next;
-				else
-					heap->autoReleasePool = next;
-				clarityHeapRelease(item);
-			} else {
-				prev = item;
-			}
-			item = next;
-			if (item == heap->autoReleasePool)
-				prev = 0;
-		}
 	}
 }
 
@@ -182,7 +151,6 @@ static void clarityHeapFree(ClarityHeap *heap, Header *header)
 	ClarityFree free;
 
 	free = heap->free;
-	autoReleasePoolDelete(heap, header);
 	header->destructor(&header->data);
 	free(header);
 }
@@ -215,7 +183,13 @@ ClarityHeap *clarityHeap(void *data)
 
 void *clarityHeapAutoRelease(void *data)
 {
-	innerRelease(data, autoReleasePoolPush);
+	Header *header;
+
+	header = heapItemHeader(data);
+
+	if (header)
+		autoReleasePoolPush(header->heap, data);
+
 	return data;
 }
 
@@ -237,14 +211,8 @@ void *clarityHeapRetain(void *data)
 
 void clarityHeapCollectGarbage(ClarityHeap *heap)
 {
-	while (heap->autoReleasePool != &LAST_AUTO_RELEASE_ITEM) {
-		Header *header;
-
-		header = autoReleasePoolPop(heap);
-
-		if (header->refCount == 0)
-			clarityHeapFree(heap, header);
-	}
+	while (heap->autoReleasePool != &LAST_AUTO_RELEASE_ITEM)
+		autoReleasePoolPop(heap);
 }
 
 static void heapDestroy(ClarityHeap *heap)

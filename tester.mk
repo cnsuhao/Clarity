@@ -1,12 +1,13 @@
 TESTEROUT := out/int/tester
-TESTERLIB := out/rel/x86-default-coverage/libclaritycore.a
-TESTERINCLUDE := out/rel/x86-default-coverage/include/
+TESTERLIB := out/rel/x86-tester-coverage/libclaritycore.a
+TESTERINCLUDE := out/rel/x86-tester-coverage/include/
 TESTERCLARITYTEST := $(TESTEROUT)/claritytest
 TESTERSOURCE := $(wildcard test/*/*.c)
-TESTERDADIR := out/int/arch/x86-default-coverage/src
-TESTERTESTS := \
+TESTS := $(notdir $(basename $(wildcard test/*/*.c)))
+TESTERDADIR := out/int/arch/x86-tester-coverage/src
+TESTEROBJ := \
 	$(addprefix $(TESTEROUT)/, \
-	$(patsubst %.c,%.test, $(TESTERSOURCE)))
+	$(patsubst %.c,%.o, $(TESTERSOURCE)))
 TESTERTRACES := \
 	$(addprefix $(TESTEROUT)/, \
 	$(patsubst %.c,%.info, $(TESTERSOURCE)))
@@ -44,22 +45,28 @@ $(TESTEROUT)/testreport.txt: $(TESTEROUT)/coverage.info
 $(TESTEROUT)/coverage-all.info: $(TESTERTRACES)
 	@ lcov -q  -a $(TESTEROUT)/init.info $(addprefix -a , $(TESTERTRACES)) -o $@
 
-$(TESTEROUT)/%.info: $(TESTEROUT)/%.test
+$(TESTEROUT)/%.info: $(TESTEROUT)/tester
 	@ echo "Testing $(notdir $(basename $@))"
 	@ lcov -z -d $(TESTERDADIR) 2> /dev/null
-	@ -valgrind --error-exitcode=1 --leak-check=yes -q $< ;\
-	if [ $$? -eq 0 ] ; then \
+	@ -valgrind --error-exitcode=1 --leak-check=yes -q $< $(notdir $(basename $@)); \
+	if [ $$? -eq 0 ]; then \
 		echo "$(notdir $(basename $@)) Passed" > $(basename $@).res; \
 	else \
 		echo "$(notdir $(basename $@)) Failed" > $(basename $@).res; \
 	fi ;
 	@ lcov -q -c -t $(notdir $(basename $@)) -d $(TESTERDADIR) -o $@
 
-$(TESTEROUT)/%.test: %.c $(TESTEROUT)/%.c.cp $(TESTEROUT)/init.info $(TESTERLIB)
+$(TESTEROUT)/%.o: %.c $(TESTEROUT)/%.c.cp
 	@ mkdir -p $(dir $@)
-	$(info Building $(notdir $(basename $@)))
-	@ gcc -Wall -Werror -pedantic -g -std=c99 $< $(TESTERLIB) -I$(TESTERINCLUDE) \
-		-lgcov -DCLARITY_FILE=\"$(notdir $(basename $@))\" -o $@
+	$(info Compiling $(notdir $(basename $@)))
+	@ gcc -Wall -Werror -c -pedantic -g -std=c99 $< -I$(TESTERINCLUDE) \
+		--coverage -DCLARITY_FILE=\"$(notdir $(basename $@))\" -o $@
+
+$(TESTEROUT)/tester: $(TESTEROBJ) $(TESTEROUT)/init.info $(TESTERLIB)
+	@ mkdir -p $(dir $@)
+	$(info Linking $(notdir $(basename $@)))
+	@ gcc -Wall -Werror -pedantic -g -std=c99 $(TESTEROBJ) $(TESTERLIB) \
+		--coverage -o $@
 
 $(TESTEROUT)/init.info: $(TESTERLIB)
 	@ mkdir -p $(dir $@)

@@ -31,6 +31,7 @@
 #include "ClarityScopePrototype.h"
 #include "ClarityBooleanObject.h"
 #include "ClarityStringObject.h"
+#include "ClarityArrayObject.h"
 #include "ClarityFunctionObject.h"
 
 static ClarityObject *loadedFiles = 0;
@@ -126,9 +127,17 @@ static ClarityObject *clarityRequire(ClarityObject *parameters)
 		loadedFile = clarityObjectGetMember(loadedFiles, name);
 
 		if (loadedFile == gUndefined) {
+			ClarityObject *call =
+				clarityObjectCreate(clarityHeap(parameters));
+			ClarityObject *arguments =
+				clarityObjectGetOwnMember(parameters, "$2");
+
+			if (clarityObjectIsTypeOf(arguments, "array"))
+				clarityObjectSetMember(call, "argv", arguments);
+
 			loadedFile = clarityFunctionObjectCall(
 				clarityObjectGetMember(gFileRegistry, name),
-				clarityObjectCreate(clarityHeap(parameters)));
+				call);
 			clarityObjectSetMember(loadedFiles, name, loadedFile);
 			retVal = clarityObjectGetMember(loadedFile, "exports");
 		}

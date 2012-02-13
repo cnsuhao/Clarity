@@ -12,7 +12,7 @@ static void init(void) __attribute__((unused, constructor));
 static void init(void)
 {
 	clarityRegisterFile(clarityCore(),
-		"entry", (ClarityFileInit)testFunction);
+		CLARITY_FILE, (ClarityFileInit)testFunction);
 	clarityRegisterFile(0, 0, 0);
 }
 

@@ -121,7 +121,6 @@ Clarity *clarityCreate(ClarityHeap *heap)
 void clarityStart(Clarity *clarity, const char *entry)
 {
 	if (clarity) {
-		clarityHeapRetain(clarity);
 		clarityFunctionObjectCall(
 			clarityObjectGetMember(clarity->scopePrototype,
 			"require"),
@@ -147,7 +146,7 @@ void clarityStop(Clarity *clarity)
 	clarityStringPrototypeStaticRelease();
 	clarityObjectPrototypeStaticRelease();
 	clarityObjectStaticRelease();
-	clarityHeapRelease(clarity);
+	clarityHeapCollectGarbage(clarityHeap(clarity));
 }
 
 Clarity *clarityCore(void)
@@ -157,11 +156,25 @@ Clarity *clarityCore(void)
 	return clarity;
 }
 
-int main(void) __attribute__((weak));
-int main(void)
+int main(int argc, char *argv[]) __attribute__((weak));
+int main(int argc, char *argv[])
 {
-	clarityStart(clarityCore(), "entry");
+	Clarity *clarity = clarityHeapRetain(clarityCore());
+
+	if (argc > 1) {
+		int i;
+		ClarityHeap *heap = clarityHeap(clarity);
+		ClarityObject *array =
+			clarityArrayObjectCreate(heap);
+
+		for (i = 1; i < argc; i++)
+			clarityArrayObjectPush(array,
+				clarityStringObjectCreate(heap, argv[i]));
+	}
+
+	clarityStart(clarity, "Entry");
 	clarityStop(clarity);
+	clarityHeapRelease(clarity);
 	return 0;
 }
 

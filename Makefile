@@ -43,7 +43,7 @@ test: buildtestlib
 	@ cat out/rel/report/test.txt
 
 buildtestlib:
-	@ $(MAKE) -f target.mk ARCH=x86 MACH=default TARGET=coverage LINK=false
+	@ $(MAKE) -f target.mk ARCH=x86 MACH=tester TARGET=coverage LINK=false
 
 clean:
 	@ rm -rf out
