@@ -38,9 +38,15 @@ main: test build
 build:
 	@ $(MAKE) -f target.mk CCCC=false ARQUA=false
 
+profile: buildprofilelib
+	@ $(MAKE) -f profiler.mk
+
 test: buildtestlib
 	@ $(MAKE) -f tester.mk
 	@ cat out/rel/report/test.txt
+
+buildprofilelib:
+	@ $(MAKE) -f target.mk ARCH=x86 MACH=profiler TARGET=debug LINK=false CFLAG='-c -O2 -g'
 
 buildtestlib:
 	@ $(MAKE) -f target.mk ARCH=x86 MACH=tester TARGET=coverage LINK=false
