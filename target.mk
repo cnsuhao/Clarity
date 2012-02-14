@@ -51,8 +51,8 @@ else ifeq ($(TARGET), debug)
 LDFLAGS := $(BASELDFLAGS) -g
 CFLAGS := $(BASECFLAGS) -g
 else ifeq ($(TARGET), coverage)
-LDCOVERAGE := -lgcov
-CCOVERAGE := -fprofile-arcs -ftest-coverage
+LDCOVERAGE := -coverage
+CCOVERAGE := -coverage
 LDFLAGS := -g $(LDCOVERAGE)
 CFLAGS := $(BASECFLAGS) -g $(CCOVERAGE)
 endif
