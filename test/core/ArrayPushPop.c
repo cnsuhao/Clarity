@@ -1,7 +1,7 @@
 #include "Clarity.h"
-#include "ClarityCore.h"
 #include "ClarityArray.h"
 #include <assert.h>
+#include <string.h>
 
 static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
@@ -24,13 +24,13 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	clarityArrayPush(array, dataString2);
 	clarityArrayPush(array, dataString3);
 	resultString = clarityArrayPop(array);
-	assert(clarityStrCmp(data3,
+	assert(strcmp(data3,
 		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityArrayPop(array);
-	assert(clarityStrCmp(data2,
+	assert(strcmp(data2,
 		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityArrayPop(array);
-	assert(clarityStrCmp(data1,
+	assert(strcmp(data1,
 		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityArrayPop(array);
 	assert(resultString == 0);

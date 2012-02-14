@@ -1,6 +1,6 @@
 #include "Clarity.h"
-#include "ClarityCore.h"
 #include <assert.h>
+#include <string.h>
 
 #define TEST_VALUE "test string"
 
@@ -23,7 +23,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	string = clarityStringObjectCreate(heap, "test");
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", string);
-	assert(clarityStrCmp(clarityStringObjectGetValue(
+	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(clarityObjectGetMember(globalScope,
 		"typeOf"), parameters)), "string") == 0);
 
@@ -31,7 +31,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	integer = clarityNumberObjectCreate(heap, 23);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", integer);
-	assert(clarityStrCmp(clarityStringObjectGetValue(
+	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(clarityObjectGetMember(globalScope,
 		"typeOf"), parameters)), "number") == 0);
 
@@ -39,7 +39,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	function = clarityFunctionObjectCreate(heap, testFunction, globalScope);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", function);
-	assert(clarityStrCmp(clarityStringObjectGetValue(
+	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "typeOf"),
 		parameters)), "function") == 0);
@@ -48,7 +48,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	boolean = clarityBooleanObjectCreate(heap, 1);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", boolean);
-	assert(clarityStrCmp(clarityStringObjectGetValue(
+	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "typeOf"),
 		parameters)), "boolean") == 0);
@@ -57,7 +57,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	array = clarityArrayObjectCreate(heap);
 	clarityObjectSetMember(parameters, "this", globalScope);
 	clarityObjectSetMember(parameters, "$1", array);
-	assert(clarityStrCmp(clarityStringObjectGetValue(
+	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "typeOf"),
 		parameters)), "array") == 0);

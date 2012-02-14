@@ -33,7 +33,7 @@ export CHECKPATCH := ./src/tools/checkpatch/checkpatch.pl \
 	--tab=$(TABSIZE) \
 	--no-tree -q -f
 
-main: test build
+main: build
 
 build:
 	@ $(MAKE) -f target.mk CCCC=false ARQUA=false

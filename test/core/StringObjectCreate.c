@@ -1,6 +1,6 @@
 #include "Clarity.h"
-#include "ClarityCore.h"
 #include <assert.h>
+#include <string.h>
 
 #define TEST_VALUE "test string"
 
@@ -12,10 +12,10 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 
 	string = clarityStringObjectCreate(heap, TEST_VALUE);
 	integer = clarityNumberObjectCreate(heap, 2);
-	assert(clarityStrCmp(clarityStringObjectGetValue(string),
+	assert(strcmp(clarityStringObjectGetValue(string),
 		TEST_VALUE) == 0);
-	assert(clarityStrCmp(clarityStringObjectGetValue(0), "") == 0);
-	assert(clarityStrCmp(clarityStringObjectGetValue(integer), "") == 0);
+	assert(strcmp(clarityStringObjectGetValue(0), "") == 0);
+	assert(strcmp(clarityStringObjectGetValue(integer), "") == 0);
 	return clarityObjectCreate(heap);
 }
 

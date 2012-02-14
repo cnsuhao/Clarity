@@ -1,5 +1,6 @@
 #include "Clarity.h"
 #include <stdlib.h>
+#include <string.h>
 
 #define ITERATIONS 1000
 
@@ -16,48 +17,23 @@ void clarityFree(void *data)
 void *clarityMemCpy(void *dstData,
 	const void *srcData, Uint32 size)
 {
-	char* dst8 = (char *)dstData;
-	char* src8 = (char *)srcData;
-
-	while (size--)
-		*dst8++ = *src8++;
-	return dstData;
+	return memcpy(dstData, srcData, size);
 }
 
 Uint32 clarityStrLen(const char *cString)
 {
-	const char *s;
-
-	for (s = cString; *s;)
-		++s;
-	return (Uint32)(s - cString);
+	return strlen(cString);
 }
 
 Sint32 clarityStrCmp(const char *cString,
 	const char *cString2)
 {
-	unsigned char uc1;
-	unsigned char uc2;
-
-	while (*cString != '\0' && *cString == *cString2) {
-		cString++;
-		cString2++;
-	}
-
-	uc1 = (*(unsigned char *) cString);
-	uc2 = (*(unsigned char *) cString2);
-	return ((uc1 < uc2) ? -1 : (uc1 > uc2));
+	return strcmp(cString, cString2);
 }
 
 void *clarityMemSet(void *s, Uint32 c, Uint32 n)
 {
-	unsigned char *us = s;
-	unsigned char uc = c;
-
-	while (n-- != 0)
-		*us++ = uc;
-
-	return s;
+	return memset(s, c, n);
 }
 
 int main(int argc, char *argv[])

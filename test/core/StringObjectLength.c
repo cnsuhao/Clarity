@@ -1,6 +1,6 @@
 #include "Clarity.h"
-#include "ClarityCore.h"
 #include <assert.h>
+#include <string.h>
 
 #define TEST_VALUE "test string"
 
@@ -17,7 +17,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	length = clarityNumberObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(object, "length"), parameters));
-	assert(clarityStrLen(TEST_VALUE) == length);
+	assert(strlen(TEST_VALUE) == length);
 	return clarityObjectCreate(heap);
 }
 

@@ -1,6 +1,6 @@
 #include "Clarity.h"
-#include "ClarityCore.h"
 #include <assert.h>
+#include <string.h>
 
 static ClarityObject *clarityEntry(ClarityObject *globalScope)
 {
@@ -34,14 +34,14 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	clarityObjectSetMember(object, moreKey, moreDataString);
 	clarityObjectSetMember(object, lessKey, lessDataString);
 	resultString = clarityObjectGetMember(object, baseKey);
-	assert(clarityStrCmp(
+	assert(strcmp(
 		clarityStringObjectGetValue(baseDataString2),
 		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityObjectGetMember(object, lessKey);
-	assert(clarityStrCmp(clarityStringObjectGetValue(lessDataString),
+	assert(strcmp(clarityStringObjectGetValue(lessDataString),
 		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityObjectGetMember(object, moreKey);
-	assert(clarityStrCmp(
+	assert(strcmp(
 		clarityStringObjectGetValue(moreDataString),
 		clarityStringObjectGetValue(resultString)) == 0);
 	resultString = clarityObjectGetMember(object, missingKey);
@@ -50,7 +50,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	clarityObjectSetMember(object2, missingKey, baseDataString2);
 	clarityObjectSetMember(object, "prototype", object2);
 	resultString = clarityObjectGetMember(object, missingKey);
-	assert(clarityStrCmp(
+	assert(strcmp(
 		clarityStringObjectGetValue(baseDataString2),
 		clarityStringObjectGetValue(resultString)) == 0);
 	return clarityObjectCreate(heap);
