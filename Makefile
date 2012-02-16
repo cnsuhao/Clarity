@@ -27,7 +27,7 @@
 LINELENGTH := 80
 TABSIZE := 8
 
-export CHECKPATCH := ./src/tools/checkpatch/checkpatch.pl \
+export CHECKPATCH := perl ./src/tools/checkpatch/checkpatch.pl \
 	--no-typedef \
 	--line=$(LINELENGTH) \
 	--tab=$(TABSIZE) \
