@@ -19,6 +19,9 @@ TESTERCOVERAGE := out/rel/report/coverage
 .PHONY : test
 .PRECIOUS : $(TESTEROUT)/%.test
 
+-include src/arch/x86/mach/tester/mach.mk
+-include src/arch/x86/arch.mk
+
 test: out/rel/report/test.txt
 test: $(TESTERCOVERAGE)
 
@@ -59,13 +62,13 @@ $(TESTEROUT)/%.info: $(TESTEROUT)/tester
 $(TESTEROUT)/%.o: %.c $(TESTEROUT)/%.c.cp
 	@ mkdir -p $(dir $@)
 	$(info Compiling $(notdir $(basename $@)))
-	@ gcc -Wall -Werror -c -pedantic -g -std=c99 $< -I$(TESTERINCLUDE) \
+	@ $(CC) -Wall -Werror -c -pedantic -g -std=c99 $< -I$(TESTERINCLUDE) \
 		--coverage -DCLARITY_FILE=\"$(notdir $(basename $@))\" -o $@
 
 $(TESTEROUT)/tester: $(TESTEROBJ) $(TESTEROUT)/init.info $(TESTERLIB)
 	@ mkdir -p $(dir $@)
 	$(info Linking $(notdir $(basename $@)))
-	@ gcc -Wall -Werror -pedantic -g -std=c99 $(TESTEROBJ) $(TESTERLIB) \
+	@ $(CC) -Wall -Werror -pedantic -g -std=c99 $(TESTEROBJ) $(TESTERLIB) \
 		--coverage -o $@
 
 $(TESTEROUT)/init.info: $(TESTERLIB)

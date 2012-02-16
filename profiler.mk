@@ -9,6 +9,9 @@ TESTEROBJ := \
 	$(patsubst %.c,%.o, $(TESTERSOURCE)))
 TESTERCOVERAGE := out/rel/report/coverage
 
+-include src/arch/x86/mach/profiler/mach.mk
+-include src/arch/x86/arch.mk
+
 .PHONY : profile
 
 profile: $(TESTEROUT)/profile.log
@@ -24,11 +27,11 @@ $(TESTEROUT)/callgrind: $(TESTEROUT)/profiler
 $(TESTEROUT)/%.o: %.c
 	@ mkdir -p $(dir $@)
 	$(info Compiling $(notdir $(basename $@)))
-	@ gcc-apple-4.2 -c -g $< -I$(TESTERINCLUDE) \
+	@ $(CC) -c -g $< -I$(TESTERINCLUDE) \
 		-DCLARITY_FILE=\"$(notdir $(basename $@))\" -o $@
 
 $(TESTEROUT)/profiler: $(TESTEROBJ) $(TESTERLIB)
 	@ mkdir -p $(dir $@)
 	$(info Linking $(notdir $(basename $@)))
-	@ gcc-apple-4.2 -g -std=c99 $(TESTEROBJ) $(TESTERLIB) -o $@
+	@ $(CC) -g -std=c99 $(TESTEROBJ) $(TESTERLIB) -o $@
 
