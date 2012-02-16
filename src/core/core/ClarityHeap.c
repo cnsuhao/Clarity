@@ -27,9 +27,7 @@
  * policies, either expressed or implied, of Patchwork Solutions AB.
  */
 #include "ClarityHeap.h"
-
-typedef void*(*ClarityAlloc)(Uint32);
-typedef void(*ClarityFree)(void *);
+#include "ClarityCore.h"
 
 typedef struct {
 	Uint32 magic;
@@ -48,8 +46,6 @@ struct __AutoReleaseItem {
 
 struct __ClarityHeap {
 	AutoReleaseItem *autoReleasePool;
-	ClarityAlloc alloc;
-	ClarityFree free;
 };
 
 typedef void(*Release)(ClarityHeap *heap, Header *header);
@@ -98,13 +94,13 @@ static void initializeHeader(ClarityHeap *heap, Header *header, Uint32 size,
 	}
 }
 
-static void *clarityHeapInnerAllocate(ClarityHeap *heap, ClarityAlloc alloc,
+static void *clarityHeapInnerAllocate(ClarityHeap *heap,
 	Uint32 size, ClarityHeapDestructor destructor)
 {
 	Header *header;
 	void *retVal = 0;
 
-	header = alloc(size + sizeof(Header));
+	header = clarityAlloc(size + sizeof(Header));
 
 	if (header) {
 		initializeHeader(heap, header, size, destructor);
@@ -116,7 +112,7 @@ static void *clarityHeapInnerAllocate(ClarityHeap *heap, ClarityAlloc alloc,
 void *clarityHeapAllocateWithDestructor(ClarityHeap *heap, Uint32 size,
 	ClarityHeapDestructor destructor)
 {
-	return clarityHeapInnerAllocate(heap, heap->alloc, size, destructor);
+	return clarityHeapInnerAllocate(heap, size, destructor);
 }
 
 static void emptyDestroy(void *data)
@@ -148,11 +144,8 @@ static Header *heapItemHeader(void *data)
 
 static void clarityHeapFree(ClarityHeap *heap, Header *header)
 {
-	ClarityFree free;
-
-	free = heap->free;
 	header->destructor(&header->data);
-	free(header);
+	clarityFree(header);
 }
 
 static void innerRelease(void *data, Release release)
@@ -224,7 +217,7 @@ ClarityHeap *clarityHeapCreate(void)
 {
 	ClarityHeap *heap;
 
-	heap = clarityHeapInnerAllocate(0, clarityAlloc, sizeof(ClarityHeap),
+	heap = clarityHeapInnerAllocate(0, sizeof(ClarityHeap),
 			(ClarityHeapDestructor)heapDestroy);
 
 	if (heap) {
@@ -235,8 +228,6 @@ ClarityHeap *clarityHeapCreate(void)
 			header->heap = heap;
 			heap->autoReleasePool =
 				(AutoReleaseItem *)&LAST_AUTO_RELEASE_ITEM;
-			heap->alloc = clarityAlloc;
-			heap->free = clarityFree;
 		}
 	}
 	return clarityHeapAutoRelease(heap);

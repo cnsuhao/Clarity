@@ -36,5 +36,7 @@ void *clarityMemCpy(void *, const void *, Uint32);
 void *clarityMemSet(void *s, Uint32 c, Uint32 n);
 Uint32 clarityStrLen(const char *);
 Sint32 clarityStrCmp(const char *, const char *);
+void *clarityAlloc(Uint32);
+void clarityFree(void *);
 #endif
 
