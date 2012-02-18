@@ -21,7 +21,7 @@ $(TESTEROUT)/profile.log: $(TESTEROUT)/callgrind
 	@ cat $@
 
 $(TESTEROUT)/callgrind: $(TESTEROUT)/profiler
-	@ echo "Profiling"
+	$(info Profiling)
 	@ valgrind --dsymutil=yes --tool=callgrind --callgrind-out-file=$@ -q $< $(TESTS)
 
 $(TESTEROUT)/%.o: %.c

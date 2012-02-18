@@ -49,7 +49,7 @@ $(TESTEROUT)/coverage-all.info: $(TESTERTRACES)
 	@ lcov -q  -a $(TESTEROUT)/init.info $(addprefix -a , $(TESTERTRACES)) -o $@
 
 $(TESTEROUT)/%.info: $(TESTEROUT)/tester
-	@ echo "Testing $(notdir $(basename $@))"
+	$(info echo Testing $(notdir $(basename $@)))
 	@ lcov -z -d $(TESTERDADIR) 2> /dev/null
 	@ -valgrind --error-exitcode=1 --leak-check=yes -q $< $(notdir $(basename $@)); \
 	if [ $$? -eq 0 ]; then \
