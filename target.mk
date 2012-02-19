@@ -1,3 +1,7 @@
+ifeq ($(PROJECT), )
+PROJECT := project
+endif
+
 ifeq ($(ARCH), )
 ARCH := x86
 endif
@@ -17,17 +21,30 @@ endif
 ifeq ($(OUT), )
 OUT := out/rel/$(ARCH)-$(MACH)-$(TARGET)
 endif
+
+ifeq ($(SRCDIR), )
+SRCDIR := src
+endif
+
+COREDIR := $(SRCDIR)/core
+BASEDIR := $(SRCDIR)/arch
+ARCHDIR := $(SRCDIR)/arch/$(ARCH)
+MACHDIR := $(ARCHDIR)/mach/$(MACH)
+COMPONENTSDIR := $(SRCDIR)/components
+
 reverse = $(if $(1), \
 	$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 
-OUTDIR := out/int/arch/$(ARCH)-$(MACH)-$(TARGET)
-ANALYSISDIR := out/int/ana
-DEPENDENCYDIR := out/int/dep
-CLADIR := out/int/cla
-CLAGENDIR := out/int/cla/gen
-SRCDIR := src
+OUTDIR := out
+INTDIR := $(OUTDIR)/int
+OBJDIR := $(INTDIR)/arch/$(ARCH)-$(MACH)-$(TARGET)
+ANALYSISDIR := $(INTDIR)/ana
+DEPENDENCYDIR := $(INTDIR)/dep
+CLADIR := $(INTDIR)/cla
+CLAGENDIR := $(INTDIR)/cla/gen
+MAPFILE := $(OBJDIR)/$(PROJECT).map
 
-export CLAOUT := $(abspath out/int/tools/compiler)
+export CLAOUT := $(abspath $(INTDIR)/tools/compiler)
 export CLA := $(abspath $(CLAOUT)/clarity)
 
 COMPONENTS :=
@@ -57,32 +74,29 @@ LDFLAGS := -g $(LDCOVERAGE)
 CFLAGS := $(BASECFLAGS) -g $(CCOVERAGE)
 endif
 
--include src/arch/$(ARCH)/mach/$(MACH)/mach.mk
--include src/arch/$(ARCH)/arch.mk
+-include $(MACHDIR)/mach.mk
+-include $(ARCHDIR)/arch.mk
 
 ifeq ($(CROSS_COMPILE), )
 CROSS_COMPILE :=
 endif
 
 INCLUDE := \
-	src/include/ \
-	src/arch/$(ARCH)/mach/$(MACH)/include/ \
-	src/arch/$(ARCH)/include/ \
-	src/arch/include/ \
-	src/core/include/
+	$(SRCDIR)/include/ \
+	$(MACHDIR)/include/ \
+	$(ARCHDIR)/include/ \
+	$(BASEDIR)/include/ \
+	$(COREDIR)/include/
 
-SSOURCE := $(wildcard \
-	src/arch/$(ARCH)/*.s \
-	src/arch/$(ARCH)/mach/$(MACH)/*.s)
+SSOURCE := \
+	$(shell find $(MACHDIR) -type f -name '*.s')
 
-CSOURCE := $(shell find src/core -type f -name '*.c')
-
-CSOURCE := $(CSOURCE) $(wildcard \
-	src/arch/$(ARCH)/*.c \
-	src/arch/$(ARCH)/mach/$(MACH)/*.c)
+CSOURCE := \
+	$(shell find $(COREDIR) -type f -name '*.c') \
+	$(shell find $(MACHDIR) -type f -name '*.c')
 
 COBJECTS := \
-	$(addprefix $(OUTDIR)/, \
+	$(addprefix $(OBJDIR)/, \
 	$(patsubst %.c,%.o, $(CSOURCE)))
 
 CEXPANDS := \
@@ -95,27 +109,27 @@ CPDFS := \
 	$(patsubst %.dot,%.pdf, $(CDOTS))
 
 SOBJECTS := \
-	$(addprefix $(OUTDIR)/, \
+	$(addprefix $(OBJDIR)/, \
 	$(patsubst %.s,%.o, $(SSOURCE)))
 
 HEADER := $(wildcard \
-	src/include/*.h \
-	src/arch/include/*.h \
-	src/arch/$(ARCH)/include/*.h \
-	src/arch/$(ARCH)/mach/$(MACH)/include/*.h)
+	$(SRCDIR)/include/*.h \
+	$(BASEDIR)/include/*.h \
+	$(ARCHDIR)/include/*.h \
+	$(MACHDIR)/include/*.h)
 
-CLASOURCE := $(wildcard \
-	src/arch/$(ARCH)/*.cla \
-	src/arch/$(ARCH)/mach/$(MACH)/*.cla \
-	$(addsuffix /*.cla, $(addprefix src/components/, $(COMPONENTS))) \
-	$(addsuffix /include/*.cla, $(addprefix src/components/, $(COMPONENTS))))
+CLASOURCE := \
+	$(shell find $(ARCHDIR) -type f -name '*.cla') \
+	$(shell find $(MACHDIR) -type f -name '*.cla') \
+	$(wildcard $(addsuffix /*.cla, $(addprefix $(COMPONENTSDIR)/, $(COMPONENTS))) \
+	$(addsuffix /include/*.cla, $(addprefix $(COMPONENTSDIR)/, $(COMPONENTS))))
 
 CLACSOURCE := \
 	$(addprefix $(CLAGENDIR)/, \
 	$(patsubst %.cla,%.c, $(CLASOURCE)))
 
 CLAOBJECTS := \
-	$(addprefix $(OUTDIR)/, \
+	$(addprefix $(OBJDIR)/, \
 	$(patsubst %.cla,%.o, $(CLASOURCE)))
 
 CANALYSIS := \
@@ -127,24 +141,23 @@ HANALYSIS := \
 	$(patsubst %.h,%.h.cp, $(HEADER)))
 
 ifeq ($(LINK), true)
-$(OUT)/libclaritycore.a: $(OUTDIR)/claritycore
+$(OUT)/lib$(PROJECT).a: $(OBJDIR)/$(PROJECT)
 endif
 ifeq ($(CCCC), true)
-$(OUT)/libclaritycore.a: out/rel/report/cccc
+$(OUT)/lib$(PROJECT).a: out/rel/report/cccc
 endif
 ifeq ($(ARQUA), true)
-$(OUT)/libclaritycore.a: out/rel/report/archreport.pdf
-$(OUT)/libclaritycore.a: $(CDOTS)
+$(OUT)/lib$(PROJECT).a: out/rel/report/archreport.pdf
+$(OUT)/lib$(PROJECT).a: $(CDOTS)
 endif
-$(OUT)/libclaritycore.a: $(CLA)
-$(OUT)/libclaritycore.a: $(OUTDIR)/libclaritycore.a
+$(OUT)/lib$(PROJECT).a: $(CLA)
+$(OUT)/lib$(PROJECT).a: $(OBJDIR)/lib$(PROJECT).a
 	$(info Copying $@)
 	@ mkdir -p $(dir $@)
 	@ mkdir -p $(dir $@)/include
 	@ cp $< $@
 ifeq ($(LINK), true)
-	@ cp $(OUTDIR)/claritycore $(OUT)/claritycore
-	@ cp $(OUTDIR)/claritycore.map $(OUT)/claritycore.map
+	@ cp $(OBJDIR)/$(PROJECT) $(OUT)/$(PROJECT)
 endif
 	@ cp $(CLA) $(OUT)/
 	@ for dir in $(call reverse,$(INCLUDE)) ; do \
@@ -157,35 +170,36 @@ out/rel/report/cccc:
 	@ mkdir -p $@
 	@ cccc --outdir=$@ $(CSOURCE)
 
-out/rel/report/archreport.pdf: $(OUTDIR)/archreport.pdf
+out/rel/report/archreport.pdf: $(OBJDIR)/archreport.pdf
 	@ mkdir -p $(dir $@)
 	@ cp $< $@
 
-$(OUTDIR)/archreport.pdf: $(CPDFS) $(OUTDIR)/system.pdf
-	@ pdfunite $(OUTDIR)/system.pdf $(CPDFS) $@
+$(OBJDIR)/archreport.pdf: $(CPDFS) $(OBJDIR)/system.pdf
+	@ pdfunite $(OBJDIR)/system.pdf $(CPDFS) $@
 
 %.pdf: %.dot
 	@ unflatten -c4 $< | dot -Tpdf -Gfontsize=14 -Gratio="0.681" -Gsize="8.27,11.69 -Glandscape" -o $@
 
-$(OUTDIR)/system.dot : $(COBJECTS)
-	@ arqua --root $(OUTDIR)/src/core --stop 2 -functions $(CEXPANDS) > $@
+$(OBJDIR)/system.dot : $(COBJECTS)
+	@ arqua --root $(OBJDIR)/$(SRCDIR)/core --stop 2 -functions $(CEXPANDS) > $@
 
-$(OUTDIR)/%.dot: $(OUTDIR)/%.expand
-	@ arqua --root $(OUTDIR)/src/core --start 0 --stop 1 $< > $@
+$(OBJDIR)/%.dot: $(OBJDIR)/%.expand
+	@ arqua --root $(OBJDIR)/$(SRCDIR)/core --start 0 --stop 1 $< > $@
 
 $(CLAGENDIR)/%.c: %.cla $(CLA)
 	@ mkdir -p $(dir $@)
-	$(info Generating $< implementation)
+	$(info Generating $<)
 	@ $(CLA) -c -o $@ $<
 
-$(OUTDIR)/%.o: $(CLAGENDIR)/%.c
+$(OBJDIR)/%.o: $(INCLUDE)
+$(OBJDIR)/%.o: $(CLAGENDIR)/%.c
 	@ mkdir -p $(dir $@)
 	$(info Compiling $<)
 	@ $(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) \
 		-DCLARITY_FILE=\"$(notdir $(basename $@))\" \
 		$(CFLAGS) -o $@ $(abspath $<)
 
-$(OUTDIR)/%.o: %.c
+$(OBJDIR)/%.o: %.c
 	@ mkdir -p $(dir $@)
 	$(info Compiling $<)
 	@ $(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) \
@@ -195,7 +209,7 @@ ifeq ($(ARQUA), true)
 	@ mv $(notdir $<).104r.expand $(dir $@)/$(notdir $(basename $@)).expand
 endif
 
-$(OUTDIR)/%.o: %.s
+$(OBJDIR)/%.o: %.s
 	@ mkdir -p $(dir $@)
 	$(info Compiling $<)
 	@ $(CROSS_COMPILE)$(AS) $(ASFLAGS) -o $@ $(abspath $<)
@@ -204,10 +218,10 @@ $(DEPENDENCYDIR)/%.d: %.c
 	@ mkdir -p $(dir $@)
 	$(info Dependencies $<)
 	@ $(CROSS_COMPILE)$(CC) $(addprefix -I, $(INCLUDE)) $(CFLAGS) -MM $< | \
-		sed 's,\($(notdir $*)\)\.o[ :]*,$(OUTDIR)/\1.o $@ : ,g' > $@;
+		sed 's,\($(notdir $*)\)\.o[ :]*,$(OBJDIR)/\1.o $@ : ,g' > $@;
 
-$(OUTDIR)/libclaritycore.a: $(HANALYSIS) $(CANALYSIS)
-$(OUTDIR)/libclaritycore.a: $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
+$(OBJDIR)/lib$(PROJECT).a: $(HANALYSIS) $(CANALYSIS)
+$(OBJDIR)/lib$(PROJECT).a: $(SOBJECTS) $(COBJECTS) $(CLAOBJECTS)
 	@ mkdir -p $(dir $@)
 	$(info Archiving $@)
 	@ $(CROSS_COMPILE)$(AR) $(ARFLAGS) $@ \
@@ -225,12 +239,12 @@ $(ANALYSISDIR)/%.h.cp: %.h
 	@ $(CHECKPATCH) $<
 	@ touch $@
 
-$(OUTDIR)/$(ARCH)-$(MACH)-$(TARGET).cp: $(HEADER)
+$(OBJDIR)/$(ARCH)-$(MACH)-$(TARGET).cp: $(HEADER)
 	$(info Analyzing $<)
 	@ $(CHECKPATCH) $(HEADER)
 	@ touch $@
 
-$(OUTDIR)/claritycore: $(OUTDIR)/libclaritycore.a
+$(OBJDIR)/$(PROJECT): $(OBJDIR)/lib$(PROJECT).a
 	@ mkdir -p $(dir $@)
 	$(info Linking $@)
 	@ $(CROSS_COMPILE)$(LD) $(LDFLAGS) $< -o $@
@@ -238,4 +252,4 @@ $(OUTDIR)/claritycore: $(OUTDIR)/libclaritycore.a
 -include $(addprefix $(DEPENDENCYDIR)/, $(CSOURCE:.c=.d))
 
 $(CLA):
-	@ $(MAKE) -C src/tools/compiler
+	@ $(MAKE) -C $(SRCDIR)/tools/compiler

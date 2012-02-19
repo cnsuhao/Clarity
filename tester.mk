@@ -1,5 +1,5 @@
 TESTEROUT := out/int/tester
-TESTERLIB := out/rel/x86-tester-coverage/libclaritycore.a
+TESTERLIB := out/rel/x86-tester-coverage/libclarity.a
 TESTERINCLUDE := out/rel/x86-tester-coverage/include/
 TESTERCLARITYTEST := $(TESTEROUT)/claritytest
 TESTERSOURCE := $(wildcard test/*/*.c)
@@ -49,7 +49,7 @@ $(TESTEROUT)/coverage-all.info: $(TESTERTRACES)
 	@ lcov -q  -a $(TESTEROUT)/init.info $(addprefix -a , $(TESTERTRACES)) -o $@
 
 $(TESTEROUT)/%.info: $(TESTEROUT)/tester
-	$(info echo Testing $(notdir $(basename $@)))
+	$(info Testing $(notdir $(basename $@)))
 	@ lcov -z -d $(TESTERDADIR) 2> /dev/null
 	@ -valgrind --error-exitcode=1 --leak-check=yes -q $< $(notdir $(basename $@)); \
 	if [ $$? -eq 0 ]; then \

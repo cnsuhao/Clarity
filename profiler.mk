@@ -1,5 +1,5 @@
 TESTEROUT := out/int/profiler
-TESTERLIB := out/rel/x86-profiler-debug/libclaritycore.a
+TESTERLIB := out/rel/x86-profiler-debug/libclarity.a
 TESTERINCLUDE := out/rel/x86-profiler-debug/include/
 TESTERSOURCE := $(wildcard test/core/*.c)
 TESTS := $(notdir $(basename $(wildcard test/core/*.c)))

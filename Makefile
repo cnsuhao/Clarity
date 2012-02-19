@@ -10,7 +10,7 @@
 #
 # Required analysis tools:
 # cccc
-# egypt
+# arqua
 #
 # Build flags:
 # ARCH=<arch> [default: x86]
@@ -22,10 +22,11 @@
 #
 # Available arch/mach combinations can be found in src/arch/<arch>/mach/<mach>
 ###############################################################################
-.PHONY : main test build clean buildtestlib
+.PHONY : main test build clean buildtestlib buildprofilelib buildall
 
 LINELENGTH := 80
 TABSIZE := 8
+PROJECT := clarity
 
 export CHECKPATCH := perl ./src/tools/checkpatch/checkpatch.pl \
 	--no-typedef \
@@ -36,7 +37,7 @@ export CHECKPATCH := perl ./src/tools/checkpatch/checkpatch.pl \
 main: build
 
 build:
-	@ $(MAKE) -f target.mk CCCC=false ARQUA=false
+	@ $(MAKE) -f target.mk CCCC=false ARQUA=false PROJECT=$(PROJECT)
 
 profile: buildprofilelib
 	@ $(MAKE) -f profiler.mk
@@ -46,10 +47,26 @@ test: buildtestlib
 	@ cat out/rel/report/test.txt
 
 buildprofilelib:
-	@ $(MAKE) -f target.mk ARCH=x86 MACH=profiler TARGET=debug LINK=false CFLAG='-c -O2 -g'
+	@ $(MAKE) -f target.mk ARCH=x86 MACH=profiler TARGET=debug LINK=false CFLAG='-c -O2 -g' PROJECT=$(PROJECT)
 
 buildtestlib:
-	@ $(MAKE) -f target.mk ARCH=x86 MACH=tester TARGET=coverage LINK=false
+	@ $(MAKE) -f target.mk ARCH=x86 MACH=tester TARGET=coverage LINK=false PROJECT=$(PROJECT)
+
+ARCHS := $(notdir $(shell find ./src/arch -type d -depth 1))
+
+buildall:
+	@ for target in release debug coverage ; do \
+		for arch in $(ARCHS) ; do \
+			if [ $$arch != "include" ] ; then \
+			femachs=`find ./src/arch/$$arch/mach -type d -depth 1` ; \
+			for mach in $$femachs ; do \
+			bsmach=`basename $$mach` ; \
+			echo "Building ARCH=$$arch MACH=$$bsmach TARGET=$$target" ; \
+			$(MAKE) -f target.mk CCCC=false ARQUA=false TARGET=$$target ARCH=$$arch MACH=$$bsmach PROJECT=$(PROJECT) LINK=true ; \
+			done ; \
+			fi ; \
+		done ; \
+	done
 
 clean:
 	@ rm -rf out

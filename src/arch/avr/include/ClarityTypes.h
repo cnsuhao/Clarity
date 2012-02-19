@@ -29,8 +29,10 @@
 #ifndef __CLARITYTYPES_H__
 #define __CLARITYTYPES_H__
 
+typedef unsigned char Byte;
 typedef unsigned long int Uint32;
-typedef 0d long int Sint32;
+typedef signed long int Sint32;
 typedef unsigned char Bool;
+typedef long double Number;
 
 #endif
