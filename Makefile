@@ -22,7 +22,7 @@
 #
 # Available arch/mach combinations can be found in src/arch/<arch>/mach/<mach>
 ###############################################################################
-.PHONY : main test build clean buildtestlib buildprofilelib buildall
+.PHONY : main test build clean buildtestlib buildprofilelib buildall doc
 
 LINELENGTH := 80
 TABSIZE := 8
@@ -37,20 +37,22 @@ export CHECKPATCH := perl ./src/tools/checkpatch/checkpatch.pl \
 main: build
 
 build:
-	@ $(MAKE) -f target.mk CCCC=false ARQUA=false PROJECT=$(PROJECT)
+	@ $(MAKE) -f build/target.mk CCCC=false ARQUA=false PROJECT=$(PROJECT)
 
 profile: buildprofilelib
-	@ $(MAKE) -f profiler.mk
+	@ $(MAKE) -f build/profiler.mk
 
 test: buildtestlib
-	@ $(MAKE) -f tester.mk
+	@ $(MAKE) -f build/tester.mk
 	@ cat out/rel/report/test.txt
 
 buildprofilelib:
-	@ $(MAKE) -f target.mk ARCH=x86 MACH=profiler TARGET=debug LINK=false CFLAG='-c -O2 -g' PROJECT=$(PROJECT)
+	@ $(MAKE) -f build/target.mk ARCH=x86 MACH=profiler TARGET=debug \
+		LINK=false CFLAG='-c -O2 -g' PROJECT=$(PROJECT)
 
 buildtestlib:
-	@ $(MAKE) -f target.mk ARCH=x86 MACH=tester TARGET=coverage LINK=false PROJECT=$(PROJECT)
+	@ $(MAKE) -f build/target.mk ARCH=x86 MACH=tester TARGET=coverage \
+		LINK=false PROJECT=$(PROJECT)
 
 ARCHS := $(notdir $(shell find ./src/arch -type d -depth 1))
 
@@ -62,11 +64,19 @@ buildall:
 			for mach in $$femachs ; do \
 			bsmach=`basename $$mach` ; \
 			echo "Building ARCH=$$arch MACH=$$bsmach TARGET=$$target" ; \
-			$(MAKE) -f target.mk CCCC=false ARQUA=false TARGET=$$target ARCH=$$arch MACH=$$bsmach PROJECT=$(PROJECT) LINK=true ; \
+			$(MAKE) -f build/target.mk CCCC=false ARQUA=false \
+			TARGET=$$target ARCH=$$arch MACH=$$bsmach \
+			PROJECT=$(PROJECT) LINK=true ; \
 			done ; \
 			fi ; \
 		done ; \
 	done
+
+doc:
+	$(info Generating Documentation)
+	@ mkdir -p out/doc
+	@ doxygen build/Doxyfile
+	@ $(MAKE) -s -C out/doc/latex pdf
 
 clean:
 	@ rm -rf out
