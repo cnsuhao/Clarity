@@ -41,7 +41,7 @@ export CHECKPATCH := perl ./src/tools/checkpatch/checkpatch.pl \
 main: build
 
 build:
-	@ $(MAKE) -f build/target.mk CCCC=false ARQUA=false PROJECT=$(PROJECT)
+	@ $(MAKE) -f build/target.mk CCCC=false PROJECT=$(PROJECT)
 
 profile: buildprofilelib
 	@ $(MAKE) -f build/profiler.mk
