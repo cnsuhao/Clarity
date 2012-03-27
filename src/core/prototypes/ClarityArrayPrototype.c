@@ -143,14 +143,14 @@ static Bool testFunction(Iterator *iterator)
 		ClarityObject *scope =
 			clarityObjectCreate(clarityHeap(iterator));
 
-		clarityObjectSetMember(scope, "prototype", iterator->scope);
-		clarityObjectSetMember(scope, "$1", iterator->data);
+		clarityObjectSetOwnMember(scope, "prototype", iterator->scope);
+		clarityObjectSetOwnMember(scope, "$1", iterator->data);
 
-		clarityObjectSetMember(scope, "$2",
+		clarityObjectSetOwnMember(scope, "$2",
 			clarityNumberObjectCreate(clarityHeap(iterator),
 			iterator->index));
 
-		clarityObjectSetMember(scope, "$3",
+		clarityObjectSetOwnMember(scope, "$3",
 			clarityObjectGetMember(iterator->scope, "this"));
 
 		retVal = clarityBooleanObjectGetValue(
@@ -167,7 +167,7 @@ static void testCallback(Iterator *iterator)
 		ClarityObject *scope =
 			clarityObjectCreate(clarityHeap(iterator));
 
-		clarityObjectSetMember(scope, "$1",
+		clarityObjectSetOwnMember(scope, "$1",
 			clarityBooleanObjectCreate(clarityHeap(iterator),
 			test->retVal));
 
@@ -207,14 +207,14 @@ static void filterHandler(Iterator *iterator)
 		ClarityObject *scope =
 			clarityObjectCreate(clarityHeap(iterator));
 
-		clarityObjectSetMember(scope, "prototype", iterator->scope);
-		clarityObjectSetMember(scope, "$1", iterator->data);
+		clarityObjectSetOwnMember(scope, "prototype", iterator->scope);
+		clarityObjectSetOwnMember(scope, "$1", iterator->data);
 
-		clarityObjectSetMember(scope, "$2",
+		clarityObjectSetOwnMember(scope, "$2",
 			clarityNumberObjectCreate(clarityHeap(iterator),
 			iterator->index));
 
-		clarityObjectSetMember(scope, "$3",
+		clarityObjectSetOwnMember(scope, "$3",
 			clarityObjectGetMember(iterator->scope, "this"));
 
 		if (clarityBooleanObjectGetValue(
@@ -250,14 +250,14 @@ static void forEachFunction(Iterator *iterator)
 		ClarityObject *scope =
 			clarityObjectCreate(clarityHeap(iterator));
 
-		clarityObjectSetMember(scope, "prototype", iterator->scope);
-		clarityObjectSetMember(scope, "$1", iterator->data);
+		clarityObjectSetOwnMember(scope, "prototype", iterator->scope);
+		clarityObjectSetOwnMember(scope, "$1", iterator->data);
 
-		clarityObjectSetMember(scope, "$2",
+		clarityObjectSetOwnMember(scope, "$2",
 			clarityNumberObjectCreate(clarityHeap(iterator),
 			iterator->index));
 
-		clarityObjectSetMember(scope, "$3",
+		clarityObjectSetOwnMember(scope, "$3",
 			clarityObjectGetMember(iterator->scope, "this"));
 
 		clarityFunctionObjectCall(
@@ -275,14 +275,14 @@ static void mapHandler(Iterator *iterator)
 		ClarityObject *scope =
 			clarityObjectCreate(clarityHeap(iterator));
 
-		clarityObjectSetMember(scope, "prototype", iterator->scope);
-		clarityObjectSetMember(scope, "$1", iterator->data);
+		clarityObjectSetOwnMember(scope, "prototype", iterator->scope);
+		clarityObjectSetOwnMember(scope, "$1", iterator->data);
 
-		clarityObjectSetMember(scope, "$2",
+		clarityObjectSetOwnMember(scope, "$2",
 			clarityNumberObjectCreate(clarityHeap(iterator),
 			iterator->index));
 
-		clarityObjectSetMember(scope, "$3",
+		clarityObjectSetOwnMember(scope, "$3",
 			clarityObjectGetMember(iterator->scope, "this"));
 
 		newItem = clarityFunctionObjectCall(
@@ -307,7 +307,7 @@ static void mapDone(Iterator *iterator)
 		ClarityObject *scope =
 			clarityObjectCreate(clarityHeap(iterator));
 
-		clarityObjectSetMember(scope, "$1", iterator->handler);
+		clarityObjectSetOwnMember(scope, "$1", iterator->handler);
 
 		clarityFunctionObjectCall(
 			clarityObjectGetOwnMember(iterator->scope, "$2"),
@@ -394,27 +394,27 @@ ClarityObject *clarityArrayPrototypeCreate(ClarityHeap *heap)
 {
 	ClarityObject *prototype = clarityObjectCreate(heap);
 
-	clarityObjectSetMember(prototype, "length",
+	clarityObjectSetOwnMember(prototype, "length",
 			clarityFunctionObjectCreate(heap,
 				length, gUndefined));
 
-	clarityObjectSetMember(prototype, "forEach",
+	clarityObjectSetOwnMember(prototype, "forEach",
 		clarityFunctionObjectCreate(heap,
 		forEach, gUndefined));
 
-	clarityObjectSetMember(prototype, "map",
+	clarityObjectSetOwnMember(prototype, "map",
 		clarityFunctionObjectCreate(heap,
 		map, gUndefined));
 
-	clarityObjectSetMember(prototype, "every",
+	clarityObjectSetOwnMember(prototype, "every",
 		clarityFunctionObjectCreate(heap,
 		every, gUndefined));
 
-	clarityObjectSetMember(prototype, "some",
+	clarityObjectSetOwnMember(prototype, "some",
 		clarityFunctionObjectCreate(heap,
 		some, gUndefined));
 
-	clarityObjectSetMember(prototype, "filter",
+	clarityObjectSetOwnMember(prototype, "filter",
 		clarityFunctionObjectCreate(heap,
 		filter, gUndefined));
 

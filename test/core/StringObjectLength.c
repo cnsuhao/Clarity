@@ -13,7 +13,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 
 	object = clarityStringObjectCreate(heap, TEST_VALUE);
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", object);
+	clarityObjectSetOwnMember(parameters, "this", object);
 	length = clarityNumberObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(object, "length"), parameters));

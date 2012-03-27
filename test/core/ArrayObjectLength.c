@@ -12,7 +12,7 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	clarityArrayObjectPush(arrayObject, clarityNumberObjectCreate(heap, 4));
 	clarityArrayObjectPush(arrayObject, clarityNumberObjectCreate(heap, 8));
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", arrayObject);
+	clarityObjectSetOwnMember(parameters, "this", arrayObject);
 	length = clarityNumberObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(arrayObject, "length"), parameters));

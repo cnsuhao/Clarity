@@ -33,25 +33,23 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	clarityObjectSetOwnMember(object, baseKey, baseDataString2);
 	clarityObjectSetOwnMember(object, moreKey, moreDataString);
 	clarityObjectSetOwnMember(object, lessKey, lessDataString);
-	resultString = clarityObjectGetMember(object, baseKey);
-	assert(strcmp(
-		clarityStringObjectGetValue(baseDataString2),
-		clarityStringObjectGetValue(resultString)) == 0);
-	resultString = clarityObjectGetMember(object, lessKey);
-	assert(strcmp(clarityStringObjectGetValue(lessDataString),
-		clarityStringObjectGetValue(resultString)) == 0);
-	resultString = clarityObjectGetMember(object, moreKey);
-	assert(strcmp(
-		clarityStringObjectGetValue(moreDataString),
-		clarityStringObjectGetValue(resultString)) == 0);
-	resultString = clarityObjectGetMember(object, missingKey);
-	assert(clarityObjectIsTypeOf(resultString, "undefined"));
+
 	object2 = clarityObjectCreate(heap);
+
 	clarityObjectSetOwnMember(object2, missingKey, baseDataString2);
+
 	clarityObjectSetOwnMember(object, "prototype", object2);
+
 	resultString = clarityObjectGetMember(object, missingKey);
 	assert(strcmp(
 		clarityStringObjectGetValue(baseDataString2),
+		clarityStringObjectGetValue(resultString)) == 0);
+	clarityObjectSetMember(object, missingKey, baseDataString);
+	resultString = clarityObjectGetOwnMember(object, missingKey);
+	assert(clarityObjectIsTypeOf(resultString, "undefined"));
+	resultString = clarityObjectGetMember(object, missingKey);
+	assert(strcmp(
+		clarityStringObjectGetValue(baseDataString),
 		clarityStringObjectGetValue(resultString)) == 0);
 	return clarityObjectCreate(heap);
 }

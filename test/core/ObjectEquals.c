@@ -12,15 +12,15 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	object1 = clarityObjectCreate(heap);
 	object2 = clarityObjectCreate(heap);
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", object1);
-	clarityObjectSetMember(parameters, "$1", object1);
+	clarityObjectSetOwnMember(parameters, "this", object1);
+	clarityObjectSetOwnMember(parameters, "$1", object1);
 	equals = clarityBooleanObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(object1, "equals"), parameters));
 	assert(equals);
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", object1);
-	clarityObjectSetMember(parameters, "$1", object2);
+	clarityObjectSetOwnMember(parameters, "this", object1);
+	clarityObjectSetOwnMember(parameters, "$1", object2);
 	equals = clarityBooleanObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(object1, "equals"), parameters));

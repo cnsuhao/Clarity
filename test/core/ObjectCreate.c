@@ -16,9 +16,9 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	subObject = clarityObjectGetMember(0, "string");
 	assert(clarityObjectIsTypeOf(subObject, "undefined"));
 	subObject = clarityObjectCreate(heap);
-	assert(clarityObjectIsTypeOf(clarityObjectSetMember(
+	assert(clarityObjectIsTypeOf(clarityObjectSetOwnMember(
 		0, "string", subObject), "undefined"));
-	assert(clarityObjectIsTypeOf(clarityObjectSetMember(
+	assert(clarityObjectIsTypeOf(clarityObjectSetOwnMember(
 		object, 0, subObject), "object"));
 	return clarityObjectCreate(heap);
 }

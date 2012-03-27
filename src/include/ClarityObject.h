@@ -35,6 +35,8 @@ typedef struct __ClarityObject ClarityObject;
 ClarityObject *clarityObjectCreate(ClarityHeap *);
 ClarityObject *clarityObjectGetMember(ClarityObject *, const char *);
 ClarityObject *clarityObjectGetOwnMember(ClarityObject *, const char *);
+ClarityObject *clarityObjectSetOwnMember(ClarityObject *,
+	const char *, ClarityObject *);
 ClarityObject *clarityObjectSetMember(ClarityObject *, const char *,
 	ClarityObject *);
 void *clarityObjectGetInnerData(ClarityObject *);

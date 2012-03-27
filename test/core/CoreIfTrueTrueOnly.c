@@ -17,9 +17,9 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 
 	parameters = clarityObjectCreate(heap);
 	boolean = clarityBooleanObjectCreate(heap, 1);
-	clarityObjectSetMember(parameters, "this", globalScope);
-	clarityObjectSetMember(parameters, "$1", boolean);
-	clarityObjectSetMember(parameters, "$2",
+	clarityObjectSetOwnMember(parameters, "this", globalScope);
+	clarityObjectSetOwnMember(parameters, "$1", boolean);
+	clarityObjectSetOwnMember(parameters, "$2",
 		clarityFunctionObjectCreate(heap, ifTrue,
 		0));
 	clarityFunctionObjectCall(

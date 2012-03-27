@@ -79,12 +79,12 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	clarityArrayObjectPush(arrayObject,
 		clarityNumberObjectCreate(heap, 16));
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", arrayObject);
-	clarityObjectSetMember(parameters, "$1",
+	clarityObjectSetOwnMember(parameters, "this", arrayObject);
+	clarityObjectSetOwnMember(parameters, "$1",
 		clarityFunctionObjectCreate(heap, everyFunction1,
 		0));
 
-	clarityObjectSetMember(parameters, "$2",
+	clarityObjectSetOwnMember(parameters, "$2",
 		clarityFunctionObjectCreate(heap, everyCallback1,
 		0));
 
@@ -92,12 +92,12 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 		clarityObjectGetMember(arrayObject, "every"), parameters);
 
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", arrayObject);
-	clarityObjectSetMember(parameters, "$1",
+	clarityObjectSetOwnMember(parameters, "this", arrayObject);
+	clarityObjectSetOwnMember(parameters, "$1",
 		clarityFunctionObjectCreate(heap, everyFunction2,
 		0));
 
-	clarityObjectSetMember(parameters, "$2",
+	clarityObjectSetOwnMember(parameters, "$2",
 		clarityFunctionObjectCreate(heap, everyCallback2,
 		0));
 

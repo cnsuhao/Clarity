@@ -59,12 +59,12 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	clarityArrayObjectPush(arrayObject,
 		clarityNumberObjectCreate(heap, 16));
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", arrayObject);
-	clarityObjectSetMember(parameters, "$1",
+	clarityObjectSetOwnMember(parameters, "this", arrayObject);
+	clarityObjectSetOwnMember(parameters, "$1",
 		clarityFunctionObjectCreate(heap, filterFunction,
 		0));
 
-	clarityObjectSetMember(parameters, "$2",
+	clarityObjectSetOwnMember(parameters, "$2",
 		clarityFunctionObjectCreate(heap, filterCallback,
 		0));
 

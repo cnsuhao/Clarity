@@ -57,7 +57,7 @@ void clarityRegisterFile(Clarity *clarity, const char *name,
 	ClarityFileInit init)
 {
 	if (clarity)
-		clarityObjectSetMember(clarity->fileRegistry, name,
+		clarityObjectSetOwnMember(clarity->fileRegistry, name,
 			clarityFunctionObjectCreate(clarityHeap(clarity),
 			(ClarityFunctionPointer)init, clarity->scopePrototype));
 }
@@ -124,7 +124,7 @@ void clarityStart(Clarity *clarity, const char *entry)
 		clarityFunctionObjectCall(
 			clarityObjectGetMember(clarity->scopePrototype,
 			"require"),
-			clarityObjectSetMember(
+			clarityObjectSetOwnMember(
 			clarityObjectCreate(clarityHeap(clarity)), "$1",
 			clarityStringObjectCreate(
 			clarityHeap(clarity), entry)));

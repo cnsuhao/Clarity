@@ -21,24 +21,24 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 
 	parameters = clarityObjectCreate(heap);
 	string = clarityStringObjectCreate(heap, "test");
-	clarityObjectSetMember(parameters, "this", globalScope);
-	clarityObjectSetMember(parameters, "$1", string);
+	clarityObjectSetOwnMember(parameters, "this", globalScope);
+	clarityObjectSetOwnMember(parameters, "$1", string);
 	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(clarityObjectGetMember(globalScope,
 		"typeOf"), parameters)), "string") == 0);
 
 	parameters = clarityObjectCreate(heap);
 	integer = clarityNumberObjectCreate(heap, 23);
-	clarityObjectSetMember(parameters, "this", globalScope);
-	clarityObjectSetMember(parameters, "$1", integer);
+	clarityObjectSetOwnMember(parameters, "this", globalScope);
+	clarityObjectSetOwnMember(parameters, "$1", integer);
 	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(clarityObjectGetMember(globalScope,
 		"typeOf"), parameters)), "number") == 0);
 
 	parameters = clarityObjectCreate(heap);
 	function = clarityFunctionObjectCreate(heap, testFunction, globalScope);
-	clarityObjectSetMember(parameters, "this", globalScope);
-	clarityObjectSetMember(parameters, "$1", function);
+	clarityObjectSetOwnMember(parameters, "this", globalScope);
+	clarityObjectSetOwnMember(parameters, "$1", function);
 	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "typeOf"),
@@ -46,8 +46,8 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 
 	parameters = clarityObjectCreate(heap);
 	boolean = clarityBooleanObjectCreate(heap, 1);
-	clarityObjectSetMember(parameters, "this", globalScope);
-	clarityObjectSetMember(parameters, "$1", boolean);
+	clarityObjectSetOwnMember(parameters, "this", globalScope);
+	clarityObjectSetOwnMember(parameters, "$1", boolean);
 	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "typeOf"),
@@ -55,8 +55,8 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 
 	parameters = clarityObjectCreate(heap);
 	array = clarityArrayObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", globalScope);
-	clarityObjectSetMember(parameters, "$1", array);
+	clarityObjectSetOwnMember(parameters, "this", globalScope);
+	clarityObjectSetOwnMember(parameters, "$1", array);
 	assert(strcmp(clarityStringObjectGetValue(
 		clarityFunctionObjectCall(
 		clarityObjectGetMember(globalScope, "typeOf"),

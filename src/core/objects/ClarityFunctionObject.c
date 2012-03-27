@@ -86,7 +86,8 @@ static void callAsyncEvent(ClarityObject *parameters)
 	function = clarityObjectGetOwnMember(parameters, "$0");
 	inner = (ClarityFunction *)clarityObjectGetInnerData(function);
 	if (inner) {
-		clarityObjectSetMember(parameters, "prototype", inner->scope);
+		clarityObjectSetOwnMember(parameters, "prototype",
+				inner->scope);
 		clarityObjectLock(parameters);
 		inner->functionPointer(parameters);
 	}
@@ -103,8 +104,8 @@ ClarityObject *clarityFunctionObjectCall(ClarityObject *function,
 		inner = (ClarityFunction *)clarityObjectGetInnerData(function);
 
 		if (inner && inner->functionPointer) {
-			clarityObjectSetMember(parameters, "$0", function);
-			clarityObjectSetMember(parameters, "prototype",
+			clarityObjectSetOwnMember(parameters, "$0", function);
+			clarityObjectSetOwnMember(parameters, "prototype",
 				inner->scope);
 			clarityObjectLock(parameters);
 
@@ -126,7 +127,7 @@ ClarityObject *clarityFunctionObjectNew(ClarityObject *function,
 {
 	ClarityObject *object = clarityObjectCreate(clarityHeap(function));
 
-	clarityObjectSetMember(parameters, "this", object);
+	clarityObjectSetOwnMember(parameters, "this", object);
 	clarityFunctionObjectCall(function, parameters);
 	return clarityObjectLock(object);
 }

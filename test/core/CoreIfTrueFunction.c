@@ -37,17 +37,17 @@ static ClarityObject *clarityEntry(ClarityObject *globalScope)
 	ClarityObject *parameters;
 
 	parameters = clarityObjectCreate(heap);
-	clarityObjectSetMember(parameters, "this", globalScope);
-	clarityObjectSetMember(parameters, "$1",
+	clarityObjectSetOwnMember(parameters, "this", globalScope);
+	clarityObjectSetOwnMember(parameters, "$1",
 		clarityFunctionObjectCreate(heap, condition,
 		0));
-	clarityObjectSetMember(parameters, "$2",
+	clarityObjectSetOwnMember(parameters, "$2",
 		clarityFunctionObjectCreate(heap, ifTrue,
 		0));
-	clarityObjectSetMember(parameters, "$3",
+	clarityObjectSetOwnMember(parameters, "$3",
 		clarityFunctionObjectCreate(heap, ifFalse,
 		0));
-	clarityObjectSetMember(parameters, "$4",
+	clarityObjectSetOwnMember(parameters, "$4",
 		clarityFunctionObjectCreate(heap, ifDone,
 		0));
 	clarityFunctionObjectCall(

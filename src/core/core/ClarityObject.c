@@ -199,19 +199,40 @@ static ClarityObject *setObjectNotFound(Node **node, const char *name,
 
 	return (*node)->object;
 }
-
-ClarityObject *clarityObjectSetMember(ClarityObject *object, const char *name,
-		ClarityObject *subObject)
+ClarityObject *clarityObjectSetOwnMember(ClarityObject *object,
+		const char *name, ClarityObject *subObject)
 {
-	ClarityObject *retVal = object;
-
 	if (object && object != subObject) {
-		retVal = object;
 		if (name && subObject && !object->locked)
 			applyNode(object, name, subObject,
 					setObjectFound, setObjectNotFound);
 	}
-	return retVal;
+	return object;
+}
+
+ClarityObject *clarityObjectSetMember(ClarityObject *object, const char *name,
+		ClarityObject *subObject)
+{
+	if (object && object != subObject) {
+		ClarityObject *retVal = gUndefined;
+		ClarityObject *prototype = object;
+
+		while (prototype != gUndefined && retVal == gUndefined) {
+			retVal = clarityObjectGetOwnMember(prototype, name);
+
+			if (retVal == gUndefined)
+				prototype = clarityObjectGetOwnMember(prototype,
+					"prototype");
+		}
+
+		if (prototype == gUndefined)
+			prototype = object;
+
+		if (name && subObject && !prototype->locked)
+			applyNode(prototype, name, subObject,
+					setObjectFound, setObjectNotFound);
+	}
+	return object;
 }
 
 const char *clarityObjectTypeOf(ClarityObject *object)
@@ -257,6 +278,6 @@ ClarityObject *clarityObjectCreate(ClarityHeap *heap)
 {
 	ClarityObject *object = clarityObjectCreateType(heap, "object", 0);
 
-	return clarityObjectSetMember(object, "prototype", gPrototype);
+	return clarityObjectSetOwnMember(object, "prototype", gPrototype);
 }
 

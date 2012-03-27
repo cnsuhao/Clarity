@@ -85,7 +85,7 @@ ClarityObject *clarityBooleanObjectCreate(ClarityHeap *heap, Bool value)
 	boolean = clarityObjectCreateType(heap, "boolean",
 		clarityBooleanCreate(heap, value));
 
-	clarityObjectSetMember(boolean, "prototype",
+	clarityObjectSetOwnMember(boolean, "prototype",
 		gPrototype);
 
 	return clarityObjectLock(boolean);

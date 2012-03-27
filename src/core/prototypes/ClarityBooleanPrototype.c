@@ -66,7 +66,7 @@ ClarityObject *clarityBooleanPrototypeCreate(ClarityHeap *heap)
 {
 	ClarityObject *prototype = clarityObjectCreate(heap);
 
-	clarityObjectSetMember(prototype, "equals",
+	clarityObjectSetOwnMember(prototype, "equals",
 		clarityFunctionObjectCreate(heap,
 		equals,
 		gUndefined));

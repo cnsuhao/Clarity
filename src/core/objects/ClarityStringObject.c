@@ -102,7 +102,7 @@ ClarityObject *clarityStringObjectCreate(ClarityHeap *heap,
 	string = clarityObjectCreateType(heap, "string",
 		clarityStringCreate(heap, cString));
 
-	clarityObjectSetMember(string, "prototype", gPrototype);
+	clarityObjectSetOwnMember(string, "prototype", gPrototype);
 
 	return clarityObjectLock(string);
 }

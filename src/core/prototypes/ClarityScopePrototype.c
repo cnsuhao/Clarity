@@ -75,8 +75,8 @@ static void clarityIfEvent(ClarityObject *parameters)
 	clarityFunctionObjectCall(
 		clarityObjectGetOwnMember(parameters, "$1"), parameters);
 	scope = clarityObjectCreate(clarityHeap(parameters));
-	clarityObjectSetMember(scope, "prototype", parameters);
-	clarityObjectSetMember(scope, "$1",
+	clarityObjectSetOwnMember(scope, "prototype", parameters);
+	clarityObjectSetOwnMember(scope, "$1",
 		clarityObjectGetOwnMember(parameters, "$2"));
 	clarityEventLoopEnqueue(gEventLoop,
 		(ClarityEvent)clarityIfEventDone, scope);
@@ -95,17 +95,17 @@ static ClarityObject *clarityIf(ClarityObject *parameters)
 		test = clarityBooleanObjectGetValue(testObject);
 
 	scope = clarityObjectCreate(clarityHeap(parameters));
-	clarityObjectSetMember(scope, "prototype", parameters);
+	clarityObjectSetOwnMember(scope, "prototype", parameters);
 
 	if (test) {
-		clarityObjectSetMember(scope, "$1",
+		clarityObjectSetOwnMember(scope, "$1",
 			clarityObjectGetOwnMember(parameters, "$2"));
 	} else {
-		clarityObjectSetMember(scope, "$1",
+		clarityObjectSetOwnMember(scope, "$1",
 			clarityObjectGetOwnMember(parameters, "$3"));
 	}
 
-	clarityObjectSetMember(scope, "$2",
+	clarityObjectSetOwnMember(scope, "$2",
 		clarityObjectGetOwnMember(parameters, "$4"));
 
 	clarityEventLoopEnqueue(gEventLoop,
@@ -133,12 +133,14 @@ static ClarityObject *clarityRequire(ClarityObject *parameters)
 				clarityObjectGetOwnMember(parameters, "$2");
 
 			if (clarityObjectIsTypeOf(arguments, "array"))
-				clarityObjectSetMember(call, "argv", arguments);
+				clarityObjectSetOwnMember(call, "argv",
+				arguments);
 
 			loadedFile = clarityFunctionObjectCall(
 				clarityObjectGetMember(gFileRegistry, name),
 				call);
-			clarityObjectSetMember(loadedFiles, name, loadedFile);
+			clarityObjectSetOwnMember(loadedFiles, name,
+				loadedFile);
 			retVal = clarityObjectGetMember(loadedFile, "exports");
 		}
 	}
@@ -150,15 +152,15 @@ ClarityObject *clarityScopePrototypeCreate(ClarityHeap *heap)
 {
 	ClarityObject *prototype = clarityObjectCreate(heap);
 
-	clarityObjectSetMember(prototype, "typeOf",
+	clarityObjectSetOwnMember(prototype, "typeOf",
 		clarityFunctionObjectCreate(heap,
 		clarityTypeOf, gUndefined));
 
-	clarityObjectSetMember(prototype, "if",
+	clarityObjectSetOwnMember(prototype, "if",
 		clarityFunctionObjectCreate(heap,
 		clarityIf, gUndefined));
 
-	clarityObjectSetMember(prototype, "require",
+	clarityObjectSetOwnMember(prototype, "require",
 		clarityFunctionObjectCreate(heap,
 		clarityRequire, gUndefined));
 
