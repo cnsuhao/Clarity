@@ -71,6 +71,5 @@ ClarityObject *clarityArrayObjectCreate(ClarityHeap *heap)
 	ClarityObject *array = clarityObjectCreateType(heap,
 		"array", clarityArrayCreate(heap));
 
-	clarityObjectSetMember(array, "prototype", gPrototype);
-	return array;
+	return clarityObjectSetMember(array, "prototype", gPrototype);
 }

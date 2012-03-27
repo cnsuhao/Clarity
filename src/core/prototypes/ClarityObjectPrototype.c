@@ -59,7 +59,6 @@ ClarityObject *clarityObjectPrototypeCreate(ClarityHeap *heap)
 				equals,
 				gUndefined));
 
-	clarityObjectLock(prototype);
-	return prototype;
+	return clarityObjectLock(prototype);
 }
 

@@ -418,7 +418,6 @@ ClarityObject *clarityArrayPrototypeCreate(ClarityHeap *heap)
 		clarityFunctionObjectCreate(heap,
 		filter, gUndefined));
 
-	clarityObjectLock(prototype);
-	return prototype;
+	return clarityObjectLock(prototype);
 }
 

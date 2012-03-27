@@ -86,6 +86,5 @@ ClarityObject *clarityNumberObjectCreate(ClarityHeap *heap, Number number)
 
 	clarityObjectSetMember(numberObject, "prototype", gPrototype);
 
-	clarityObjectLock(numberObject);
-	return numberObject;
+	return clarityObjectLock(numberObject);
 }

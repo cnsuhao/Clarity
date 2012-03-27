@@ -104,6 +104,5 @@ ClarityObject *clarityStringObjectCreate(ClarityHeap *heap,
 
 	clarityObjectSetMember(string, "prototype", gPrototype);
 
-	clarityObjectLock(string);
-	return string;
+	return clarityObjectLock(string);
 }

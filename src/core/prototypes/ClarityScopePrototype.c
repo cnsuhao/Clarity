@@ -165,6 +165,5 @@ ClarityObject *clarityScopePrototypeCreate(ClarityHeap *heap)
 	if (!loadedFiles)
 		loadedFiles = clarityHeapRetain(clarityObjectCreate(heap));
 
-	clarityObjectLock(prototype);
-	return prototype;
+	return clarityObjectLock(prototype);
 }

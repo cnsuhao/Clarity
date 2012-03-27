@@ -37,6 +37,6 @@ ClarityObject *clarityObjectCreateType(ClarityHeap *, const char *, void *);
 
 Bool clarityObjectIsTypeOf(ClarityObject *, const char *);
 const char *clarityObjectTypeOf(ClarityObject *);
-void clarityObjectLock(ClarityObject *);
+ClarityObject *clarityObjectLock(ClarityObject *);
 #endif
 

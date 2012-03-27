@@ -128,21 +128,15 @@ ClarityObject *clarityFunctionObjectNew(ClarityObject *function,
 
 	clarityObjectSetMember(parameters, "this", object);
 	clarityFunctionObjectCall(function, parameters);
-	clarityObjectLock(object);
-
-	return object;
+	return clarityObjectLock(object);
 }
 
 static ClarityObject *innerFunctionObjectCreate(ClarityHeap *heap,
 	ClarityFunctionPointer functionPointer,
 	ClarityObject *scope, Bool async)
 {
-	ClarityObject *function;
-
-	function = clarityObjectCreateType(heap, "function",
+	return clarityObjectCreateType(heap, "function",
 		clarityFunctionCreate(heap, functionPointer, scope, async));
-
-	return function;
 }
 
 ClarityObject *clarityFunctionObjectCreateAsync(ClarityHeap *heap,
@@ -156,5 +150,4 @@ ClarityObject *clarityFunctionObjectCreate(ClarityHeap *heap,
 {
 	return innerFunctionObjectCreate(heap, functionPointer,
 		scope, 0);
-
 }

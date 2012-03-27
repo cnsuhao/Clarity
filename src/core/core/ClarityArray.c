@@ -173,10 +173,8 @@ void *clarityArrayShift(ClarityArray *array)
 		array->length--;
 		retVal = clarityHeapRetain(element->data);
 		clarityHeapRelease(element);
-		clarityHeapAutoRelease(retVal);
 	}
-	return retVal;
-
+	return clarityHeapAutoRelease(retVal);
 }
 
 ClarityArray *clarityArrayPush(ClarityArray *array, void *data)
@@ -219,9 +217,8 @@ void *clarityArrayPop(ClarityArray *array)
 		array->length--;
 		retVal = clarityHeapRetain(element->data);
 		clarityHeapRelease(element);
-		clarityHeapAutoRelease(retVal);
 	}
-	return retVal;
+	return clarityHeapAutoRelease(retVal);
 }
 
 ClarityArray *clarityArrayLock(ClarityArray *array)

@@ -102,10 +102,11 @@ void *clarityObjectGetInnerData(ClarityObject *object)
 	return retVal;
 }
 
-void clarityObjectLock(ClarityObject *object)
+ClarityObject *clarityObjectLock(ClarityObject *object)
 {
 	if (object)
 		object->locked = 1;
+	return object;
 }
 
 typedef ClarityObject *(*NodeApplier)(Node **, const char *, ClarityObject *);
@@ -202,7 +203,7 @@ static ClarityObject *setObjectNotFound(Node **node, const char *name,
 ClarityObject *clarityObjectSetMember(ClarityObject *object, const char *name,
 		ClarityObject *subObject)
 {
-	ClarityObject *retVal = gUndefined;
+	ClarityObject *retVal = object;
 
 	if (object && object != subObject) {
 		retVal = object;
@@ -256,8 +257,6 @@ ClarityObject *clarityObjectCreate(ClarityHeap *heap)
 {
 	ClarityObject *object = clarityObjectCreateType(heap, "object", 0);
 
-	clarityObjectSetMember(object, "prototype", gPrototype);
-
-	return object;
+	return clarityObjectSetMember(object, "prototype", gPrototype);
 }
 
