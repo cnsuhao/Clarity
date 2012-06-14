@@ -29,25 +29,13 @@
 #include "ClarityBooleanObject.h"
 #include "ClarityObjectPriv.h"
 
-static ClarityObject *gPrototype = 0;
-static ClarityObject *gUndefined = 0;
-
-void clarityBooleanStaticInitializer(ClarityObject *prototype,
-	ClarityObject *undefined)
-{
-	gUndefined = clarityHeapRetain(undefined);
-	gPrototype = clarityHeapRetain(prototype);
-}
-
-void clarityBooleanStaticRelease(void)
-{
-	clarityHeapRelease(gUndefined);
-	clarityHeapRelease(gPrototype);
-}
-
 typedef struct {
 	Bool value;
 } ClarityBoolean;
+
+static ClarityObject *gPrototype = 0;
+static ClarityObject *gUndefined = 0;
+static ClarityObject *gBoolean[2] = {0, 0};
 
 static ClarityBoolean *clarityBooleanCreate(ClarityHeap *heap, Bool value)
 {
@@ -59,6 +47,42 @@ static ClarityBoolean *clarityBooleanCreate(ClarityHeap *heap, Bool value)
 		boolean->value = value;
 
 	return clarityHeapAutoRelease(boolean);
+}
+
+static ClarityObject *clarityBooleanObjectInternalCreate(ClarityHeap *heap,
+	Bool value)
+{
+	ClarityObject *boolean;
+
+	boolean = clarityObjectCreateType(heap, "boolean",
+		clarityBooleanCreate(heap, value));
+
+	clarityObjectSetOwnMember(boolean, "prototype",
+		gPrototype);
+
+	return clarityObjectLock(boolean);
+}
+
+void clarityBooleanStaticInitializer(ClarityObject *prototype,
+	ClarityObject *undefined)
+{
+	ClarityHeap *heap;
+
+	heap = clarityHeap(prototype);
+	gUndefined = clarityHeapRetain(undefined);
+	gPrototype = clarityHeapRetain(prototype);
+	gBoolean[0] = clarityHeapRetain(
+		clarityBooleanObjectInternalCreate(heap, 1));
+	gBoolean[1] = clarityHeapRetain(
+		clarityBooleanObjectInternalCreate(heap, 0));
+}
+
+void clarityBooleanStaticRelease(void)
+{
+	clarityHeapRelease(gBoolean[0]);
+	clarityHeapRelease(gBoolean[1]);
+	clarityHeapRelease(gUndefined);
+	clarityHeapRelease(gPrototype);
 }
 
 Bool clarityBooleanObjectGetValue(ClarityObject *boolean)
@@ -80,14 +104,6 @@ Bool clarityBooleanObjectGetValue(ClarityObject *boolean)
 
 ClarityObject *clarityBooleanObjectCreate(ClarityHeap *heap, Bool value)
 {
-	ClarityObject *boolean;
-
-	boolean = clarityObjectCreateType(heap, "boolean",
-		clarityBooleanCreate(heap, value));
-
-	clarityObjectSetOwnMember(boolean, "prototype",
-		gPrototype);
-
-	return clarityObjectLock(boolean);
+	return gBoolean[!value];
 }
 
