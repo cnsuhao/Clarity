@@ -26,7 +26,7 @@
 #
 # Available arch/mach combinations can be found in src/arch/<arch>/mach/<mach>
 ###############################################################################
-.PHONY : main test build clean buildtestlib buildprofilelib buildall doc
+.PHONY : main test build clean buildtestlib buildprofilelib buildall doc all
 
 LINELENGTH := 80
 TABSIZE := 8
@@ -39,6 +39,8 @@ export CHECKPATCH := perl ./src/tools/checkpatch/checkpatch.pl \
 	--no-tree -q -f
 
 main: build
+
+all: buildall test profile doc
 
 build:
 	@ $(MAKE) -f build/target.mk PROJECT=$(PROJECT)
