@@ -113,7 +113,7 @@ static Iterator *iteratorCreate(ClarityHeap *heap, ClarityArray *array,
 
 	if (iterator) {
 		iterator->arrayIterator = clarityHeapRetain(
-			clarityArrayIteratorCreate(clarityHeap(heap), array));
+			clarityArrayIteratorCreate(heap, array));
 		iterator->scope = clarityHeapRetain(scope);
 		iterator->handle = handle;
 		iterator->data = 0;
