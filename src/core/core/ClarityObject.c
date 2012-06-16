@@ -199,6 +199,7 @@ static ClarityObject *setObjectNotFound(Node **node, const char *name,
 
 	return (*node)->object;
 }
+
 ClarityObject *clarityObjectSetOwnMember(ClarityObject *object,
 		const char *name, ClarityObject *subObject)
 {
@@ -210,10 +211,16 @@ ClarityObject *clarityObjectSetOwnMember(ClarityObject *object,
 	return object;
 }
 
+static Bool verifySetMemberInput(ClarityObject *object, const char *name,
+		ClarityObject *subObject)
+{
+	return name && subObject && object && object != subObject;
+}
+
 ClarityObject *clarityObjectSetMember(ClarityObject *object, const char *name,
 		ClarityObject *subObject)
 {
-	if (object && object != subObject) {
+	if (verifySetMemberInput(object, name, subObject)) {
 		ClarityObject *retVal = gUndefined;
 		ClarityObject *prototype = object;
 
@@ -228,7 +235,7 @@ ClarityObject *clarityObjectSetMember(ClarityObject *object, const char *name,
 		if (prototype == gUndefined)
 			prototype = object;
 
-		if (name && subObject && !prototype->locked)
+		if (!prototype->locked)
 			applyNode(prototype, name, subObject,
 					setObjectFound, setObjectNotFound);
 	}
