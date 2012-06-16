@@ -71,9 +71,8 @@ static ClarityObject *length(ClarityObject *scope)
 
 	if (clarityObjectIsTypeOf(
 		clarityObjectGetMember(scope, "this"), "string")) {
-		Uint32 length = clarityStrLen(
-			clarityStringObjectGetValue(
-			clarityObjectGetMember(scope, "this")));
+		Uint32 length = clarityStringObjectGetLength(
+			clarityObjectGetMember(scope, "this"));
 
 		retVal = clarityNumberObjectCreate(clarityHeap(scope),
 			length);

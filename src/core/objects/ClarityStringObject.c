@@ -77,9 +77,35 @@ static const char *clarityStringGetValue(ClarityString *string)
 	return (const char *)&string->cString;
 }
 
+static Uint32 clarityStringGetLength(ClarityString *string)
+{
+	return string->length;
+}
+
+Uint32 clarityStringObjectGetLength(ClarityObject *string)
+{
+	Uint32 retVal = 0;
+
+	if (string) {
+		if (clarityObjectIsTypeOf(string, "string")) {
+			ClarityString *inner;
+
+			inner = (ClarityString *)
+				clarityObjectGetInnerData(string);
+
+			if (inner)
+				retVal = clarityStringGetLength(inner);
+		}
+	}
+	return retVal;
+
+
+}
+
 const char *clarityStringObjectGetValue(ClarityObject *string)
 {
 	const char *retVal = "";
+
 	if (string) {
 		if (clarityObjectIsTypeOf(string, "string")) {
 			ClarityString *inner;

@@ -33,6 +33,7 @@
 #include "ClarityObject.h"
 
 ClarityObject *clarityStringObjectCreate(ClarityHeap *, const char *);
-const char *clarityStringObjectGetValue(ClarityObject *string);
+const char *clarityStringObjectGetValue(ClarityObject *);
+Uint32 clarityStringObjectGetLength(ClarityObject *);
 #endif
 
