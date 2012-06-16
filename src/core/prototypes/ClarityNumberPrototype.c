@@ -43,16 +43,91 @@ void clarityNumberPrototypeStaticRelease(void)
 	clarityHeapRelease(gUndefined);
 }
 
+static Bool validateNumberFunction(ClarityObject *scope)
+{
+	return clarityObjectIsTypeOf(
+		clarityObjectGetMember(scope, "this"), "number") &&
+		clarityObjectIsTypeOf(
+		clarityObjectGetOwnMember(scope, "$1"), "number");
+}
+
+static ClarityObject *add(ClarityObject *scope)
+{
+	ClarityObject *retVal = gUndefined;
+
+	if (validateNumberFunction(scope)) {
+		Number number;
+
+		number = (clarityNumberObjectGetValue(
+			clarityObjectGetMember(scope, "this"))) +
+			clarityNumberObjectGetValue(
+			clarityObjectGetOwnMember(scope, "$1"));
+
+		retVal = clarityNumberObjectCreate(clarityHeap(scope), number);
+	}
+	return retVal;
+}
+
+static ClarityObject *subtract(ClarityObject *scope)
+{
+	ClarityObject *retVal = gUndefined;
+
+	if (validateNumberFunction(scope)) {
+		Number number;
+
+		number = (clarityNumberObjectGetValue(
+			clarityObjectGetMember(scope, "this"))) -
+			clarityNumberObjectGetValue(
+			clarityObjectGetOwnMember(scope, "$1"));
+
+		retVal = clarityNumberObjectCreate(clarityHeap(scope), number);
+	}
+	return retVal;
+}
+
+
+static ClarityObject *multiply(ClarityObject *scope)
+{
+	ClarityObject *retVal = gUndefined;
+
+	if (validateNumberFunction(scope)) {
+		Number number;
+
+		number = (clarityNumberObjectGetValue(
+			clarityObjectGetMember(scope, "this"))) *
+			clarityNumberObjectGetValue(
+			clarityObjectGetOwnMember(scope, "$1"));
+
+		retVal = clarityNumberObjectCreate(clarityHeap(scope), number);
+	}
+	return retVal;
+}
+
+
+static ClarityObject *divide(ClarityObject *scope)
+{
+	ClarityObject *retVal = gUndefined;
+
+	if (validateNumberFunction(scope)) {
+		Number number;
+
+		number = (clarityNumberObjectGetValue(
+			clarityObjectGetMember(scope, "this"))) /
+			clarityNumberObjectGetValue(
+			clarityObjectGetOwnMember(scope, "$1"));
+
+		retVal = clarityNumberObjectCreate(clarityHeap(scope), number);
+	}
+	return retVal;
+}
+
 static ClarityObject *equals(ClarityObject *scope)
 {
 	ClarityObject *retVal = gUndefined;
 
-	Bool equal = 0;
+	if (validateNumberFunction(scope)) {
+		Bool equal;
 
-	if (clarityObjectIsTypeOf(
-		clarityObjectGetMember(scope, "this"), "number") &&
-		clarityObjectIsTypeOf(
-		clarityObjectGetOwnMember(scope, "$1"), "number")) {
 		equal = (clarityNumberObjectGetValue(
 			clarityObjectGetMember(scope, "this"))) ==
 			clarityNumberObjectGetValue(
@@ -68,6 +143,22 @@ ClarityObject *clarityNumberPrototypeCreate(ClarityHeap *heap)
 {
 	ClarityObject *prototype = clarityObjectCreate(heap);
 
+	clarityObjectSetOwnMember(prototype, "+",
+		clarityFunctionObjectCreate(heap,
+		add,
+		gUndefined));
+	clarityObjectSetOwnMember(prototype, "-",
+		clarityFunctionObjectCreate(heap,
+		subtract,
+		gUndefined));
+	clarityObjectSetOwnMember(prototype, "*",
+		clarityFunctionObjectCreate(heap,
+		multiply,
+		gUndefined));
+	clarityObjectSetOwnMember(prototype, "/",
+		clarityFunctionObjectCreate(heap,
+		divide,
+		gUndefined));
 	clarityObjectSetOwnMember(prototype, "equals",
 		clarityFunctionObjectCreate(heap,
 		equals,
