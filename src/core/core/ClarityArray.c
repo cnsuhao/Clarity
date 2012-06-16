@@ -156,15 +156,20 @@ ClarityArray *clarityArrayUnshift(ClarityArray *array, void *data)
 	return array;
 }
 
+static Bool verifyArrayShiftInput(ClarityArray *array)
+{
+	return array && array->first &&
+		array->first->next &&
+		array->first->next->next &&
+		clarityArrayLength(array) &&
+		!array->locked;
+}
+
 void *clarityArrayShift(ClarityArray *array)
 {
 	void *retVal = 0;
 
-	if (array && array->first &&
-		array->first->next &&
-		array->first->next->next &&
-		clarityArrayLength(array) &&
-		!array->locked) {
+	if (verifyArrayShiftInput(array)) {
 		Element *element;
 
 		element = array->first->next;
@@ -177,11 +182,16 @@ void *clarityArrayShift(ClarityArray *array)
 	return clarityHeapAutoRelease(retVal);
 }
 
+static Bool verifyArrayPushInput(ClarityArray *array)
+{
+	return array && !array->locked &&
+		array->last &&
+		array->last->prev;
+}
+
 ClarityArray *clarityArrayPush(ClarityArray *array, void *data)
 {
-	if (array && !array->locked &&
-		array->last &&
-		array->last->prev) {
+	if (verifyArrayPushInput(array)) {
 		Element *newElement;
 
 		newElement = clarityHeapRetain(
@@ -198,17 +208,22 @@ ClarityArray *clarityArrayPush(ClarityArray *array, void *data)
 	return array;
 }
 
+static Bool verifyArrayPopInput(ClarityArray *array)
+{
+	return array && clarityArrayLength(array) &&
+		!array->locked &&
+		array->last &&
+		array->last->prev &&
+		array->last->prev->next;
+}
+
 void *clarityArrayPop(ClarityArray *array)
 {
 	void *retVal;
 
 	retVal = 0;
 
-	if (array && clarityArrayLength(array) &&
-		!array->locked &&
-		array->last &&
-		array->last->prev &&
-		array->last->prev->next) {
+	if (verifyArrayPopInput(array)) {
 		Element *element;
 
 		element = array->last->prev;
